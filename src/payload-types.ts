@@ -547,6 +547,9 @@ export interface TeamMember {
   id: number;
   name: string;
   role: string;
+  'membership-year': string;
+  nameWithYear?: string | null;
+  photo: number | Media;
   updatedAt: string;
   createdAt: string;
 }
@@ -570,6 +573,7 @@ export interface SubTeam {
   name: string;
   type: number | SubTeamType;
   year: string;
+  nameWithYear?: string | null;
   'team-members'?: (number | TeamMember)[] | null;
   updatedAt: string;
   createdAt: string;
