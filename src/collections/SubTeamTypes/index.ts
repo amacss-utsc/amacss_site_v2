@@ -4,22 +4,22 @@ import { authenticated } from '../../access/authenticated'
 import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
 
 export const SubTeamTypes: CollectionConfig = {
-    slug: 'sub-team-types',
-    access: {
-        create: authenticated,
-        delete: authenticated,
-        read: authenticatedOrPublished,
-        update: authenticated,
-    },
-    admin: {
+  slug: 'sub-team-types',
+  access: {
+    create: authenticated,
+    delete: authenticated,
+    read: authenticatedOrPublished,
+    update: authenticated,
+  },
+  admin: {
     defaultColumns: ['name'],
     useAsTitle: 'name',
   },
-    fields: [
-        {
-        name: 'name',
-        type: 'text',
-        required: true,
-        },
-    ],
+  fields: [
+    {
+      name: 'name',
+      type: 'text',
+      required: true,
+    },
+  ],
 }
