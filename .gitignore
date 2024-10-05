@@ -6,6 +6,7 @@ node_modules
 .env.prod
 .next
 .vercel
+.eslintcache
 
 # Payload default media upload directory
 public/media/
