@@ -560,6 +560,8 @@ export interface TeamMember {
 export interface Team {
   id: number;
   name: string;
+  year: string;
+  nameWithYear?: string | null;
   'sub-teams'?: (number | SubTeam)[] | null;
   updatedAt: string;
   createdAt: string;

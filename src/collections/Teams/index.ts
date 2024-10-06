@@ -11,8 +11,8 @@ export const Teams: CollectionConfig = {
     update: authenticated,
   },
   admin: {
-    defaultColumns: ['name'],
-    useAsTitle: 'name',
+    defaultColumns: ['nameWithYear'],
+    useAsTitle: 'nameWithYear',
   },
   fields: [
     {
@@ -21,10 +21,32 @@ export const Teams: CollectionConfig = {
       required: true,
     },
     {
+      name: 'year',
+      type: 'text',
+      required: true,
+    },
+    {
+      name: 'nameWithYear',
+      type: 'text',
+      admin: {
+        position: 'sidebar',
+      },
+    },
+    {
       name: 'sub-teams',
       type: 'relationship',
       hasMany: true,
       relationTo: 'sub-teams',
     },
   ],
+  hooks: {
+    beforeChange: [
+      ({ data }) => {
+        if (data.name && data['year']) {
+          data.nameWithYear = `${data.name} (${data['year']})`
+        }
+        return data
+      },
+    ],
+  },
 }

@@ -13,7 +13,7 @@ export const SubTeams: CollectionConfig = {
   },
   admin: {
     defaultColumns: ['nameWithYear'],
-    useAsTitle: 'name',
+    useAsTitle: 'nameWithYear',
   },
   fields: [
     {
