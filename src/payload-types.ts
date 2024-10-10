@@ -16,6 +16,7 @@ export interface Config {
     media: Media;
     categories: Category;
     users: User;
+    dashboardItem: DashboardItem;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -30,6 +31,7 @@ export interface Config {
   globals: {
     header: Header;
     footer: Footer;
+    dashboard: Dashboard;
   };
   locale: null;
   user: User & {
@@ -542,6 +544,17 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dashboardItem".
+ */
+export interface DashboardItem {
+  id: number;
+  text: string;
+  backgroundImage: number | Media;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -634,6 +647,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'users';
         value: number | User;
+      } | null)
+    | ({
+        relationTo: 'dashboardItem';
+        value: number | DashboardItem;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -738,6 +755,17 @@ export interface Footer {
         id?: string | null;
       }[]
     | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dashboard".
+ */
+export interface Dashboard {
+  id: number;
+  logo?: (number | null) | Media;
+  items?: (number | DashboardItem)[] | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
