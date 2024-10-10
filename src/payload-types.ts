@@ -755,6 +755,7 @@ export interface PayloadMigration {
  */
 export interface Header {
   id: number;
+  logo?: (number | null) | Media;
   navItems?:
     | {
         link: {
