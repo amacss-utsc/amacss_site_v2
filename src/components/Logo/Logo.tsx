@@ -1,12 +1,17 @@
 import React from 'react'
+import Image from 'next/image'
+import { Media } from '../Media'
 
-export const Logo = () => {
+export const Logo = ({ link }) => {
+  console.log("link", link)
   return (
     /* eslint-disable @next/next/no-img-element */
-    <img
-      alt="Payload Logo"
+    <Image
+      alt={link.alt}
       className="max-w-[9.375rem] invert dark:invert-0"
-      src="https://raw.githubusercontent.com/payloadcms/payload/main/packages/payload/src/admin/assets/images/payload-logo-light.svg"
+      src={link.url}
+      width={link.width}
+      height={link.height}
     />
   )
 }
