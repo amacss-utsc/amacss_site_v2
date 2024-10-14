@@ -3,7 +3,6 @@ import Image from 'next/image'
 import { Media } from '../Media'
 
 export const Logo = ({ link }) => {
-  console.log("link", link)
   return (
     /* eslint-disable @next/next/no-img-element */
     <Image
