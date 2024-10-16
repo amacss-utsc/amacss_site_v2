@@ -14,7 +14,10 @@ export default async function DashboardPage() {
   const { logo, items } = dashboardData as Dashboard;
 
   const getUrl = (media: Media | null | undefined): string | undefined => {
-    return media?.url; // Using optional chaining to simplify
+    if (media == null) {  
+      return undefined;  
+    }
+    return media.url !== null ? media.url : undefined; 
   };
 
   const logoUrl = getUrl(logo);
