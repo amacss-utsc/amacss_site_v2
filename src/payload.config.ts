@@ -31,8 +31,11 @@ import { SubTeams } from './collections/SubTeams'
 
 import Users from './collections/Users'
 import { SubTeamTypes } from './collections/SubTeamTypes'
+import { dashboardItems } from './collections/DashboardItems/dashboardItem'
+
 import { seedHandler } from './endpoints/seedHandler'
 import { Footer } from './Footer/config'
+import { dashboard } from './dashboard/config'
 import { Header } from './Header/config'
 import { revalidateRedirects } from './hooks/revalidateRedirects'
 import { GenerateTitle, GenerateURL } from '@payloadcms/plugin-seo/types'
@@ -130,7 +133,7 @@ export default buildConfig({
       connectionString: process.env.DATABASE_URI || '',
     },
   }),
-  collections: [Pages, Posts, Media, Categories, Users, SubTeamTypes, TeamMembers, Teams, SubTeams],
+  collections: [Pages, Posts, Media, Categories, Users, dashboardItems, SubTeamTypes, TeamMembers, Teams, SubTeams],
   cors: [process.env.PAYLOAD_PUBLIC_SERVER_URL || ''].filter(Boolean),
   csrf: [process.env.PAYLOAD_PUBLIC_SERVER_URL || ''].filter(Boolean),
   endpoints: [
@@ -142,7 +145,7 @@ export default buildConfig({
       path: '/seed',
     },
   ],
-  globals: [Header, Footer],
+  globals: [Header, Footer, dashboard],
   plugins: [
     redirectsPlugin({
       collections: ['pages', 'posts'],
