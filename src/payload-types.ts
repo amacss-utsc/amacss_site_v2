@@ -16,11 +16,11 @@ export interface Config {
     media: Media;
     categories: Category;
     users: User;
+    dashboardItem: DashboardItem;
     'sub-team-types': SubTeamType;
     'team-members': TeamMember;
     teams: Team;
     'sub-teams': SubTeam;
-    dashboardItem: DashboardItem;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
