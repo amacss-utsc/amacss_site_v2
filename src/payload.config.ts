@@ -27,8 +27,12 @@ import { Pages } from './collections/Pages'
 import { EventTag } from './collections/EventTag'
 import { RibbonTag } from './collections/RibbonTag'
 import { Posts } from './collections/Posts'
+import { TeamMembers } from './collections/TeamMembers'
+import { Teams } from './collections/Teams'
+import { SubTeams } from './collections/SubTeams'
 import { Events } from './collections/Events'
 import Users from './collections/Users'
+import { SubTeamTypes } from './collections/SubTeamTypes'
 import { seedHandler } from './endpoints/seedHandler'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
@@ -128,7 +132,7 @@ export default buildConfig({
       connectionString: process.env.DATABASE_URI || '',
     },
   }),
-  collections: [Events, EventTag, RibbonTag, Pages, Posts, Media, Categories, Users],
+  collections: [Events, EventTag, RibbonTag, Pages, Posts, Media, Categories, Users, SubTeamTypes, TeamMembers, Teams, SubTeams],
   cors: [process.env.PAYLOAD_PUBLIC_SERVER_URL || ''].filter(Boolean),
   csrf: [process.env.PAYLOAD_PUBLIC_SERVER_URL || ''].filter(Boolean),
   endpoints: [
