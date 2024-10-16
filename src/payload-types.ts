@@ -16,6 +16,10 @@ export interface Config {
     media: Media;
     categories: Category;
     users: User;
+    'sub-team-types': SubTeamType;
+    'team-members': TeamMember;
+    teams: Team;
+    'sub-teams': SubTeam;
     dashboardItem: DashboardItem;
     redirects: Redirect;
     forms: Form;
@@ -118,21 +122,6 @@ export interface Page {
 export interface Media {
   id: number;
   alt: string;
-  caption?: {
-    root: {
-      type: string;
-      children: {
-        type: string;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -555,6 +544,57 @@ export interface DashboardItem {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sub-team-types".
+ */
+export interface SubTeamType {
+  id: number;
+  name: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "team-members".
+ */
+export interface TeamMember {
+  id: number;
+  name: string;
+  role: string;
+  'membership-year': string;
+  nameWithYear?: string | null;
+  photo: number | Media;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "teams".
+ */
+export interface Team {
+  id: number;
+  name: string;
+  year: string;
+  nameWithYear?: string | null;
+  'sub-teams'?: (number | SubTeam)[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sub-teams".
+ */
+export interface SubTeam {
+  id: number;
+  name: string;
+  type: number | SubTeamType;
+  year: string;
+  nameWithYear?: string | null;
+  'team-members'?: (number | TeamMember)[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -653,6 +693,22 @@ export interface PayloadLockedDocument {
         value: number | DashboardItem;
       } | null)
     | ({
+        relationTo: 'sub-team-types';
+        value: number | SubTeamType;
+      } | null)
+    | ({
+        relationTo: 'team-members';
+        value: number | TeamMember;
+      } | null)
+    | ({
+        relationTo: 'teams';
+        value: number | Team;
+      } | null)
+    | ({
+        relationTo: 'sub-teams';
+        value: number | SubTeam;
+      } | null)
+    | ({
         relationTo: 'redirects';
         value: number | Redirect;
       } | null)
@@ -716,6 +772,7 @@ export interface PayloadMigration {
  */
 export interface Header {
   id: number;
+  logo?: (number | null) | Media;
   navItems?:
     | {
         link: {

@@ -31,9 +31,6 @@ export const MediaBlock: React.FC<Props> = (props) => {
     disableInnerContainer,
   } = props
 
-  let caption
-  if (media && typeof media === 'object') caption = media.caption
-
   return (
     <div
       className={cn(
@@ -51,19 +48,6 @@ export const MediaBlock: React.FC<Props> = (props) => {
       )}
       {position === 'default' && (
         <Media imgClassName={cn('rounded', imgClassName)} resource={media} src={staticImage} />
-      )}
-      {caption && (
-        <div
-          className={cn(
-            'mt-6',
-            {
-              container: position === 'fullscreen' && !disableInnerContainer,
-            },
-            captionClassName,
-          )}
-        >
-          <RichText content={caption} enableGutter={false} />
-        </div>
       )}
     </div>
   )
