@@ -13,6 +13,7 @@ export interface Config {
   collections: {
     events: Event;
     'event-tag': EventTag;
+    'ribbon-tag': RibbonTag;
     pages: Page;
     posts: Post;
     media: Media;
@@ -64,9 +65,9 @@ export interface Event {
   id: number;
   title: string;
   date: string;
-  'end date'?: string | null;
-  'start time'?: string | null;
-  'end time'?: string | null;
+  endDate?: string | null;
+  startTime?: string | null;
+  endTime?: string | null;
   description: {
     root: {
       type: string;
@@ -82,10 +83,10 @@ export interface Event {
     };
     [k: string]: unknown;
   };
-  'registration link'?: string | null;
+  registrationLink?: string | null;
   image: number | Media;
-  tags: string;
-  'ribbon tag'?: (number | null) | EventTag;
+  eventTag: (number | EventTag)[];
+  ribbonTag?: (number | null) | RibbonTag;
   updatedAt: string;
   createdAt: string;
 }
@@ -130,6 +131,16 @@ export interface Media {
 export interface EventTag {
   id: number;
   eventTag: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ribbon-tag".
+ */
+export interface RibbonTag {
+  id: number;
+  ribbonTag: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -667,6 +678,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'event-tag';
         value: number | EventTag;
+      } | null)
+    | ({
+        relationTo: 'ribbon-tag';
+        value: number | RibbonTag;
       } | null)
     | ({
         relationTo: 'pages';

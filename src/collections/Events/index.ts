@@ -26,17 +26,17 @@ export const Events: CollectionConfig = {
       required: true,
     },
     {
-      name: 'end date',
+      name: 'endDate',
       type: 'date',
       required: false,
     },
     {
-      name: 'start time',
+      name: 'startTime',
       type: 'text',
       required: false,
     },
     {
-      name: 'end time',
+      name: 'endTime',
       type: 'text',
       required: false,
     },
@@ -46,7 +46,7 @@ export const Events: CollectionConfig = {
       required: true,
     },
     {
-      name: 'registration link',
+      name: 'registrationLink',
       type: 'text',
       required: false,
     },
@@ -57,14 +57,16 @@ export const Events: CollectionConfig = {
       required: true,
     },
     {
-      name: 'tags',
-      type: 'text',
-      required: true,
-    },
-    {
-      name: 'ribbon tag',
+      name: 'eventTag',
       type: 'relationship',
       relationTo: 'event-tag',
+      required: true,
+      hasMany: true,
+    },
+    {
+      name: 'ribbonTag',
+      type: 'relationship',
+      relationTo: 'ribbon-tag',
       required: false,
     },
   ],

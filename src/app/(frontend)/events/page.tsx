@@ -35,18 +35,18 @@ export default async function Events() {
                     id, 
                     title, 
                     date, 
-                    "end date": endDate, 
-                    "start time": startTime, 
-                    "end time": endTime, 
+                    endDate, 
+                    startTime, 
+                    endTime, 
                     description, 
-                    "registration link": registrationLink, 
+                    registrationLink, 
                     image, 
-                    tags, 
-                    "ribbon tag": ribbonTag 
+                    eventTag,
+                    ribbonTag 
                 } = event;
 
                 return (
-                    <div key={id}>
+                    <div key={event.id}>
                         <h2>{title}</h2>
                         <h3>(Start) Date: {new Date(date).toLocaleDateString()}</h3>
                         {endDate && <h4>End Date: {new Date(endDate).toLocaleDateString()}</h4>}
@@ -58,9 +58,11 @@ export default async function Events() {
                             <a href={registrationLink} target="_blank" rel="noopener noreferrer">{registrationLink}</a>
                         )}
                         {image && <Media imgClassName="-z-10 object-cover" resource={image} />}
-                        <p>Tags: {tags}</p>
+                        {eventTag && Array.isArray(eventTag) && (
+                         <p> Event Tags: {eventTag.map((tag) => typeof tag === 'object' ? tag.eventTag : '').join(', ')}
+                         </p>)}
                         {ribbonTag && typeof ribbonTag !== 'number' && (
-                            <h5>Ribbon Tag: {ribbonTag.eventTag}</h5>
+                            <h6>Ribbon Tag: {ribbonTag.ribbonTag}</h6>
                         )}
                     </div>
                 );
