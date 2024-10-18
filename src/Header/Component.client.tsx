@@ -21,8 +21,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, user, navIco
   /* Storing the value in a useState to avoid hydration errors */
   const [theme, setTheme] = useState<string | null>(null)
   const { headerTheme, setHeaderTheme } = useHeaderTheme()
-  const pathname = usePathname()
-  const isDashboard = pathname !== '/'
+  const pathname = usePathname()  
 
   useEffect(() => {
     setHeaderTheme(null)
@@ -44,7 +43,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, user, navIco
           <Logo link={header.logo}/>
         </Link>
       </div>
-      {isDashboard ? <HeaderNav header={header}/> : <div className='grow'/>}
+      <HeaderNav header={header}/>
       <div className=''>
         <Link href="/admin" className="flex flex-row items-center gap-3">
           <Image 
