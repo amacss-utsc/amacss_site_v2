@@ -22,6 +22,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, user, navIco
   const [theme, setTheme] = useState<string | null>(null)
   const { headerTheme, setHeaderTheme } = useHeaderTheme()
   const pathname = usePathname()
+  const isDashboard = pathname !== '/'
 
   useEffect(() => {
     setHeaderTheme(null)
@@ -35,29 +36,26 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, user, navIco
 
   return (
     <header
-      className="container relative z-20 py-8 px-12 flex flex-row gap-10"
+      className="flex flex-row gap-16 relative z-20 py-8 px-10 font-['Montserrat'] font-bold"
       {...(theme ? { 'data-theme': theme } : {})}
     >
-      <Link href="/" className='flex-none'>
-        <Logo link={header.logo}/>
-      </Link>
-      <HeaderNav header={header}/>
-      {user !== null ? (
-          <Link href="/admin" className="flex flex-row font-bold font-['Montserrat'] items-center gap-3">
-            <Image 
-              alt={navIcon.alt}
-              src={navIcon.url ?? ''}
-              width={navIcon.width ?? 0}
-              height={navIcon.height ?? 0} 
-            />
-            {user.name}
-          </Link>
-        ) : (
-          <Link href="/admin" className='flex-none'>
-            Sign In
-          </Link>
-        )
-      }
+      <div className='flex-none'>
+        <Link href="/" className='flex-none'>
+          <Logo link={header.logo}/>
+        </Link>
+      </div>
+      {isDashboard ? <HeaderNav header={header}/> : <div className='grow'/>}
+      <div className=''>
+        <Link href="/admin" className="flex flex-row items-center gap-3">
+          <Image 
+            alt={navIcon.alt}
+            src={navIcon.url ?? ''}
+            width={navIcon.width ?? 0}
+            height={navIcon.height ?? 0} 
+          />
+          {user !== null ? user.name : 'Sign In'}
+        </Link>
+      </div>
     </header>
   )
 }
