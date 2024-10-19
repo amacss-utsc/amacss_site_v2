@@ -31,7 +31,12 @@ export async function Header() {
           alt: {
             equals: 'hamburger-icon'
           }
-        }
+        },
+        {
+            alt: {
+              equals: 'right-arrowhead-icon'
+            }
+          }
       ]
     }
   })

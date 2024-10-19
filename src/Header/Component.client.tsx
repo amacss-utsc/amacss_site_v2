@@ -20,11 +20,13 @@ interface HeaderClientProps {
 export const HeaderClient: React.FC<HeaderClientProps> = ({ header, user, icons }) => {
   /* Storing the value in a useState to avoid hydration errors */
   const [theme, setTheme] = useState<string | null>(null)
+  const [toggle, setToggle] = useState<boolean>(false)
   const { headerTheme, setHeaderTheme } = useHeaderTheme()
   const pathname = usePathname()
 
   const userIcon = icons.find(icon => icon.alt === 'user-icon')
   const menuIcon = icons.find(icon => icon.alt === 'hamburger-icon')
+  const rightArrowIcon = icons.find(icon => icon.alt === 'right-arrowhead-icon')
 
   useEffect(() => {
     setHeaderTheme(null)
@@ -38,7 +40,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, user, icons 
 
   return (
     <header
-      className="flex md:gap-16 relative z-20 md:py-8 py-3 md:px-10 px-5 font-['Montserrat'] font-bold md:justify-between justify-end items-center"
+      className="flex md:gap-16 relative z-20 md:py-8 py-3 md:px-10 px-5 font-['Montserrat'] font-bold md:justify-between justify-end items-center md:bg-[#1B1C1E]"
       {...(theme ? { 'data-theme': theme } : {})}
     >
       <div className='max-md:hidden'>
@@ -46,7 +48,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, user, icons 
           <Logo link={header.logo}/>
         </Link>
       </div>
-      <HeaderNav header={header} user={user} userIcon={userIcon} />
+      <HeaderNav header={header} toggle={toggle} setToggle={setToggle} user={user} userIcon={userIcon} arrowIcon={rightArrowIcon}/>
       <div className='hover:cursor-pointer md:hidden'>
         {menuIcon &&
           <Image 
@@ -54,7 +56,9 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, user, icons 
             src={menuIcon.url ?? ''}
             width={menuIcon.width ?? 0}
             height={menuIcon.height ?? 0}
-            onClick={() => {}}
+            onClick={() => {
+                setToggle(!toggle)
+            }}
           />
         }
       </div>
