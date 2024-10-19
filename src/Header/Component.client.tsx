@@ -14,14 +14,17 @@ import Image from 'next/image'
 interface HeaderClientProps {
   header: Header
   user: User,
-  navIcon: Media
+  icons: Media[]
 }
 
-export const HeaderClient: React.FC<HeaderClientProps> = ({ header, user, navIcon }) => {
+export const HeaderClient: React.FC<HeaderClientProps> = ({ header, user, icons }) => {
   /* Storing the value in a useState to avoid hydration errors */
   const [theme, setTheme] = useState<string | null>(null)
   const { headerTheme, setHeaderTheme } = useHeaderTheme()
-  const pathname = usePathname()  
+  const pathname = usePathname()
+
+  const userIcon = icons.find(icon => icon.alt === 'user-icon')
+  const menuIcon = icons.find(icon => icon.alt === 'hamburger-icon')
 
   useEffect(() => {
     setHeaderTheme(null)
@@ -35,25 +38,25 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, user, navIco
 
   return (
     <header
-      className="flex flex-row gap-16 relative z-20 py-8 px-10 font-['Montserrat'] font-bold"
+      className="flex md:gap-16 relative z-20 md:py-8 py-3 md:px-10 px-5 font-['Montserrat'] font-bold md:justify-between justify-end items-center"
       {...(theme ? { 'data-theme': theme } : {})}
     >
-      <div className='flex-none'>
-        <Link href="/" className='flex-none'>
+      <div className='max-md:hidden'>
+        <Link href="/" className=''>
           <Logo link={header.logo}/>
         </Link>
       </div>
-      <HeaderNav header={header}/>
-      <div className=''>
-        <Link href="/admin" className="flex flex-row items-center gap-3">
+      <HeaderNav header={header} user={user} userIcon={userIcon} />
+      <div className='hover:cursor-pointer md:hidden'>
+        {menuIcon &&
           <Image 
-            alt={navIcon.alt}
-            src={navIcon.url ?? ''}
-            width={navIcon.width ?? 0}
-            height={navIcon.height ?? 0} 
+            alt={menuIcon.alt}
+            src={menuIcon.url ?? ''}
+            width={menuIcon.width ?? 0}
+            height={menuIcon.height ?? 0}
+            onClick={() => {}}
           />
-          {user !== null ? user.name : 'Sign In'}
-        </Link>
+        }
       </div>
     </header>
   )

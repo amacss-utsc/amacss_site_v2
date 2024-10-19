@@ -14,16 +14,29 @@ export async function Header() {
   const { user } = await getMeUser()
   const payload = await getPayloadHMR({ config: configPromise })
 
+  /**
+   * Fetching the icons from the database to reduce the number of requests
+   * and assuming the icons are already in the database
+   */
   const { docs } = await payload.find({
     collection: 'media',
-    depth: 1,
-    pagination: false,
     where: {
-      alt: {
-          equals: 'user-icon',
-      },
+      or: [
+        {
+          alt: {
+            equals: 'user-icon'
+          },
+        },
+        {
+          alt: {
+            equals: 'hamburger-icon'
+          }
+        }
+      ]
     }
   })
 
-  return <HeaderClient header={header} user={user} navIcon={docs[0]}/>
+  // console.log(docs)
+
+  return <HeaderClient header={header} user={user} icons={docs}/>
 }
