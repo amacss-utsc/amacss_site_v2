@@ -37,7 +37,7 @@ export const AdminBar: React.FC<{
   const onAuthChange = React.useCallback((user) => {
     setShow(user?.id)
   }, [])
-
+  
   return (
     <div
       className={cn('py-2 bg-black text-white', {
