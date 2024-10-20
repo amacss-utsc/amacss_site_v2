@@ -1,24 +1,24 @@
 'use client'
 
-import React, { useEffect } from 'react'
-
+import React from 'react'
 import type { Header as HeaderType, Media, User } from '@/payload-types'
-
 import Link from 'next/link'
 import Image from 'next/image'
+import userIcon from 'public/icons/user-icon.svg'
+import arrowIcon from 'public/icons/right-arrowhead.svg'
 
-export const HeaderNav: React.FC<{ header: HeaderType, toggle: boolean, setToggle: Function, user: User, userIcon: Media | undefined, arrowIcon: Media | undefined }> = ({ header, toggle, setToggle, user, userIcon, arrowIcon }) => {
+export const HeaderNav: React.FC<{ header: HeaderType, toggle: boolean, setToggle: Function, user: User }> = ({ header, toggle, setToggle, user }) => {
   const navItems = header?.navItems || []
   
   return (
     <nav 
       id="slideover"
-      className={`flex md:flex-row max-md:bg-[#1B1C1E] gap-12 justify-between grow text-xl max-md:transition-transform max-md:transform max-md:duration-300 max-md:ease-in-out ${toggle ? 'flex-col fixed top-0 right-0 h-screen w-10/12 py-9 px-10' : 'max-md:flex-col max-md:fixed max-md:top-0 max-md:right-0 max-md:h-screen max-md:w-10/12 max-md:py-9 max-md:px-10 max-md:translate-x-full'}`}
+      className={`flex md:w-full text-nowrap md:flex-row max-md:bg-[#1B1C1E] gap-12 justify-between grow text-xl max-md:transition-transform max-md:transform max-md:duration-300 max-md:ease-in-out ${toggle ? 'flex-col fixed top-0 right-0 h-screen w-10/12 py-9 px-10' : 'max-md:flex-col max-md:fixed max-md:top-0 max-md:right-0 max-md:h-screen max-md:w-10/12 max-md:py-9 max-md:px-10 max-md:translate-x-full'}`}
       >
       <div className='flex flex-row gap-3 text-[#A6A8AB] text-2xl hover:cursor-pointer md:hidden' onClick={() => setToggle(false)}>
         <Image
-          alt={arrowIcon?.alt ?? ''}
-          src={arrowIcon?.url ?? ''}
+          alt='right-arrow-icon'
+          src={arrowIcon}
           width={arrowIcon?.width ?? 0}
           height={arrowIcon?.height ?? 0}
         />
@@ -39,8 +39,8 @@ export const HeaderNav: React.FC<{ header: HeaderType, toggle: boolean, setToggl
         <Link href="/admin" className="flex flex-row items-center gap-3 text-xl">
           {userIcon && 
             <Image 
-              alt={userIcon.alt}
-              src={userIcon.url ?? ''}
+              alt='user-icon'
+              src={userIcon}
               width={userIcon.width ?? 0}
               height={userIcon.height ?? 0} 
             />
