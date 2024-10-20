@@ -40,7 +40,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, user, icons 
 
   return (
     <header
-      className="flex md:gap-16 relative z-20 md:py-8 py-3 md:px-10 px-5 font-['Montserrat'] font-bold md:justify-between justify-end items-center md:bg-[#1B1C1E]"
+      className="flex md:gap-16 w-full fixed z-20 md:py-6 py-3 md:px-10 px-5 font-['Montserrat'] font-bold md:justify-between justify-end items-center md:bg-[#1B1C1E]"
       {...(theme ? { 'data-theme': theme } : {})}
     >
       <div className='max-md:hidden'>
@@ -49,7 +49,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, user, icons 
         </Link>
       </div>
       <HeaderNav header={header} toggle={toggle} setToggle={setToggle} user={user} userIcon={userIcon} arrowIcon={rightArrowIcon}/>
-      <div className='hover:cursor-pointer md:hidden'>
+      <div className={`hover:cursor-pointer md:hidden`}>
         {menuIcon &&
           <Image 
             alt={menuIcon.alt}
