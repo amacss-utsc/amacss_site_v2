@@ -59,6 +59,7 @@ export const seed = async ({
     await payload.updateGlobal({
       slug: global,
       data: {
+        // @ts-ignore
         navItems: [],
       },
       req,
