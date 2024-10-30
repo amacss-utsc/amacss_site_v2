@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { Media } from '../Media'
 
 export const Logo = ({ link }) => {
-  return (
+  return link ? (
     /* eslint-disable @next/next/no-img-element */
     <Image
       alt={link.alt}
@@ -12,5 +12,9 @@ export const Logo = ({ link }) => {
       width={link.width}
       height={link.height}
     />
-  )
+  ) : (
+    <span className='text-white underline'>
+      Set logo in <a href="/admin">admin panel</a>
+    </span>
+  );
 }
