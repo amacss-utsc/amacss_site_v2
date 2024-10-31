@@ -57,7 +57,7 @@ export default {
           DEFAULT: 'hsl(var(--accent))',
           foreground: 'hsl(var(--accent-foreground))',
         },
-        background: 'hsl(var(--background))',
+        background: 'var(--background)',
         border: 'hsl(var(--border))',
         card: {
           DEFAULT: 'hsl(var(--card))',
@@ -67,7 +67,7 @@ export default {
           DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))',
         },
-        foreground: 'hsl(var(--foreground))',
+        foreground: 'var(--foreground)',
         input: 'hsl(var(--input))',
         muted: {
           DEFAULT: 'hsl(var(--muted))',
