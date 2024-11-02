@@ -36,7 +36,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, user }) => {
 
   return (
     <header
-      className="flex md:gap-16 w-full z-20 md:py-6 py-3 md:px-10 px-5 font-['Montserrat'] font-bold justify-between items-center md:bg-[#1B1C1E]"
+      className="flex md:gap-16 w-full z-20 md:py-6 py-3 md:px-10 px-5 font-montserrat font-bold justify-between items-center md:bg-[#1B1C1E]"
       {...(theme ? { 'data-theme': theme } : {})}
     >
       <div>

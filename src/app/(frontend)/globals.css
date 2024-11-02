@@ -52,8 +52,8 @@
   }
 
   [data-theme='dark'] {
-    --background: 210 6% 7%;
-    --foreground: 210 40% 98%;
+    --background: #111213;
+    --foreground: #F3F3F3;
 
     --card: 240 6% 10%;
     --card-foreground: 210 40% 98%;
