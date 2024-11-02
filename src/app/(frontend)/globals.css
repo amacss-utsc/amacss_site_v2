@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -14,8 +16,8 @@
   }
 
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: #111213;
+    --foreground: #F3F3F3;
 
     --card: 240 5% 96%;
     --card-foreground: 222.2 84% 4.9%;
@@ -91,6 +93,78 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.font-montserrat-thin {
+  @apply font-montserrat font-thin;
+}
+
+.font-montserrat-extralight {
+  @apply font-montserrat font-extralight;
+}
+
+.font-montserrat-light {
+  @apply font-montserrat font-light;
+}
+
+.font-montserrat-regular {
+  @apply font-montserrat font-normal;
+}
+
+.font-montserrat-medium {
+  @apply font-montserrat font-medium;
+}
+
+.font-montserrat-semibold {
+  @apply font-montserrat font-semibold;
+}
+
+.font-montserrat-bold {
+  @apply font-montserrat font-bold;
+}
+
+.font-montserrat-extrabold {
+  @apply font-montserrat font-extrabold;
+}
+
+.font-montserrat-black {
+  @apply font-montserrat font-black;
+}
+
+.font-montserrat-thin-italic {
+  @apply font-montserrat font-thin italic;
+}
+
+.font-montserrat-extralight-italic {
+  @apply font-montserrat font-extralight italic;
+}
+
+.font-montserrat-light-italic {
+  @apply font-montserrat font-light italic;
+}
+
+.font-montserrat-regular-italic {
+  @apply font-montserrat font-normal italic;
+}
+
+.font-montserrat-medium-italic {
+  @apply font-montserrat font-medium italic;
+}
+
+.font-montserrat-semibold-italic {
+  @apply font-montserrat font-semibold italic;
+}
+
+.font-montserrat-bold-italic {
+  @apply font-montserrat font-bold italic;
+}
+
+.font-montserrat-extrabold-italic {
+  @apply font-montserrat font-extrabold italic;
+}
+
+.font-montserrat-black-italic {
+  @apply font-montserrat font-black italic;
 }
 
 html {
