@@ -1,0 +1,35 @@
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;  
+    width: 100%;
+    position: relative;  
+    background-color: #1E1E1E; 
+  }
+  
+  .animationWrapper {
+    position: relative; 
+    width: 100%;  
+    height: 100%;  
+  }
+  
+  .imageOverlay {
+    color: white;
+    position: absolute;  
+    top: 50%;  
+    left: 50%;  
+    
+    transform: translate(-50%, -50%);   
+    text-align: center;  
+    z-index: 10; 
+  }
+
+  .imageOverlay2 {
+    position: absolute;  
+    top: 50%;  
+    left: 50%;  
+    transform: translate(-50%, -50%);   
+    text-align: center;  
+    z-index: 10; 
+  }
