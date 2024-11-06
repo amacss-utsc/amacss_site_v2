@@ -66,7 +66,7 @@ export default function MobileDashboard() {
               style={{ backgroundColor: '#1E1E1E', zIndex: 11 }}>
                 
                 <div className="flex justify-between items-center p-4 border-b border-gray-700">
-                  <button onClick={toggleMenu} className="text-lg font-montserrat font-bold"> > Close</button>
+                  <button onClick={toggleMenu} className="text-lg font-montserrat font-bold"> {`>`} Close</button>
                 </div>
                 <ul className="mt-4 p-4">
                 <li className="py-2 text-xl hover:bg-gray-700 cursor-pointer font-montserrat font-bold">EVENTS</li>
