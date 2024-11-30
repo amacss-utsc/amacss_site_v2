@@ -1,19 +1,29 @@
+import clsx from 'clsx'
 import React from 'react'
-import Image from 'next/image'
 
-export const Logo = ({ link }) => {
-  return link ? (
+interface Props {
+  className?: string
+  loading?: 'lazy' | 'eager'
+  priority?: 'auto' | 'high' | 'low'
+}
+
+export const Logo = (props: Props) => {
+  const { loading: loadingFromProps, priority: priorityFromProps, className } = props
+
+  const loading = loadingFromProps || 'lazy'
+  const priority = priorityFromProps || 'low'
+
+  return (
     /* eslint-disable @next/next/no-img-element */
-    <Image
-      alt={link.alt}
-      className="max-w-[9.375rem] invert dark:invert-0"
-      src={link.url}
-      width={link.width}
-      height={link.height}
+    <img
+      alt="Payload Logo"
+      width={193}
+      height={34}
+      loading={loading}
+      fetchPriority={priority}
+      decoding="async"
+      className={clsx('max-w-[9.375rem] w-full h-[34px]', className)}
+      src="https://raw.githubusercontent.com/payloadcms/payload/main/packages/ui/src/assets/payload-logo-light.svg"
     />
-  ) : (
-    <span className='text-white underline'>
-      Set logo in admin panel
-    </span>
-  );
+  )
 }

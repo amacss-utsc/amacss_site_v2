@@ -4,24 +4,38 @@ import { CollectionArchive } from '@/components/CollectionArchive'
 import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
 import configPromise from '@payload-config'
-import { getPayloadHMR } from '@payloadcms/next/utilities'
+import { getPayload } from 'payload'
 import React from 'react'
+import PageClient from './page.client'
+import { notFound } from 'next/navigation'
 
-export const dynamic = 'force-static'
 export const revalidate = 600
 
-export default async function Page({ params: { pageNumber = 2 } }) {
-  const payload = await getPayloadHMR({ config: configPromise })
+type Args = {
+  params: Promise<{
+    pageNumber: string
+  }>
+}
+
+export default async function Page({ params: paramsPromise }: Args) {
+  const { pageNumber } = await paramsPromise
+  const payload = await getPayload({ config: configPromise })
+
+  const sanitizedPageNumber = Number(pageNumber)
+
+  if (!Number.isInteger(sanitizedPageNumber)) notFound()
 
   const posts = await payload.find({
     collection: 'posts',
     depth: 1,
     limit: 12,
-    page: pageNumber,
+    page: sanitizedPageNumber,
+    overrideAccess: false,
   })
 
   return (
     <div className="pt-24 pb-24">
+      <PageClient />
       <div className="container mb-16">
         <div className="prose dark:prose-invert max-w-none">
           <h1>Posts</h1>
@@ -40,7 +54,7 @@ export default async function Page({ params: { pageNumber = 2 } }) {
       <CollectionArchive posts={posts.docs} />
 
       <div className="container">
-        {posts.totalPages > 1 && posts.page && (
+        {posts?.page && posts?.totalPages > 1 && (
           <Pagination page={posts.page} totalPages={posts.totalPages} />
         )}
       </div>
@@ -48,24 +62,26 @@ export default async function Page({ params: { pageNumber = 2 } }) {
   )
 }
 
-export function generateMetadata({ params: { pageNumber = 2 } }): Metadata {
+export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
+  const { pageNumber } = await paramsPromise
   return {
-    title: `Payload Website Template Posts Page ${pageNumber}`,
+    title: `Payload Website Template Posts Page ${pageNumber || ''}`,
   }
 }
 
 export async function generateStaticParams() {
-  const payload = await getPayloadHMR({ config: configPromise })
-  const posts = await payload.find({
+  const payload = await getPayload({ config: configPromise })
+  const { totalDocs } = await payload.count({
     collection: 'posts',
-    depth: 0,
-    limit: 10,
+    overrideAccess: false,
   })
 
-  const pages: number[] = []
+  const totalPages = Math.ceil(totalDocs / 10)
 
-  for (let i = 1; i <= posts.totalPages; i++) {
-    pages.push(i)
+  const pages: { pageNumber: string }[] = []
+
+  for (let i = 1; i <= totalPages; i++) {
+    pages.push({ pageNumber: String(i) })
   }
 
   return pages

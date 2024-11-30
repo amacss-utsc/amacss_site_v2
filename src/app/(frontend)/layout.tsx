@@ -12,11 +12,13 @@ import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { Providers } from '@/providers'
 import { InitTheme } from '@/providers/Theme/InitTheme'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
-import './globals.css'
 import { draftMode } from 'next/headers'
 
+import './globals.css'
+import { getServerSideURL } from '@/utilities/getURL'
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const { isEnabled } = draftMode()
+  const { isEnabled } = await draftMode()
 
   return (
     <html className={cn(GeistSans.variable, GeistMono.variable)} lang="en" suppressHydrationWarning>
@@ -36,7 +38,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
           <Header />
           {children}
-          {/* <Footer /> */}
+          <Footer />
         </Providers>
       </body>
     </html>
@@ -44,7 +46,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 }
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SERVER_URL || 'https://payloadcms.com'),
+  metadataBase: new URL(getServerSideURL()),
   openGraph: mergeOpenGraph(),
   twitter: {
     card: 'summary_large_image',

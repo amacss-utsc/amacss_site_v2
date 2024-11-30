@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken'
 import { draftMode } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { getPayloadHMR } from '@payloadcms/next/utilities'
+import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { CollectionSlug } from 'payload'
 
@@ -16,7 +16,7 @@ export async function GET(
     }
   },
 ): Promise<Response> {
-  const payload = await getPayloadHMR({ config: configPromise })
+  const payload = await getPayload({ config: configPromise })
   const token = req.cookies.get(payloadToken)?.value
   const { searchParams } = new URL(req.url)
   const path = searchParams.get('path')
@@ -56,16 +56,24 @@ export async function GET(
       payload.logger.error('Error verifying token for live preview:', error)
     }
 
+    const draft = await draftMode()
+
     // You can add additional checks here to see if the user is allowed to preview this page
     if (!user) {
-      draftMode().disable()
+      draft.disable()
       return new Response('You are not allowed to preview this page', { status: 403 })
     }
 
     // Verify the given slug exists
     try {
       const docs = await payload.find({
-        collection: collection,
+        collection,
+        draft: true,
+        limit: 1,
+        // pagination: false reduces overhead if you don't need totalDocs
+        pagination: false,
+        depth: 0,
+        select: {},
         where: {
           slug: {
             equals: slug,
@@ -80,7 +88,8 @@ export async function GET(
       payload.logger.error('Error verifying token for live preview:', error)
     }
 
-    draftMode().enable()
+    draft.enable()
+
     redirect(path)
   }
 }

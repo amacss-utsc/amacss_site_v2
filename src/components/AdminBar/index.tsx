@@ -8,6 +8,12 @@ import { PayloadAdminBar } from 'payload-admin-bar'
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
+import './index.scss'
+
+import { getClientSideURL } from '@/utilities/getURL'
+
+const baseClass = 'admin-bar'
+
 const collectionLabels = {
   pages: {
     plural: 'Pages',
@@ -37,10 +43,10 @@ export const AdminBar: React.FC<{
   const onAuthChange = React.useCallback((user) => {
     setShow(user?.id)
   }, [])
-  
+
   return (
     <div
-      className={cn('py-2 bg-black text-white', {
+      className={cn(baseClass, 'py-2 bg-black text-white', {
         block: show,
         hidden: !show,
       })}
@@ -54,7 +60,7 @@ export const AdminBar: React.FC<{
             logo: 'text-white',
             user: 'text-white',
           }}
-          cmsURL={process.env.NEXT_PUBLIC_SERVER_URL}
+          cmsURL={getClientSideURL()}
           collection={collection}
           collectionLabels={{
             plural: collectionLabels[collection]?.plural || 'Pages',

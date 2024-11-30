@@ -7,10 +7,7 @@ export default {
     './src/**/*.{ts,tsx}',
   ],
   darkMode: ['selector', '[data-theme="dark"]'],
-  plugins: [
-    require('tailwindcss-animate'),
-    require('@tailwindcss/typography'),
-  ],
+  plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')],
   prefix: '',
   safelist: [
     'lg:col-span-4',
@@ -60,8 +57,8 @@ export default {
           DEFAULT: 'hsl(var(--accent))',
           foreground: 'hsl(var(--accent-foreground))',
         },
-        background: 'var(--background)',
-        border: 'hsl(var(--border))',
+        background: 'hsl(var(--background))',
+        border: 'hsla(var(--border))',
         card: {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
@@ -70,7 +67,7 @@ export default {
           DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))',
         },
-        foreground: 'var(--foreground)',
+        foreground: 'hsl(var(--foreground))',
         input: 'hsl(var(--input))',
         muted: {
           DEFAULT: 'hsl(var(--muted))',
@@ -96,18 +93,6 @@ export default {
       fontFamily: {
         mono: ['var(--font-geist-mono)'],
         sans: ['var(--font-geist-sans)'],
-        montserrat: ['Montserrat', 'sans-serif'],
-      },
-      fontWeight: {
-        thin: 100,
-        extralight: 200,
-        light: 300,
-        normal: 400,
-        medium: 500,
-        semibold: 600,
-        bold: 700,
-        extrabold: 800,
-        black: 900,
       },
       keyframes: {
         'accordion-down': {
@@ -125,7 +110,7 @@ export default {
             '--tw-prose-body': 'var(--text)',
             '--tw-prose-headings': 'var(--text)',
             h1: {
-              fontSize: '4rem',
+              fontSize: '3.5rem',
               fontWeight: 'normal',
               marginBottom: '0.25em',
             },
@@ -134,4 +119,4 @@ export default {
       }),
     },
   },
-};
+}
