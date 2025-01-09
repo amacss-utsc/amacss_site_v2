@@ -1,0 +1,10 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: amacss
+    environment:
+      POSTGRES_USER: amacss
+      POSTGRES_PASSWORD: amacss
+      POSTGRES_DB: amacss
+    ports:
+      - "5432:5432"
