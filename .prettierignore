@@ -11,6 +11,4 @@
 **/temp
 **/docs/**
 tsconfig.json
-.husky
-.prettierignore
-.gitignore
+

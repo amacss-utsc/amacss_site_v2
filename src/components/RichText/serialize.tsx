@@ -1,11 +1,5 @@
-import { BannerBlock } from '@/blocks/Banner/Component'
-import { CallToActionBlock } from '@/blocks/CallToAction/Component'
-import { CodeBlock, CodeBlockProps } from '@/blocks/Code/Component'
-import { MediaBlock } from '@/blocks/MediaBlock/Component'
 import React, { Fragment, JSX } from 'react'
-import { CMSLink } from '@/components/Link'
 import { DefaultNodeTypes, SerializedBlockNode } from '@payloadcms/richtext-lexical'
-import type { BannerBlock as BannerBlockProps } from '@/payload-types'
 
 import {
   IS_BOLD,
@@ -16,16 +10,9 @@ import {
   IS_SUPERSCRIPT,
   IS_UNDERLINE,
 } from './nodeFormat'
-import type { Page } from '@/payload-types'
+import { cn } from '@/utilities/cn'
 
-export type NodeTypes =
-  | DefaultNodeTypes
-  | SerializedBlockNode<
-      | Extract<Page['layout'][0], { blockType: 'cta' }>
-      | Extract<Page['layout'][0], { blockType: 'mediaBlock' }>
-      | BannerBlockProps
-      | CodeBlockProps
-    >
+export type NodeTypes = DefaultNodeTypes | SerializedBlockNode<any>
 
 type Props = {
   nodes: NodeTypes[]
@@ -36,17 +23,29 @@ export function serializeLexical({ nodes }: Props): JSX.Element {
     <Fragment>
       {nodes?.map((node, index): JSX.Element | null => {
         if (node == null) {
-          return null
+          return (
+            <>
+              <br />
+              <br />
+            </>
+          )
         }
 
         if (node.type === 'text') {
           let text = <React.Fragment key={index}>{node.text}</React.Fragment>
+
           if (node.format & IS_BOLD) {
-            text = <strong key={index}>{text}</strong>
+            text = (
+              <b className="font-semibold" key={index}>
+                {text}
+              </b>
+            )
           }
+
           if (node.format & IS_ITALIC) {
             text = <em key={index}>{text}</em>
           }
+
           if (node.format & IS_STRIKETHROUGH) {
             text = (
               <span key={index} style={{ textDecoration: 'line-through' }}>
@@ -54,6 +53,7 @@ export function serializeLexical({ nodes }: Props): JSX.Element {
               </span>
             )
           }
+
           if (node.format & IS_UNDERLINE) {
             text = (
               <span key={index} style={{ textDecoration: 'underline' }}>
@@ -61,12 +61,15 @@ export function serializeLexical({ nodes }: Props): JSX.Element {
               </span>
             )
           }
+
           if (node.format & IS_CODE) {
             text = <code key={index}>{node.text}</code>
           }
+
           if (node.format & IS_SUBSCRIPT) {
             text = <sub key={index}>{text}</sub>
           }
+
           if (node.format & IS_SUPERSCRIPT) {
             text = <sup key={index}>{text}</sup>
           }
@@ -106,43 +109,34 @@ export function serializeLexical({ nodes }: Props): JSX.Element {
           }
 
           switch (blockType) {
-            case 'cta':
-              return <CallToActionBlock key={index} {...block} />
-            case 'mediaBlock':
-              return (
-                <MediaBlock
-                  className="col-start-1 col-span-3"
-                  imgClassName="m-0"
-                  key={index}
-                  {...block}
-                  captionClassName="mx-auto max-w-[48rem]"
-                  enableGutter={false}
-                  disableInnerContainer={true}
-                />
-              )
-            case 'banner':
-              return <BannerBlock className="col-start-2 mb-4" key={index} {...block} />
-            case 'code':
-              return <CodeBlock className="col-start-2" key={index} {...block} />
             default:
               return null
           }
         } else {
           switch (node.type) {
             case 'linebreak': {
-              return <br className="col-start-2" key={index} />
+              return <br className="" key={index} />
             }
             case 'paragraph': {
               return (
-                <p className="col-start-2" key={index}>
+                <p className="" key={index}>
                   {serializedChildren}
+                  <br />
                 </p>
               )
             }
             case 'heading': {
               const Tag = node?.tag
+
+              const headingClass = cn({
+                'text-6xl': Tag === 'h1',
+                'text-4xl': Tag === 'h2',
+                'text-3xl': Tag === 'h3',
+                'text-2xl': Tag === 'h4',
+              })
+
               return (
-                <Tag className="col-start-2" key={index}>
+                <Tag className={cn(headingClass, 'font-semibold')} key={index}>
                   {serializedChildren}
                 </Tag>
               )
@@ -150,7 +144,7 @@ export function serializeLexical({ nodes }: Props): JSX.Element {
             case 'list': {
               const Tag = node?.tag
               return (
-                <Tag className="list col-start-2" key={index}>
+                <Tag className="list" key={index}>
                   {serializedChildren}
                 </Tag>
               )
@@ -180,27 +174,11 @@ export function serializeLexical({ nodes }: Props): JSX.Element {
             }
             case 'quote': {
               return (
-                <blockquote className="col-start-2" key={index}>
+                <blockquote className="" key={index}>
                   {serializedChildren}
                 </blockquote>
               )
             }
-            case 'link': {
-              const fields = node.fields
-
-              return (
-                <CMSLink
-                  key={index}
-                  newTab={Boolean(fields?.newTab)}
-                  reference={fields.doc as any}
-                  type={fields.linkType === 'internal' ? 'reference' : 'custom'}
-                  url={fields.url}
-                >
-                  {serializedChildren}
-                </CMSLink>
-              )
-            }
-
             default:
               return null
           }

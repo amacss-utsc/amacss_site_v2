@@ -18,6 +18,9 @@ jobs:
         with:
           node-version: '18.20.2 || >=20.9.0'
 
+      - name: Start Postgres
+        run: docker compose -f docker-compose.workflows.yml up -d
+
       - name: Install pnpm
         run: npm install -g pnpm
 
@@ -29,4 +32,7 @@ jobs:
           echo "${{ secrets.ENV_CONTENT }}" > .env
 
       - name: Run Build
-        run: pnpm build
+        run: pnpm prod-build
+
+      - name: Stop and clean up
+        run: docker compose down
