@@ -1,0 +1,18 @@
+services:
+  db:
+    image: postgres:13
+    container_name: amacss
+    environment:
+      POSTGRES_USER: amacss_dev
+      POSTGRES_PASSWORD: amacss_dev
+      POSTGRES_DB: amacss_dev
+    volumes:
+      # - /postgres_data:/var/lib/postgresql/data
+      # - /var/lib/docker/volumes/postgres_volume/_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+      # - /var/lib/postgresql/data
+    ports:
+      - '5555:5432'
+
+volumes:
+  postgres_data:
