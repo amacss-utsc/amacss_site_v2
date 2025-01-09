@@ -1,10 +1,21 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig } from "payload"
 
-import { authenticated } from '../../access/authenticated'
-import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
+import { authenticated } from "../../access/authenticated"
+import { authenticatedOrPublished } from "../../access/authenticatedOrPublished"
+import {
+  BlocksFeature,
+  FixedToolbarFeature,
+  HeadingFeature,
+  HorizontalRuleFeature,
+  InlineToolbarFeature,
+  lexicalEditor,
+  OrderedListFeature,
+  UnorderedListFeature,
+} from "@payloadcms/richtext-lexical"
+import { revalidateEvents } from "./hooks/revalidateEvents"
 
 export const Events: CollectionConfig = {
-  slug: 'events',
+  slug: "events",
   access: {
     create: authenticated,
     delete: authenticated,
@@ -12,62 +23,84 @@ export const Events: CollectionConfig = {
     update: authenticated,
   },
   admin: {
-    useAsTitle: 'title',
+    useAsTitle: "title",
   },
   fields: [
     {
-      name: 'title',
-      type: 'text',
+      name: "title",
+      type: "text",
       required: true,
     },
     {
-      name: 'date',
-      type: 'date',
+      name: "date",
+      type: "date",
       required: true,
     },
     {
-      name: 'endDate',
-      type: 'date',
+      name: "endDate",
+      type: "date",
       required: false,
     },
     {
-      name: 'startTime',
-      type: 'text',
+      name: "startTime",
+      type: "text",
       required: false,
     },
     {
-      name: 'endTime',
-      type: 'text',
+      name: "endTime",
+      type: "text",
       required: false,
     },
     {
-      name: 'description',
-      type: 'richText',
+      name: "previewText",
+      type: "textarea",
       required: true,
     },
     {
-      name: 'registrationLink',
-      type: 'text',
+      name: "description",
+      type: "richText",
+      required: true,
+      editor: lexicalEditor({
+        features: ({ rootFeatures }) => {
+          return [
+            ...rootFeatures,
+            HeadingFeature({ enabledHeadingSizes: ["h1", "h2", "h3", "h4"] }),
+            BlocksFeature({ blocks: [] }),
+            FixedToolbarFeature(),
+            InlineToolbarFeature(),
+            HorizontalRuleFeature(),
+            UnorderedListFeature(),
+            OrderedListFeature(),
+          ]
+        },
+      }),
+    },
+    {
+      name: "registrationLink",
+      type: "text",
       required: false,
     },
     {
-      name: 'image',
-      type: 'upload',
-      relationTo: 'media',
+      name: "image",
+      type: "upload",
+      relationTo: "media",
       required: true,
     },
     {
-      name: 'eventTag',
-      type: 'relationship',
-      relationTo: 'event-tag',
+      name: "eventTag",
+      type: "relationship",
+      relationTo: "event-tag",
       required: true,
       hasMany: true,
     },
     {
-      name: 'ribbonTag',
-      type: 'relationship',
-      relationTo: 'ribbon-tag',
+      name: "ribbonTag",
+      type: "relationship",
+      relationTo: "ribbon-tag",
       required: false,
     },
   ],
+  hooks: {
+    afterChange: [revalidateEvents],
+  },
 }

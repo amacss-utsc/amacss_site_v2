@@ -1,9 +1,10 @@
-import type { CollectionConfig } from 'payload'
-import { authenticated } from '../../access/authenticated'
-import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
+import type { CollectionConfig } from "payload"
+import { authenticated } from "../../access/authenticated"
+import { authenticatedOrPublished } from "../../access/authenticatedOrPublished"
+import { revalidateTeams } from "./hooks/revalidateTeams"
 
 export const Teams: CollectionConfig = {
-  slug: 'teams',
+  slug: "teams",
   access: {
     create: authenticated,
     delete: authenticated,
@@ -11,42 +12,43 @@ export const Teams: CollectionConfig = {
     update: authenticated,
   },
   admin: {
-    defaultColumns: ['nameWithYear'],
-    useAsTitle: 'nameWithYear',
+    defaultColumns: ["nameWithYear"],
+    useAsTitle: "nameWithYear",
   },
   fields: [
     {
-      name: 'name',
-      type: 'text',
+      name: "name",
+      type: "text",
       required: true,
     },
     {
-      name: 'year',
-      type: 'text',
+      name: "year",
+      type: "text",
       required: true,
     },
     {
-      name: 'nameWithYear',
-      type: 'text',
+      name: "nameWithYear",
+      type: "text",
       admin: {
-        position: 'sidebar',
+        position: "sidebar",
       },
     },
     {
-      name: 'sub-teams',
-      type: 'relationship',
+      name: "sub-teams",
+      type: "relationship",
       hasMany: true,
-      relationTo: 'sub-teams',
+      relationTo: "sub-teams",
     },
   ],
   hooks: {
     beforeChange: [
       ({ data }) => {
-        if (data.name && data['year']) {
-          data.nameWithYear = `${data.name} (${data['year']})`
+        if (data.name && data["year"]) {
+          data.nameWithYear = `${data.name} (${data["year"]})`
         }
         return data
       },
     ],
+    afterChange: [revalidateTeams],
   },
 }

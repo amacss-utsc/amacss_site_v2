@@ -1,10 +1,11 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig } from "payload"
 
-import { authenticated } from '../../access/authenticated'
-import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
+import { authenticated } from "../../access/authenticated"
+import { authenticatedOrPublished } from "../../access/authenticatedOrPublished"
+import { revalidateTeamMembers } from "./hooks/revalidateTeamMembers"
 
 export const TeamMembers: CollectionConfig = {
-  slug: 'team-members',
+  slug: "team-members",
   access: {
     create: authenticated,
     delete: authenticated,
@@ -12,36 +13,36 @@ export const TeamMembers: CollectionConfig = {
     update: authenticated,
   },
   admin: {
-    defaultColumns: ['nameWithYear', 'role'],
-    useAsTitle: 'nameWithYear',
+    defaultColumns: ["nameWithYear", "role"],
+    useAsTitle: "nameWithYear",
   },
   fields: [
     {
-      name: 'name',
-      type: 'text',
+      name: "name",
+      type: "text",
       required: true,
     },
     {
-      name: 'role',
-      type: 'text',
+      name: "role",
+      type: "text",
       required: true,
     },
     {
-      name: 'membership-year',
-      type: 'text',
+      name: "membership-year",
+      type: "text",
       required: true,
     },
     {
-      name: 'nameWithYear',
-      type: 'text',
+      name: "nameWithYear",
+      type: "text",
       admin: {
-        position: 'sidebar',
+        position: "sidebar",
       },
     },
     {
-      name: 'photo',
-      type: 'upload',
-      relationTo: 'media',
+      name: "photo",
+      type: "upload",
+      relationTo: "media",
       required: true,
       hasMany: false,
     },
@@ -49,11 +50,12 @@ export const TeamMembers: CollectionConfig = {
   hooks: {
     beforeChange: [
       ({ data }) => {
-        if (data.name && data['membership-year']) {
-          data.nameWithYear = `${data.name} (${data['membership-year']})`
+        if (data.name && data["membership-year"]) {
+          data.nameWithYear = `${data.name} (${data["membership-year"]})`
         }
         return data
       },
     ],
+    afterChange: [revalidateTeamMembers],
   },
 }

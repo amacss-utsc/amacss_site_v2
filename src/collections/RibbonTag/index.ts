@@ -1,10 +1,11 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig } from "payload"
 
-import { authenticated } from '../../access/authenticated'
-import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
+import { authenticated } from "../../access/authenticated"
+import { authenticatedOrPublished } from "../../access/authenticatedOrPublished"
+import { revalidateRibbonTags } from "./hooks/revalidateHookTags"
 
 export const RibbonTag: CollectionConfig = {
-  slug: 'ribbon-tag',
+  slug: "ribbon-tag",
   access: {
     create: authenticated,
     delete: authenticated,
@@ -12,13 +13,16 @@ export const RibbonTag: CollectionConfig = {
     update: authenticated,
   },
   admin: {
-    useAsTitle: 'ribbonTag',
+    useAsTitle: "ribbonTag",
   },
   fields: [
     {
-      name: 'ribbonTag',
-      type: 'text',
+      name: "ribbonTag",
+      type: "text",
       required: true,
     },
   ],
+  hooks: {
+    afterChange: [revalidateRibbonTags],
+  },
 }

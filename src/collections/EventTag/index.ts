@@ -1,10 +1,11 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig } from "payload"
 
-import { authenticated } from '../../access/authenticated'
-import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
+import { authenticated } from "../../access/authenticated"
+import { authenticatedOrPublished } from "../../access/authenticatedOrPublished"
+import { revalidateEventTags } from "./hooks/revalidateEventTags"
 
 export const EventTag: CollectionConfig = {
-  slug: 'event-tag',
+  slug: "event-tag",
   access: {
     create: authenticated,
     delete: authenticated,
@@ -12,13 +13,16 @@ export const EventTag: CollectionConfig = {
     update: authenticated,
   },
   admin: {
-    useAsTitle: 'eventTag',
+    useAsTitle: "eventTag",
   },
   fields: [
     {
-      name: 'eventTag',
-      type: 'text',
+      name: "eventTag",
+      type: "text",
       required: true,
     },
   ],
+  hooks: {
+    afterChange: [revalidateEventTags],
+  },
 }
