@@ -1,5 +1,5 @@
 import * as migration_20250104_222122_initial_collections from "./20250104_222122_initial_collections"
-import * as migration_20250108_230907_bumblebee_soup from "./20250108_230907_bumblebee_soup"
+import * as migration_20250108_230907_club_members from "./20250108_230907_club_members"
 
 export const migrations = [
   {
@@ -8,8 +8,8 @@ export const migrations = [
     name: "20250104_222122_initial_collections",
   },
   {
-    up: migration_20250108_230907_bumblebee_soup.up,
-    down: migration_20250108_230907_bumblebee_soup.down,
-    name: "20250108_230907_bumblebee_soup",
+    up: migration_20250108_230907_club_members.up,
+    down: migration_20250108_230907_club_members.down,
+    name: "20250108_230907_club_members",
   },
 ]
