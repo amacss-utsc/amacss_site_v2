@@ -42,7 +42,7 @@ export default async function Page() {
   });
 
   return (
-    <main className="pt-16 min-h-full h-full overflow-y-scroll bg-gray-90 text-gray-02 px-7 lg:px-20 uppercase lg:rounded-tl-[32px]">
+    <main className="pt-6 min-h-full h-full overflow-y-scroll bg-gray-90 text-gray-02 px-7 lg:px-20 uppercase lg:rounded-tl-[32px]">
       {sortedSubteams.map((s: SubTeam, i: number) => {
         const mfFn = (member, idx) =>
           (member && member.member && typeof member.member !== "number")
