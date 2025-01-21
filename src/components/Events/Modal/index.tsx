@@ -7,6 +7,7 @@ import { EventTag } from "@/payload-types";
 import { useStateContext } from "@/providers/State";
 import { cn } from "@/utilities/cn";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 export const EventModal = () => {
@@ -141,21 +142,63 @@ export const EventModal = () => {
               className="w-full px-0"
             />
           </div>
-          {focusedEvent.registrationLink && (
-            <div className="w-full bg-white bottom-0 left-0 pb-4 px-5 lg:relative hidden lg:flex">
-              <button className="bg-blue-30 py-4 w-full rounded-[48px] text-white text-center font-black text-3xl">
-                Register Now
-              </button>
+
+          {(focusedEvent.regStyle === "internal" ||
+            (focusedEvent.registrationLink && focusedEvent.regStyle === "external")) && (
+              <div className="w-full bg-white bottom-0 left-0 pb-4 px-5 lg:relative hidden lg:flex">
+                {focusedEvent.regStyle === "external" ? (
+                  <a
+                    href={focusedEvent.registrationLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full"
+                  >
+                    <button
+                      onClick={() => setFocusedEvent(null)}
+                      className="bg-blue-30 py-4 w-full rounded-[48px] text-white text-center font-black text-3xl">
+                      Register Now
+                    </button>
+                  </a>
+                ) : (
+                  <Link href={`/register/event/${focusedEvent.id}`} passHref className="w-full">
+                    <button
+                      onClick={() => setFocusedEvent(null)}
+                      className="bg-blue-30 py-4 w-full rounded-[48px] text-white text-center font-black text-3xl">
+                      Register Now
+                    </button>
+                  </Link>
+                )}
+              </div>
+            )}
+
+
+        </div>
+
+        {(focusedEvent.regStyle === "internal" ||
+          (focusedEvent.registrationLink && focusedEvent.regStyle === "external")) && (
+            <div className="w-full bg-white bottom-0 left-0 pb-4 px-5 lg:relative lg:hidden">
+              {focusedEvent.regStyle === "external" ? (
+                <a
+                  href={focusedEvent.registrationLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full"
+                >
+                  <button className="bg-blue-30 py-4 w-full rounded-[48px] text-white text-center font-black text-3xl">
+                    Register Now
+                  </button>
+                </a>
+              ) : (
+                <Link href={`/register/event/${focusedEvent.id}`} passHref className="w-full">
+                  <button
+                    onClick={() => setFocusedEvent(null)}
+                    className="bg-blue-30 py-4 w-full rounded-[48px] text-white text-center font-black text-3xl">
+                    Register Now
+                  </button>
+                </Link>
+              )}
             </div>
           )}
-        </div>
-        {focusedEvent.registrationLink && (
-          <div className="w-full bg-white fixed bottom-0 left-0 pb-4 px-5 lg:relative lg:hidden">
-            <button className="bg-blue-30 py-4 w-full rounded-[48px] text-white text-center font-black text-3xl">
-              Register Now
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );

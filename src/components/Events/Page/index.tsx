@@ -60,7 +60,7 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
         Filters
       </button>
 
-      <section className="lg:grid lg:grid-cols-3 lg:gap-10 lg:overflow-y-scroll">
+      <section className="lg:grid lg:grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] lg:gap-10 overflow-y-scroll">
         {filteredEvents.length === 0 ? (
           <p className="text-center text-gray-02 mt-10">No events to show :(</p>
         ) : (
@@ -83,7 +83,7 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
             return (
               <article
                 key={j}
-                className="w-full h-[300px] bg-white rounded-b-[12px] flex flex-col relative overflow-hidden mb-11"
+                className="w-full h-[300px] bg-white rounded-b-[12px] flex flex-col relative overflow-hidden mb-11 max-w-[500px]"
               >
                 <div className={cn(RibbonStyle, rT === "" ? "bg-white opacity-20" : "bg-blue-20", "top-[18px] h-[33px] left-[36px]")}>
                   {rT}

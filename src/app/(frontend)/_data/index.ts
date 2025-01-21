@@ -142,6 +142,138 @@ export const FetchEvents = async ({
   }
 }
 
+type FetchEventByIdType = {
+  event: Event | null
+  error: DataError
+}
+
+export const FetchEventById = async (
+  id: string,
+): Promise<FetchEventByIdType> => {
+  const payload = await getPayload({ config })
+
+  if (!payload) {
+    return {
+      event: null,
+      error: {
+        code: 500,
+        message: "Failed to load Payload Config",
+      },
+    }
+  }
+
+  const event = await payload.findByID({
+    collection: "events",
+    id,
+  })
+
+  if (!event) {
+    return {
+      event: null,
+      error: {
+        code: 404,
+        message: "Event Not Found",
+      },
+    }
+  }
+
+  return {
+    event,
+    error: null,
+  }
+}
+
+type SubmitRegistrationType = {
+  success: boolean
+  error?: DataError
+}
+
+export const SubmitRegistration = async (
+  eventId: string | number,
+  userId: string | number,
+  answers: Array<{ fieldId: string; fieldType: string; answer: string | File }>,
+): Promise<SubmitRegistrationType> => {
+  const payload = await getPayload({ config })
+
+  if (!payload) {
+    return {
+      success: false,
+      error: {
+        code: 500,
+        message: "Failed to load Payload Config",
+      },
+    }
+  }
+
+  try {
+    const processedAnswers = await Promise.all(
+      answers.map(async (answer) => {
+        if (answer.fieldType === "image" && answer.answer instanceof File) {
+          const formData = new FormData()
+          formData.append("file", answer.answer)
+          formData.append("alt", `Uploaded for ${answer.fieldId}`)
+
+          const uploadResponse = await fetch(
+            `${process.env.PAYLOAD_URL}/api/media`,
+            {
+              method: "POST",
+              body: formData,
+              headers: {
+                Authorization: `Bearer ${process.env.PAYLOAD_API_KEY}`,
+              },
+            },
+          )
+
+          if (!uploadResponse.ok) {
+            throw new Error(`Image upload failed for field: ${answer.fieldId}`)
+          }
+
+          const uploadedFile = await uploadResponse.json()
+
+          return {
+            fieldId: answer.fieldId,
+            fieldType: answer.fieldType,
+            answer: uploadedFile.url,
+          }
+        }
+
+        if (typeof answer.answer === "string") {
+          return {
+            fieldId: answer.fieldId,
+            fieldType: answer.fieldType,
+            answer: answer.answer,
+          }
+        }
+
+        throw new Error(
+          `Unsupported field type or invalid answer for field: ${answer.fieldId}`,
+        )
+      }),
+    )
+
+    await payload.create({
+      collection: "registrations",
+      data: {
+        eventId: typeof eventId === "string" ? parseInt(eventId, 10) : eventId,
+        userId: typeof userId === "string" ? parseInt(userId, 10) : userId,
+        answers: processedAnswers,
+        submittedAt: new Date().toISOString(),
+      },
+    })
+
+    return { success: true }
+  } catch (error) {
+    console.error("SubmitRegistration error:", error)
+    return {
+      success: false,
+      error: {
+        code: 500,
+        message: `Failed to process registration: ${error.message}`,
+      },
+    }
+  }
+}
+
 export const ErrDefault = (
   e: DataError | null,
   data: any,
