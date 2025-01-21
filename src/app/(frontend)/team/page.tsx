@@ -54,7 +54,7 @@ export default async function Page() {
 
         return (
           <section key={i} className="pt-9 flex flex-col items-center gap-y-9 lg:gap-y-10">
-            <h2 className="font-bold text-3xl w-full">{s.name}</h2>
+            <h2 className="font-bold text-3xl w-full mt-6 lg:mt-0">{s.name}</h2>
 
             <div className={cn(MemberWrapperStyle, "lg:w-[70%]")}>
             {prioMembers.map(Member)}

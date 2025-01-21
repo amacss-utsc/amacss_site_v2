@@ -21,4 +21,4 @@ export const RibbonStyle =
   "py-1.5 flex items-center justify-center w-[237px] -rotate-45 absolute uppercase text-white font-extrabold -translate-x-1/2 z-[3]"
 
 export const MemberWrapperStyle =
-  "lg:flex lg:flex-row lg:items-center lg:justify-around lg:flex-wrap"
+  "lg:flex lg:flex-row lg:items-center lg:justify-around lg:flex-wrap lg:gap-y-10"
