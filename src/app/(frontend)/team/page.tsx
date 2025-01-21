@@ -22,7 +22,7 @@ const Member = (m: TeamMember, j: number) => {
   if (!url || !alt || width == null || height == null) return null;
 
   return (
-    <article key={j} className="flex flex-col items-center">
+    <article key={j} className="flex flex-col items-center mb-8 lg:mb-0">
       <Image src={url} alt={alt} width={width} height={height} className="w-64 h-64 rounded-[32px] mb-2 object-cover" />
       <h3 className="text-2xl font-semibold">{m.name}</h3>
       <h4 className="text-2xl font-extrabold text-[#F3F3F3] opacity-25">{m.role}</h4>

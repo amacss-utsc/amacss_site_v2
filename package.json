@@ -21,6 +21,7 @@
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.731.1",
     "@gsap/react": "^2.1.1",
     "@payloadcms/db-postgres": "latest",
     "@payloadcms/live-preview-react": "latest",
@@ -40,6 +41,7 @@
     "@radix-ui/react-select": "^2.0.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@splidejs/react-splide": "^0.7.12",
+    "@supabase/supabase-js": "^2.48.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cross-env": "^7.0.3",

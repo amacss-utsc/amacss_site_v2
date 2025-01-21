@@ -81,7 +81,7 @@ export const DesktopSidebar: FC<Props> = ({ events, tags }) => {
                 height: "100%",
                 autoHeight: true,
                 autoplay: true,
-                interval: 3000,
+                interval: 2200,
                 pauseOnHover: true,
                 arrows: false,
                 pagination: false,
@@ -223,8 +223,8 @@ export const DesktopSidebar: FC<Props> = ({ events, tags }) => {
 
 export const DesktopNav: FC = ({ }) => {
   const pathname = usePathname()
-
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
+  const [dropdownOpen, setDropdownOpen] = useState(false)
 
   if (pathname === "/login" || pathname === "/register") return null
 
@@ -233,11 +233,7 @@ export const DesktopNav: FC = ({ }) => {
       <ul className="flex flex-row items-end font-[800] gap-x-11">
         {Links.map((i, j) => (
           <li key={j} className="h-full flex items-center justify-center">
-            <Link
-              href={i.u}
-              key={j}
-              className={NavLink}
-            >
+            <Link href={i.u} key={j} className={NavLink}>
               {i.n}
             </Link>
           </li>
@@ -251,14 +247,30 @@ export const DesktopNav: FC = ({ }) => {
           <Login className="inline mr-2" />
           Log in
         </Link>
-      )
-        :
-        <h2
-          className={cn(NavLink, "font-bold cursor-pointer w-fit uppercase h-full flex items-center justify-center")}
-        >
-          <User className="inline mr-2"/> {user && (user.firstName + " " + user.lastName)}
-        </h2>
-      }
+      ) : (
+        <div className="relative">
+          <button
+            onClick={() => setDropdownOpen((prev) => !prev)}
+            className={cn(NavLink, "font-bold cursor-pointer w-fit uppercase h-full flex items-center justify-center")}
+          >
+            <User className="inline mr-2" />
+            {user.firstName} {user.lastName}
+          </button>
+          {dropdownOpen && (
+            <div className="absolute bg-gray-80 right-0 mt-2 shadow-lg rounded-md py-2 w-48 z-10">
+              <button
+                onClick={() => {
+                  logout()
+                  setDropdownOpen(false)
+                }}
+                className={cn(NavLink, "block uppercase font-bold w-full text-left px-4 py-2")}
+              >
+                Log out
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </nav>
   )
 }

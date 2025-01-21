@@ -20,8 +20,6 @@ const RichText: React.FC<Props> = ({
     return null
   }
 
-  console.log(content)
-
   return (
     <div
       className={cn(

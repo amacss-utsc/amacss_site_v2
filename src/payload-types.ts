@@ -22,6 +22,7 @@ export interface Config {
     'event-tag': EventTag;
     'ribbon-tag': RibbonTag;
     'club-member': ClubMember;
+    registrations: Registration;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -38,6 +39,7 @@ export interface Config {
     'event-tag': EventTagSelect<false> | EventTagSelect<true>;
     'ribbon-tag': RibbonTagSelect<false> | RibbonTagSelect<true>;
     'club-member': ClubMemberSelect<false> | ClubMemberSelect<true>;
+    registrations: RegistrationsSelect<false> | RegistrationsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -222,10 +224,26 @@ export interface Event {
     };
     [k: string]: unknown;
   };
-  registrationLink?: string | null;
   image: number | Media;
   eventTag: (number | EventTag)[];
   ribbonTag?: (number | null) | RibbonTag;
+  regStyle?: ('internal' | 'external' | 'none') | null;
+  registrationLink?: string | null;
+  registrationForm?:
+    | {
+        type?: ('short_short' | 'short' | 'multiline' | 'dropdown' | 'image') | null;
+        name: string;
+        fieldid: string;
+        dropdownOptions?:
+          | {
+              option: string;
+              id?: string | null;
+            }[]
+          | null;
+        placeholder?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -268,6 +286,27 @@ export interface ClubMember {
   loginAttempts?: number | null;
   lockUntil?: string | null;
   password?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "registrations".
+ */
+export interface Registration {
+  id: number;
+  eventId: number | Event;
+  userId: number | ClubMember;
+  answers?:
+    | {
+        fieldId: string;
+        fieldType: string;
+        answer: string;
+        id?: string | null;
+      }[]
+    | null;
+  images?: (number | Media)[] | null;
+  submittedAt: string;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -315,6 +354,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'club-member';
         value: number | ClubMember;
+      } | null)
+    | ({
+        relationTo: 'registrations';
+        value: number | Registration;
       } | null);
   globalSlug?: string | null;
   user:
@@ -472,10 +515,26 @@ export interface EventsSelect<T extends boolean = true> {
   endTime?: T;
   previewText?: T;
   description?: T;
-  registrationLink?: T;
   image?: T;
   eventTag?: T;
   ribbonTag?: T;
+  regStyle?: T;
+  registrationLink?: T;
+  registrationForm?:
+    | T
+    | {
+        type?: T;
+        name?: T;
+        fieldid?: T;
+        dropdownOptions?:
+          | T
+          | {
+              option?: T;
+              id?: T;
+            };
+        placeholder?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -514,6 +573,26 @@ export interface ClubMemberSelect<T extends boolean = true> {
   hash?: T;
   loginAttempts?: T;
   lockUntil?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "registrations_select".
+ */
+export interface RegistrationsSelect<T extends boolean = true> {
+  eventId?: T;
+  userId?: T;
+  answers?:
+    | T
+    | {
+        fieldId?: T;
+        fieldType?: T;
+        answer?: T;
+        id?: T;
+      };
+  images?: T;
+  submittedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
