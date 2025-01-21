@@ -3,7 +3,7 @@ import { redirect } from "next/navigation"
 import { ErrDefault, FetchEventById } from "@/app/(frontend)/_data"
 import EventRegister from "@/components/EventRegister"
 
-export default async function Page({ params }: { params: { id: string } }) {
+export default async function Page({ params }: any) {
   const { id } = params
 
   const cookieStore = await cookies()

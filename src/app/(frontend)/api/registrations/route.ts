@@ -9,7 +9,7 @@ const supabase = createClient(
   {
     fetch: (url, init) =>
       fetch(url, { ...init, duplex: "half" } as RequestInit), // Add duplex option here
-  },
+  } as any,
 )
 
 export async function POST(req: Request) {

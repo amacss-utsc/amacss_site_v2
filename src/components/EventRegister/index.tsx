@@ -169,6 +169,7 @@ const EventRegister: FC<PageProps> = ({ event }) => {
                   name={field.fieldid}
                   type="text"
                   placeholder={field.placeholder || ""}
+                  // @ts-ignore
                   value={formData[field.fieldid] instanceof File ? "" : formData[field.fieldid] || ""}
                   onChange={handleChange}
                   className="border-2 border-gray-20 rounded-[16px] px-6 py-5 bg-gray-02 text-black font-bold placeholder:uppercase placeholder:text-gray-20 text-xl"
@@ -180,6 +181,7 @@ const EventRegister: FC<PageProps> = ({ event }) => {
                   name={field.fieldid}
                   type="text"
                   placeholder={field.placeholder || ""}
+                  // @ts-ignore
                   value={formData[field.fieldid] instanceof File ? "" : formData[field.fieldid] || ""}
                   onChange={handleChange}
                   className="border-2 border-gray-20 rounded-[16px] px-6 py-5 bg-gray-02 text-black font-bold placeholder:uppercase placeholder:text-gray-20 text-xl"
@@ -191,6 +193,7 @@ const EventRegister: FC<PageProps> = ({ event }) => {
                   name={field.fieldid}
                   placeholder={field.placeholder || ""}
                   rows={4}
+                  // @ts-ignore
                   value={formData[field.fieldid] instanceof File ? "" : formData[field.fieldid] || ""}
                   onChange={handleChange}
                   className="border-2 border-gray-20 rounded-[16px] px-6 py-5 bg-gray-02 text-black font-bold placeholder:uppercase placeholder:text-gray-20 text-xl"
@@ -219,6 +222,7 @@ const EventRegister: FC<PageProps> = ({ event }) => {
                   id={field.fieldid}
                   name={field.fieldid}
                   onChange={handleChange}
+                  // @ts-ignore
                   value={formData[field.fieldid] || ""}
                   className="border-2 border-gray-20 rounded-[16px] px-6 py-5 bg-gray-02 text-black font-bold placeholder:uppercase placeholder:text-gray-20 text-xl invalid:text-gray-20 invalid:uppercase"
                   defaultValue=""
