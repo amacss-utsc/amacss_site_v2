@@ -53,8 +53,8 @@ export default async function Page() {
         const prioMembers = (s['prio-team-members'] ?? []).filter(mfFn).map(mmFn)
 
         return (
-          <section key={i} className="pt-9 flex flex-col items-center gap-y-9 lg:gap-y-10">
-            <h2 className="font-bold text-3xl w-full mt-6 lg:mt-0">{s.name}</h2>
+          <section key={i} className="pt-9 flex flex-col items-center lg:gap-y-10">
+            <h2 className="font-bold text-3xl w-full mt-6 lg:mt-0 mb-8 lg:mb-0">{s.name}</h2>
 
             <div className={cn(MemberWrapperStyle, "lg:w-[70%]")}>
             {prioMembers.map(Member)}
