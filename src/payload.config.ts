@@ -20,6 +20,8 @@ import { defaultLexical } from "@/fields/defaultLexical"
 import { getServerSideURL } from "./utilities/getURL"
 import { ClubMember } from "./collections/ClubMembers"
 import { Registrations } from "./collections/Registrations"
+import { Resources } from "./collections/Resources"
+import { ResourceTag } from "./collections/ResourceTag"
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -80,6 +82,8 @@ export default buildConfig({
     RibbonTag,
     ClubMember,
     Registrations,
+    Resources,
+    ResourceTag,
   ],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [],

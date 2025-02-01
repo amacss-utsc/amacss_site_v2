@@ -1,4 +1,4 @@
-import { Team, Event } from "@/payload-types"
+import { Team, Event, Resource } from "@/payload-types"
 import config from "@payload-config"
 import { getPayload, PaginatedDocs } from "payload"
 
@@ -180,6 +180,116 @@ export const FetchEventById = async (
   return {
     event,
     error: null,
+  }
+}
+
+type FetchResourceTagsType = {
+  tags: string[] | null
+  error: DataError
+}
+
+export const FetchResourceTags = async (): Promise<FetchResourceTagsType> => {
+  const payload = await getPayload({ config })
+
+  if (!payload) {
+    return {
+      tags: null,
+      error: {
+        code: 500,
+        message: "Failed to load Payload Config",
+      },
+    }
+  }
+
+  const tags = await payload.find({
+    collection: "resource-tag",
+  })
+
+  if (!tags || !tags.docs || tags.docs.length === 0) {
+    return {
+      tags: null,
+      error: {
+        code: 500,
+        message: "Resource Tags Query Failed or No Tags Found",
+      },
+    }
+  }
+
+  const t = tags.docs.map((i) => i.resourceTag)
+
+  return {
+    tags: t,
+    error: null,
+  }
+}
+
+type FetchResourcesType = {
+  resources: PaginatedDocs<Resource> | null
+  error: DataError
+}
+
+interface FetchResourcesArgs {
+  limit?: number
+  page?: number
+  tags?: string[]
+}
+
+export const FetchResources = async ({
+  limit = 10,
+  page = 0,
+  tags = [],
+}: FetchResourcesArgs = {}): Promise<FetchResourcesType> => {
+  const payload = await getPayload({ config })
+
+  if (!payload) {
+    return {
+      resources: null,
+      error: {
+        code: 500,
+        message: "Failed to load Payload Config",
+      },
+    }
+  }
+
+  try {
+    const resources = await payload.find({
+      collection: "resources",
+      page,
+      limit,
+      depth: 2,
+      where:
+        tags.length > 0
+          ? {
+              resourceTags: {
+                in: tags.map((tag) => ({ resourceTag: { equals: tag } })),
+              },
+            }
+          : undefined,
+    })
+
+    if (!resources || !resources.docs || resources.docs.length === 0) {
+      return {
+        resources: null,
+        error: {
+          code: 404,
+          message: "No Resources Found",
+        },
+      }
+    }
+
+    return {
+      resources,
+      error: null,
+    }
+  } catch (error) {
+    console.error("FetchResources error:", error)
+    return {
+      resources: null,
+      error: {
+        code: 500,
+        message: "Failed to fetch resources",
+      },
+    }
   }
 }
 

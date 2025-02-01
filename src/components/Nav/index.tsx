@@ -18,6 +18,7 @@ export const Links: { n: string; u: string }[] = [
   { n: "HOME", u: "/" },
   { n: "EVENTS", u: "/events" },
   { n: "OUR TEAM", u: "/team" },
+  { n: "RESOURCES", u: "/resources" },
 ]
 
 const MobileMenu: React.FC<MobileMenuProps> = ({ closeMenu }) => {

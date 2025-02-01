@@ -23,6 +23,8 @@ export interface Config {
     'ribbon-tag': RibbonTag;
     'club-member': ClubMember;
     registrations: Registration;
+    resources: Resource;
+    'resource-tag': ResourceTag;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -40,6 +42,8 @@ export interface Config {
     'ribbon-tag': RibbonTagSelect<false> | RibbonTagSelect<true>;
     'club-member': ClubMemberSelect<false> | ClubMemberSelect<true>;
     registrations: RegistrationsSelect<false> | RegistrationsSelect<true>;
+    resources: ResourcesSelect<false> | ResourcesSelect<true>;
+    'resource-tag': ResourceTagSelect<false> | ResourceTagSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -310,6 +314,30 @@ export interface Registration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "resources".
+ */
+export interface Resource {
+  id: number;
+  title: string;
+  description: string;
+  resourceTags: (number | ResourceTag)[];
+  buttonText: string;
+  link: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "resource-tag".
+ */
+export interface ResourceTag {
+  id: number;
+  resourceTag: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -358,6 +386,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'registrations';
         value: number | Registration;
+      } | null)
+    | ({
+        relationTo: 'resources';
+        value: number | Resource;
+      } | null)
+    | ({
+        relationTo: 'resource-tag';
+        value: number | ResourceTag;
       } | null);
   globalSlug?: string | null;
   user:
@@ -591,6 +627,28 @@ export interface RegistrationsSelect<T extends boolean = true> {
       };
   images?: T;
   submittedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "resources_select".
+ */
+export interface ResourcesSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  resourceTags?: T;
+  buttonText?: T;
+  link?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "resource-tag_select".
+ */
+export interface ResourceTagSelect<T extends boolean = true> {
+  resourceTag?: T;
   updatedAt?: T;
   createdAt?: T;
 }
