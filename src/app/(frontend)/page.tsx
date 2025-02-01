@@ -11,6 +11,7 @@ import topLeft from "@/utilities/lottie/desktop-top-left.json"
 import bottomLeft from "@/utilities/lottie/desktop-bottom-left.json"
 import topRight from "@/utilities/lottie/desktop-top-right.json"
 import bottomRight from "@/utilities/lottie/desktop-bottom-right.json"
+import center from "@/utilities/lottie/desktop-center.json"
 import mobileAnimation from "@/utilities/lottie/mobile.json"
 import canUseDOM from "@/utilities/canUseDOM";
 
@@ -50,6 +51,7 @@ export default function Page() {
             <Lottie
               //@ts-ignore
               options={{ loop: true, autoplay: true, animationData: topLeft }}
+              isClickToPauseDisabled={true}
             />
           </div>
 
@@ -58,7 +60,8 @@ export default function Page() {
           >
             <Lottie
               //@ts-ignore
-              options={{ loop: true, autoplay: true, animationData: topLeft }}
+              options={{ loop: true, autoplay: true, animationData: topRight }}
+              isClickToPauseDisabled={true}
             />
           </div>
 
@@ -67,7 +70,8 @@ export default function Page() {
           >
             <Lottie
               //@ts-ignore
-              options={{ loop: true, autoplay: true, animationData: topRight }}
+              options={{ loop: true, autoplay: true, animationData: center }}
+              isClickToPauseDisabled={true}
             />
           </div>
 
@@ -77,6 +81,7 @@ export default function Page() {
             <Lottie
               //@ts-ignore
               options={{ loop: true, autoplay: true, animationData: bottomLeft }}
+              isClickToPauseDisabled={true}
             />
           </div>
 
@@ -86,6 +91,7 @@ export default function Page() {
             <Lottie
               //@ts-ignore
               options={{ loop: true, autoplay: true, animationData: bottomRight }}
+              isClickToPauseDisabled={true}
             />
           </div>
           <div
@@ -101,6 +107,7 @@ export default function Page() {
                   preserveAspectRatio: 'xMidYMid slice',
                 }
               }}
+              isClickToPauseDisabled={true}
             />
           </div>
         </>
