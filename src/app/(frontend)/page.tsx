@@ -1,27 +1,28 @@
 "use client"
-import React, { useEffect, useRef } from "react";
-import dynamic from "next/dynamic";
-import A from "@/components/svg/A";
-import Logo from "@/components/svg/Logo";
-import { useStateContext } from "@/providers/State";
-import { colors } from "@/utilities/colors";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import React, { useEffect, useRef } from "react"
+import dynamic from "next/dynamic"
+import A from "@/components/svg/A"
+import Logo from "@/components/svg/Logo"
+import { useStateContext } from "@/providers/State"
+import { colors } from "@/utilities/colors"
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
 import topLeft from "@/utilities/lottie/desktop-top-left.json"
 import bottomLeft from "@/utilities/lottie/desktop-bottom-left.json"
 import topRight from "@/utilities/lottie/desktop-top-right.json"
 import bottomRight from "@/utilities/lottie/desktop-bottom-right.json"
 import center from "@/utilities/lottie/desktop-center.json"
 import mobileAnimation from "@/utilities/lottie/mobile.json"
-import canUseDOM from "@/utilities/canUseDOM";
+import canUseDOM from "@/utilities/canUseDOM"
+import { LottieBackground } from "@/components/LottieBackground"
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger)
 
-const Lottie = dynamic(() => import("react-lottie"), { ssr: false });
+const Lottie = dynamic(() => import("react-lottie"), { ssr: false })
 
 export default function Page() {
-  const { setMenuOpen } = useStateContext();
-  const triggerRef = useRef<HTMLDivElement>(null);
+  const { setMenuOpen } = useStateContext()
+  const triggerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     ScrollTrigger.create({
@@ -29,12 +30,12 @@ export default function Page() {
       start: "top top",
       end: "+=1",
       onEnter: () => setMenuOpen(true),
-    });
+    })
 
     return () => {
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
-    };
-  }, [setMenuOpen]);
+      ScrollTrigger.getAll().forEach((trigger) => trigger.kill())
+    }
+  }, [setMenuOpen])
 
   const mounted = canUseDOM
 
@@ -43,7 +44,8 @@ export default function Page() {
       ref={triggerRef}
       className="w-full scrollhider bg-gray-90 h-[120vh] lg:relative lg:h-full lg:rounded-[32px] lg:flex lg:items-center lg:justify-center lg:flex-col"
     >
-      {mounted &&
+      <LottieBackground />
+      {/* {mounted &&
         <>
           <div
             className="hidden lg:block absolute w-[150%] h-full -top-1/2 -left-2/3 opacity-50"
@@ -111,7 +113,7 @@ export default function Page() {
             />
           </div>
         </>
-      }
+      } */}
       <div className="w-screen h-screen flex items-center justify-center lg:hidden flex-col sticky top-0 left-0">
         <A className="mb-2.5 lg:hidden" />
         <Logo fill={colors.gray["02"]} className="lg:hidden" />
@@ -126,6 +128,5 @@ export default function Page() {
         Association of Mathematical and Computer Science Students
       </h1>
     </main>
-  );
+  )
 }
-
