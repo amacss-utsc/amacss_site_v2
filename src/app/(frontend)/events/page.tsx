@@ -4,7 +4,7 @@ import { ErrDefault, FetchEvents, FetchEventTags } from '../_data'
 
 export default async function Page() {
 
-  const { events, error } = await FetchEvents()
+  const { events, error } = await FetchEvents({limit: 40})
 
   const e = ErrDefault(error, events, [])
 
