@@ -7,8 +7,10 @@ export const revalidateEventTags: CollectionAfterChangeHook<EventTag> = ({
   previousDoc,
   req: { payload },
 }) => {
-  revalidatePath("/events")
   revalidatePath("/")
+  revalidatePath("/events")
+  revalidatePath("/team")
+  revalidatePath("/resources")
 
   return doc
 }

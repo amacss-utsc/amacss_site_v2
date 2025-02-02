@@ -9,6 +9,8 @@ export const revalidateEvents: CollectionAfterChangeHook<Event> = ({
 }) => {
   revalidatePath("/")
   revalidatePath("/events")
+  revalidatePath("/team")
+  revalidatePath("/resources")
 
   return doc
 }
