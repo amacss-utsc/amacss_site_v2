@@ -248,22 +248,28 @@ export const DesktopNav: FC = ({ }) => {
           Log in
         </Link>
       ) : (
-        <div className="relative">
+        <div 
+          className="relative"
+          onMouseEnter={() => setDropdownOpen(true)} 
+          onMouseLeave={() => setDropdownOpen(false)}
+        >
           <button
-            onClick={() => setDropdownOpen((prev) => !prev)}
             className={cn(NavLink, "font-bold cursor-pointer w-fit uppercase h-full flex items-center justify-center")}
           >
             <User className="inline mr-2" />
             {user.firstName} {user.lastName}
           </button>
           {dropdownOpen && (
-            <div className="absolute bg-gray-80 right-0 mt-2 shadow-lg rounded-md py-2 w-48 z-10">
+            <div className="absolute bg-gray-80 -mt-2 right-0 shadow-lg rounded-md py-2 w-48 z-10">
               <button
                 onClick={() => {
                   logout()
                   setDropdownOpen(false)
                 }}
-                className={cn(NavLink, "block uppercase font-bold w-full text-left px-4 py-2")}
+                className={cn(NavLink, "w-full text-left px-4 py-3 rounded-md",
+                  "hover:bg-gray-70 transition-colors",
+                  "text-gray-10 font-semibold text-sm uppercase",
+                  "flex items-center justify-between")}
               >
                 Log out
               </button>
