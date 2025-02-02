@@ -60,7 +60,7 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
   }, [e, tagsIndices, startDate, endDate, tags])
 
   return (
-    <main className="pt-16 px-8 lg:p-11 bg-gray-90 h-full lg:rounded-tl-[32px] overflow-hidden">
+    <main className="pt-16 px-8 lg:p-11 bg-gray-90 h-full lg:rounded-tl-[32px] overflow-x-hidden">
       <button
         onClick={() => setFilterOpen(true)}
         className="text-gray-10 font-semibold text-2xl uppercase flex items-center justify-center mt-7 mb-3 lg:hidden"
@@ -95,7 +95,7 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
             return (
               <article
                 key={j}
-                className="w-full h-[300px] bg-white rounded-b-[12px] flex flex-col relative overflow-hidden mb-11 max-w-[500px]"
+                className="w-full h-[412px] bg-white rounded-b-[12px] flex flex-col relative overflow-hidden mb-11 max-w-[400px] lg:mb-6"
               >
                 <div
                   className={cn(
@@ -114,18 +114,21 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
                 >
                   {" "}
                 </div>
+                <div>
+
                 <Image
                   src={url}
                   alt={alt}
                   width={width}
                   height={height}
-                  className="w-full h-[189px] object-cover"
+                  className="w-full h-[300px] object-cover"
                 />
+                </div>
                 <div className="flex flex-col h-full px-2.5 py-1.5">
                   <h2 className="font-bold text-2xl text-gray-90">
                     {ev.title}
                   </h2>
-                  <p className="text-[10px] ">{ev.previewText}</p>
+                  <p className="text-[12px] ">{ev.previewText}</p>
                   <div className="w-full flex items-end justify-between mt-auto uppercase ">
                     <p className="text-gray-30 text-sm font-semibold">
                       {new Date(ev.date).toLocaleDateString("en-US", {

@@ -119,13 +119,13 @@ const EventRegister: FC<PageProps> = ({ event }) => {
 
   return (
     <main className="bg-gray-02 h-full lg:rounded-tl-[32px] overflow-y-scroll">
-      <Image
+      {/* <Image
         src={url}
         alt={alt}
         width={width}
         height={height}
         className="w-full h-[340px] object-cover"
-      />
+      /> */}
       <div className="pt-6 px-8 lg:pt-11 lg:px-16">
         <hgroup className="flex items-center justify-between w-full">
           <h1 className="text-gray-90 font-bold uppercase text-4xl">{event.title}</h1>
