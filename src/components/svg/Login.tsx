@@ -10,7 +10,6 @@ const Login = (props: SVGProps<SVGSVGElement>) => (
   >
     <g clipPath="url(#a)">
       <path
-        stroke="#F3F3F3"
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth={2.5}

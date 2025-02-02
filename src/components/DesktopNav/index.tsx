@@ -233,7 +233,13 @@ export const DesktopNav: FC = ({ }) => {
       <ul className="flex flex-row items-end font-[800] gap-x-11">
         {Links.map((i, j) => (
           <li key={j} className="h-full flex items-center justify-center">
-            <Link href={i.u} key={j} className={NavLink}>
+            <Link href={i.u} key={j} className={cn(
+                NavLink,
+                "relative after:absolute after:bottom-[-2px] after:left-0 after:w-full after:h-[2px] after:rounded-full",
+                pathname === i.u 
+                  ? "after:bg-white hover:after:bg-gray-20 after:transition-all" 
+                  : "after:bg-transparent hover:after:bg-gray-20"
+              )}>
               {i.n}
             </Link>
           </li>
@@ -242,9 +248,9 @@ export const DesktopNav: FC = ({ }) => {
       {user == null ? (
         <Link
           href={"/login"}
-          className={cn(NavLink, "font-bold w-fit uppercase h-full flex items-center justify-center")}
+          className={cn(NavLink, "font-bold w-fit uppercase h-full flex items-center justify-center group")}
         >
-          <Login className="inline mr-2" />
+          <Login className="inline mr-2 transition-colors stroke-[#FFFFFF] group-hover:[stroke:#818488]" />
           Log in
         </Link>
       ) : (
@@ -254,9 +260,9 @@ export const DesktopNav: FC = ({ }) => {
           onMouseLeave={() => setDropdownOpen(false)}
         >
           <button
-            className={cn(NavLink, "font-bold cursor-pointer w-fit uppercase h-full flex items-center justify-center")}
+            className={cn(NavLink, "font-bold cursor-pointer w-fit uppercase h-full flex items-center justify-center group")}
           >
-            <User className="inline mr-2" />
+            <User className="transition-colors inline mr-2 stroke-[#FFFFFF] group-hover:[stroke:#818488]" />
             {user.firstName} {user.lastName}
           </button>
           {dropdownOpen && (
