@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import type { Resource } from '@/payload-types'
+import { LottieBackground } from '@/components/LottieBackground'
 
 type ResourcesPageProps = {
   resources: Resource[]

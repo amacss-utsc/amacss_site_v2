@@ -18,8 +18,8 @@ export const LottieBackground = () => {
   if (!mounted) return null
 
   return (
-    <>
-      <div className="hidden lg:block absolute w-[150%] h-full -top-1/2 -left-2/3 opacity-50">
+    <div className="z-[-90]">
+      <div className="hidden lg:block absolute w-[150%] h-full -top-1/2 -left-2/3 opacity-50 pointer-events-none">
         <Lottie
           // @ts-ignore
           options={{ loop: true, autoplay: true, animationData: topLeft }}
@@ -27,7 +27,7 @@ export const LottieBackground = () => {
         />
       </div>
 
-      <div className="hidden lg:block absolute w-1/2 h-1/2 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-50">
+      <div className="hidden lg:block absolute w-1/2 h-1/2 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-50 pointer-events-none">
         <Lottie
           // @ts-ignore
           options={{ loop: true, autoplay: true, animationData: topRight }}
@@ -35,7 +35,7 @@ export const LottieBackground = () => {
         />
       </div>
 
-      <div className="hidden lg:block absolute w-3/4 h-3/4 -top-1/4 -right-1/4 opacity-50">
+      <div className="hidden lg:block absolute w-3/4 h-3/4 -top-1/4 -right-1/4 opacity-50 pointer-events-none">
         <Lottie
           // @ts-ignore
           options={{ loop: true, autoplay: true, animationData: center }}
@@ -43,7 +43,7 @@ export const LottieBackground = () => {
         />
       </div>
 
-      <div className="hidden lg:block absolute w-3/4 h-3/4 -left-1/4 -bottom-1/3 opacity-50">
+      <div className="hidden lg:block absolute w-3/4 h-3/4 -left-1/4 -bottom-1/3 opacity-50 pointer-events-none">
         <Lottie
           // @ts-ignore
           options={{ loop: true, autoplay: true, animationData: bottomLeft }}
@@ -51,7 +51,7 @@ export const LottieBackground = () => {
         />
       </div>
 
-      <div className="hidden lg:block absolute w-full h-full -right-1/2 -bottom-1/2">
+      <div className="hidden lg:block absolute w-full h-full -right-1/2 -bottom-1/2 pointer-events-none">
         <Lottie
           // @ts-ignore
           options={{ loop: true, autoplay: true, animationData: bottomRight }}
@@ -59,7 +59,7 @@ export const LottieBackground = () => {
         />
       </div>
 
-      <div className="w-screen lg:hidden h-screen absolute top-0 left-0 opacity-50">
+      <div className="w-screen lg:hidden h-screen absolute top-0 left-0 opacity-50 pointer-events-none">
         <Lottie
           // @ts-ignore
           options={{
@@ -73,6 +73,6 @@ export const LottieBackground = () => {
           isClickToPauseDisabled={true}
         />
       </div>
-    </>
+    </div>
   )
 }

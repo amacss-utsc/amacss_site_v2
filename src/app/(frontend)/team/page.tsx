@@ -4,6 +4,7 @@ import { Media, SubTeam, TeamMember } from '@/payload-types';
 import Image from 'next/image';
 import { cn } from '@/utilities/cn';
 import { MemberWrapperStyle } from '@/utilities/tailwindShared';
+import { ImageWithLoader } from '@/components/Team/ImageWithLoader';
 
 const Member = (m: TeamMember, j: number) => {
   const img: Media | null =
@@ -22,10 +23,10 @@ const Member = (m: TeamMember, j: number) => {
   if (!url || !alt || width == null || height == null) return null;
 
   return (
-    <article key={j} className="flex flex-col items-center mb-8 lg:mb-0">
-      <Image src={url} alt={alt} width={width} height={height} className="w-64 h-64 rounded-[32px] mb-2 object-cover" />
+    <article key={j} className="flex flex-col items-center mb-8 lg:mb-0 lg:mx-4">
+      <ImageWithLoader src={url} alt={alt} width={width} height={height} className="w-64 h-64 rounded-[32px] mb-2 object-cover" />
       <h3 className="text-2xl font-semibold">{m.name}</h3>
-      <h4 className="text-2xl font-extrabold text-[#F3F3F3] opacity-25">{m.role}</h4>
+      <h4 className="text-lg font-extrabold text-[#F3F3F3] opacity-25">{m.role}</h4>
     </article>
   );
 }
@@ -59,7 +60,7 @@ export default async function Page() {
             <div className={cn(MemberWrapperStyle, "lg:w-[70%]")}>
             {prioMembers.map(Member)}
             </div>
-            <div className={cn(MemberWrapperStyle, "lg:w-full")}>
+            <div className={cn(MemberWrapperStyle, "lg:w-full max-w-[1500px]")}>
             {members.map(Member)}
             </div>
           </section>

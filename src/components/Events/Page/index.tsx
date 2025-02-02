@@ -8,7 +8,6 @@ import InfoI from "@/components/svg/InfoI"
 import { cn } from "@/utilities/cn"
 import { RibbonStyle } from "@/utilities/tailwindShared"
 import { useStateContext } from "@/providers/State"
-import { LottieBackground } from "@/components/LottieBackground"
 
 type EventsPageProps = {
   events: PaginatedDocs<Event>
@@ -62,7 +61,6 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
 
   return (
     <main className="pt-16 px-8 lg:p-11 bg-gray-90 h-full lg:rounded-tl-[32px] overflow-hidden">
-      <LottieBackground />
       <button
         onClick={() => setFilterOpen(true)}
         className="text-gray-10 font-semibold text-2xl uppercase flex items-center justify-center mt-7 mb-3 lg:hidden"
