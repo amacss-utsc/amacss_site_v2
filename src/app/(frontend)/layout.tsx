@@ -13,7 +13,7 @@ import { Providers } from "@/providers"
 import { EventModal } from "@/components/Events/Modal"
 import { FilterModal } from "@/components/Events/Filter"
 import { DesktopNav, DesktopSidebar } from "@/components/DesktopNav"
-import { ErrDefault, FetchEvents, FetchEventTags } from "./_data"
+import { ErrDefault, FetchEventTags, FetchSidebarEvents } from "./_data"
 
 const mtsrt = Montserrat({
   subsets: ["latin"],
@@ -26,7 +26,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const { events, error } = await FetchEvents()
+  const { events, error } = await FetchSidebarEvents()
 
   const e = ErrDefault(error, events, [])
 

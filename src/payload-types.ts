@@ -213,6 +213,7 @@ export interface Event {
   startTime?: string | null;
   endTime?: string | null;
   previewText: string;
+  onSidebar?: boolean | null;
   description: {
     root: {
       type: string;
@@ -550,6 +551,7 @@ export interface EventsSelect<T extends boolean = true> {
   startTime?: T;
   endTime?: T;
   previewText?: T;
+  onSidebar?: T;
   description?: T;
   image?: T;
   eventTag?: T;

@@ -142,6 +142,65 @@ export const FetchEvents = async ({
   }
 }
 
+type FetchSidebarEventsType = {
+  events: PaginatedDocs<Event> | null
+  error: DataError
+}
+
+export const FetchSidebarEvents = async ({
+  limit = 100,
+  page = 0,
+}: FetchEventsArgs = {}): Promise<FetchSidebarEventsType> => {
+  const payload = await getPayload({ config })
+
+  if (!payload) {
+    return {
+      events: null,
+      error: {
+        code: 500,
+        message: "Failed to load Payload Config",
+      },
+    }
+  }
+
+  try {
+    const events = await payload.find({
+      collection: "events",
+      page,
+      limit,
+      where: {
+        onSidebar: {
+          equals: true,
+        },
+      },
+    })
+
+    if (!events?.docs?.length) {
+      return {
+        events: null,
+        error: {
+          code: 404,
+          message: "No sidebar events found",
+        },
+      }
+    }
+
+    return {
+      events,
+      error: null,
+    }
+  } catch (error) {
+    console.error("FetchSidebarEvents error:", error)
+    return {
+      events: null,
+      error: {
+        code: 500,
+        message: "Failed to fetch sidebar events",
+      },
+    }
+  }
+}
+
 type FetchEventByIdType = {
   event: Event | null
   error: DataError

@@ -57,6 +57,12 @@ export const Events: CollectionConfig = {
       required: true,
     },
     {
+      name: "onSidebar",
+      type: "checkbox",
+      label: "Show in Sidebar",
+      defaultValue: false,
+    },
+    {
       name: "description",
       type: "richText",
       required: true,
