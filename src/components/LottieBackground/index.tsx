@@ -18,7 +18,7 @@ export const LottieBackground = () => {
   if (!mounted) return null
 
   return (
-    <div className="z-[-90]">
+    <div>
       <div className="hidden lg:block absolute w-[150%] h-full -top-1/2 -left-2/3 opacity-50 pointer-events-none">
         <Lottie
           // @ts-ignore
