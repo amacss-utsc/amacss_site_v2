@@ -111,23 +111,16 @@ export const DesktopSidebar: FC<Props> = ({ events, tags }) => {
                 return (
                   <SplideSlide key={j}>
                     <article className="w-full max-w-[218px] max-h-[264px] min-h-[264px] bg-white rounded-b-[12px] flex flex-col relative overflow-hidden mb-11 ticker-tile">
-                      <div
-                        className={cn(
-                          RibbonStyle,
-                          rT === "" ? "bg-white opacity-20" : "bg-blue-20",
-                          "top-[18px] h-[33px] left-[36px]"
-                        )}
-                      >
-                        {rT}
-                      </div>
-                      <div
-                        className={cn(
-                          RibbonStyle,
-                          "bg-white opacity-20 h-[33px] top-[40.5px] left-[81px] w-[300px]"
-                        )}
-                      >
-                        {" "}
-                      </div>
+                      {rT && (
+                          <div
+                            className={cn(
+                              RibbonStyle,
+                              "bg-blue-20 top-[18px] h-[33px] left-[36px]"
+                            )}
+                          >
+                            {rT}
+                          </div>
+                      )}
                       <Image
                         src={url}
                         alt={alt}

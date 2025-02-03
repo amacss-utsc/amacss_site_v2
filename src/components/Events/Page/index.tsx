@@ -61,6 +61,8 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
 
   return (
     <main className="pt-16 px-8 lg:p-11 bg-gray-90 h-full lg:rounded-tl-[32px] overflow-x-hidden">
+      <h1 className="text-4xl font-bold mb-4 text-white">Events</h1>
+
       <button
         onClick={() => setFilterOpen(true)}
         className="text-gray-10 font-semibold text-2xl uppercase flex items-center justify-center mt-7 mb-3 lg:hidden"
@@ -69,7 +71,7 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
         Filters
       </button>
 
-      <section className="lg:grid lg:grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] lg:gap-10 overflow-y-scroll">
+      <section className="lg:grid lg:grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] lg:gap-10 overflow-y-scroll lg:pt-4">
         {filteredEvents.length === 0 ? (
           <p className="text-center text-gray-02 mt-10">No events to show :(</p>
         ) : (
@@ -95,25 +97,18 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
             return (
               <article
                 key={j}
-                className="w-full h-[412px] bg-white rounded-b-[12px] flex flex-col relative overflow-hidden mb-11 max-w-[400px] lg:mb-6"
+                className="w-full h-[412px] bg-white rounded-b-[12px] flex flex-col relative overflow-hidden mb-11 max-w-[400px] lg:mb-6 hover:-translate-y-1.5 transition-all duration-300 hover:shadow-xl hover:ring-2 hover:ring-blue-20/20 group"
               >
-                <div
-                  className={cn(
-                    RibbonStyle,
-                    rT === "" ? "bg-white opacity-20" : "bg-blue-20",
-                    "top-[18px] h-[33px] left-[36px]",
-                  )}
-                >
-                  {rT}
-                </div>
-                <div
-                  className={cn(
-                    RibbonStyle,
-                    "bg-white opacity-20 h-[33px] top-[40.5px] left-[81px] w-[300px]",
-                  )}
-                >
-                  {" "}
-                </div>
+                {rT && (
+                  <div
+                    className={cn(
+                      RibbonStyle,
+                      "bg-blue-20 top-[19px] h-[35px] left-[38px]"
+                    )}
+                  >
+                    {rT}
+                  </div>
+                )}
                 <div>
 
                 <Image
@@ -121,7 +116,7 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
                   alt={alt}
                   width={width}
                   height={height}
-                  className="w-full h-[300px] object-cover"
+                  className="w-full h-[300px] object-cover group-hover:scale-[102%] transition-all duration-300"
                 />
                 </div>
                 <div className="flex flex-col h-full px-2.5 py-1.5">
@@ -137,7 +132,7 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
                       }) ?? ""}
                     </p>
                     <button
-                      className="text-blue-20 text-sm font-semibold flex items-center uppercase"
+                      className="text-blue-20 text-sm font-semibold flex items-center uppercase transition-all duration-300 hover:text-blue-30 group-hover:translate-x-1"
                       onClick={() => setFocusedEvent(ev)}
                     >
                       Learn more

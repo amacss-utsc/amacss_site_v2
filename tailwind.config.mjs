@@ -108,6 +108,10 @@ export default {
           '50%': { transform: 'translateY(-10px)' },
         },
       },
+      transitionProperty: {
+        'height': 'height',
+        'transform': 'transform',
+      },
       typography: ({ theme }) => ({
         DEFAULT: {
           css: {
