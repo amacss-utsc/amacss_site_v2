@@ -89,7 +89,7 @@ export const EventModal = () => {
         />
         <div className="bg-white flex-grow px-5 pt-3 overflow-hidden flex flex-col relative lg:w-full ">
           {overflowing && (
-            <div className={cn(focusedEvent.registrationLink ? "bottom-[84px]" : "bottom-0 lg:bottom-[90px]", "absolute right-0 w-full bg-gradient-to-b from-white/0 to-white h-[95px] lg:h-[70px] z-10 flex items-center justify-center")}>
+            <div className={cn((focusedEvent.registrationLink || focusedEvent.regStyle === "internal") ? "bottom-[10px] lg:bottom-[84px]" : "bottom-0", "absolute right-0 w-full bg-gradient-to-b from-white/0 to-white h-[95px] lg:h-[70px] z-10 flex items-center justify-center")}>
               <button
                 className="animate-bob"
                 onClick={handleChevronClick}
