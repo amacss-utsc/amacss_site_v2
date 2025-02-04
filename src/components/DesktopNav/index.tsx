@@ -21,6 +21,7 @@ import { DatePicker } from "../ui/datepicker"
 import Login from "../svg/Login"
 import { useAuth } from "@/providers/Auth"
 import User from "../svg/User"
+import { CompactEventImageWithLoader } from "../Events/ImageLoader"
 
 type Props = {
   events: PaginatedDocs<Event>
@@ -33,7 +34,6 @@ export const DesktopSidebar: FC<Props> = ({ events, tags }) => {
 
   const {
     setFocusedEvent,
-    setFilterOpen,
     tags: cTags,
     setTags,
     tagsIndices,
@@ -85,6 +85,7 @@ export const DesktopSidebar: FC<Props> = ({ events, tags }) => {
                 pauseOnHover: true,
                 arrows: false,
                 pagination: false,
+                destroy: false,
               }}
               className="ticker"
             >
@@ -121,12 +122,12 @@ export const DesktopSidebar: FC<Props> = ({ events, tags }) => {
                             {rT}
                           </div>
                       )}
-                      <Image
+                      <CompactEventImageWithLoader
                         src={url}
                         alt={alt}
                         width={width}
                         height={height}
-                        className="w-[218px] max-w-[218px] min-h-[189px] object-cover"
+                        className="w-[218px] max-w-[218px] h-[189px] object-cover"
                       />
                       <div className="flex flex-col h-full px-2.5 py-1.5">
                         <h2 className="font-bold text-gray-90">{ev.title}</h2>

@@ -8,6 +8,7 @@ import InfoI from "@/components/svg/InfoI"
 import { cn } from "@/utilities/cn"
 import { RibbonStyle } from "@/utilities/tailwindShared"
 import { useStateContext } from "@/providers/State"
+import { EventImageWithLoader } from "../ImageLoader"
 
 type EventsPageProps = {
   events: PaginatedDocs<Event>
@@ -97,7 +98,7 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
             return (
               <article
                 key={j}
-                className="w-full h-[412px] bg-white rounded-b-[12px] flex flex-col relative overflow-hidden mb-11 max-w-[400px] lg:mb-6 hover:-translate-y-1.5 transition-all duration-300 hover:shadow-xl hover:ring-2 hover:ring-blue-20/20 group"
+                className="w-full h-[412px] bg-white rounded-b-[12px] flex flex-col relative overflow-hidden mb-11 max-w-[400px] lg:mb-6 lg:hover:-translate-y-1.5 transition-all duration-300 lg:hover:shadow-[0_8px_30px_rgba(255,255,255,0.2)] group"
               >
                 {rT && (
                   <div
@@ -111,12 +112,12 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
                 )}
                 <div>
 
-                <Image
+                <EventImageWithLoader
                   src={url}
                   alt={alt}
                   width={width}
                   height={height}
-                  className="w-full h-[300px] object-cover group-hover:scale-[102%] transition-all duration-300"
+                  className="w-full h-[300px] object-cover lg:group-hover:scale-[102%] transition-all duration-300"
                 />
                 </div>
                 <div className="flex flex-col h-full px-2.5 py-1.5">
@@ -132,7 +133,7 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
                       }) ?? ""}
                     </p>
                     <button
-                      className="text-blue-20 text-sm font-semibold flex items-center uppercase transition-all duration-300 hover:text-blue-30 group-hover:translate-x-1"
+                      className="text-blue-20 text-sm font-semibold flex items-center uppercase transition-all duration-300 lg:hover:text-blue-30 lg:group-hover:translate-x-1"
                       onClick={() => setFocusedEvent(ev)}
                     >
                       Learn more
