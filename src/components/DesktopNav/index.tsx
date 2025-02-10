@@ -52,7 +52,7 @@ export const DesktopSidebar: FC<Props> = ({ events, tags }) => {
     if (events?.docs !== e) sE(events?.docs ?? [])
   }, [events])
 
-  if (pathname === "/login" || pathname === "/register") return null
+  if (pathname === "/login" || pathname === "/register" || pathname === "/forgot-password" || pathname === "/reset-password") return null
 
 
   if (pathname !== "/events")
@@ -220,7 +220,7 @@ export const DesktopNav: FC = ({ }) => {
   const { user, logout } = useAuth()
   const [dropdownOpen, setDropdownOpen] = useState(false)
 
-  if (pathname === "/login" || pathname === "/register") return null
+  if (pathname === "/login" || pathname === "/register" || pathname === "/forgot-password" || pathname === "/reset-password") return null
 
   return (
     <nav className="min-h-[56px] w-full hidden lg:flex justify-between bg-gray-80 pl-9 pr-4">

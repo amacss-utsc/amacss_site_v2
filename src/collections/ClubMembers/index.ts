@@ -9,6 +9,19 @@ export const ClubMember: CollectionConfig = {
       secure: true,
       domain: process.env.COOKIE_DOMAIN,
     },
+    forgotPassword: {
+      // @ts-ignore
+      generateEmailHTML: ({ token, user }) => {
+        const resetURL = `${process.env.NEXT_PUBLIC_SERVER_URL}/reset-password?token=${token}`
+
+        return `
+          <h1>Reset Your Password</h1>
+          <p>Hello ${user.firstName || ""},</p>
+          <p>Click the link below to reset your password:</p>
+          <a href="${resetURL}">Reset Password</a>
+        `
+      },
+    },
   },
   admin: {
     useAsTitle: "email",

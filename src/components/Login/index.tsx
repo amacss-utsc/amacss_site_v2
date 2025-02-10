@@ -100,6 +100,12 @@ export default function LoginForm() {
             Or create account
           </Link>
         </p>
+
+        <div className="flex flex-col items-center mt-4 text-sm">
+        <Link href="/forgot-password" className="text-blue-10 normal-case">
+          Forgot Password?
+        </Link>
+      </div>
       </form>
     </main>
   )

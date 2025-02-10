@@ -169,6 +169,15 @@ export const Events: CollectionConfig = {
           required: true,
         },
         {
+          name: "description",
+          type: "text",
+          label: "Description",
+          required: false,
+          admin: {
+            description: "Add an optional description or hint for this field",
+          },
+        },
+        {
           name: "fieldid",
           type: "text",
           label: "Field ID",

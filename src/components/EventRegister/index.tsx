@@ -161,6 +161,11 @@ const EventRegister: FC<PageProps> = ({ event }) => {
                   className="mb-1.5 text-xl font-bold text-gray-90 uppercase"
                 >
                   {field.name}
+                  {field.description && (
+                    <p className="text-sm text-gray-50 mt-1 font-normal normal-case">
+                      {field.description}
+                    </p>
+                  )}
                 </label>
               )}
               {field.type === "short_short" && (

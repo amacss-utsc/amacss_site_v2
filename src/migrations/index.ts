@@ -3,6 +3,7 @@ import * as migration_20250108_230907_club_members from "./20250108_230907_club_
 import * as migration_20250121_010901_additional_fields from "./20250121_010901_additional_fields"
 import * as migration_20250201_230502_resources from "./20250201_230502_resources"
 import * as migration_20250202_202832_on_sidebar_attribute from "./20250202_202832_on_sidebar_attribute"
+import * as migration_20250210_045754_question_description from "./20250210_045754_question_description"
 
 export const migrations = [
   {
@@ -29,5 +30,10 @@ export const migrations = [
     up: migration_20250202_202832_on_sidebar_attribute.up,
     down: migration_20250202_202832_on_sidebar_attribute.down,
     name: "20250202_202832_on_sidebar_attribute",
+  },
+  {
+    up: migration_20250210_045754_question_description.up,
+    down: migration_20250210_045754_question_description.down,
+    name: "20250210_045754_question_description",
   },
 ]

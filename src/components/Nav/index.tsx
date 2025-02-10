@@ -89,7 +89,7 @@ const Nav: React.FC = () => {
 
   const pathname = usePathname()
 
-  if (pathname === "/login" || pathname === "/register") return null
+  if (pathname === "/login" || pathname === "/register" || pathname === "forgot-password" || pathname === "/reset-password") return null
 
   return (
     <div
