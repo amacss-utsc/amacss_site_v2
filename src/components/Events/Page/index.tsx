@@ -57,7 +57,17 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
       return dF && tF
     })
 
-    setFilteredEvents(filtered)
+    const sortedEvents = filtered.sort((a, b) => {
+      const aRibbon = typeof a.ribbonTag !== 'number' ? a.ribbonTag?.ribbonTag : ''
+      const bRibbon = typeof b.ribbonTag !== 'number' ? b.ribbonTag?.ribbonTag : ''
+      
+      // PINNED events come first
+      if (aRibbon?.toLowerCase() === 'pinned' && bRibbon?.toLowerCase() !== 'pinned') return -1
+      if (aRibbon?.toLowerCase() !== 'pinned' && bRibbon?.toLowerCase() === 'pinned') return 1
+      return 0
+    })
+
+    setFilteredEvents(sortedEvents)
   }, [e, tagsIndices, startDate, endDate, tags])
 
   return (
