@@ -14,6 +14,7 @@ import { EventModal } from "@/components/Events/Modal"
 import { FilterModal } from "@/components/Events/Filter"
 import { DesktopNav, DesktopSidebar } from "@/components/DesktopNav"
 import { ErrDefault, FetchEventTags, FetchSidebarEvents } from "./_data"
+import { Toaster } from "react-hot-toast"
 
 const mtsrt = Montserrat({
   subsets: ["latin"],
@@ -57,6 +58,7 @@ export default async function RootLayout({
             <div className="w-full h-full lg:flex lg:flex-col bg-gray-80 relative">
               <DesktopNav />
               <div className="relative w-full h-full lg:rounded-tl-[32px] overflow-hidden">
+                <Toaster position="top-right" />
                 <EventModal />
                 {children}
               </div>

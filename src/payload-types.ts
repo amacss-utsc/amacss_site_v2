@@ -239,6 +239,7 @@ export interface Event {
         type?: ('short_short' | 'short' | 'multiline' | 'dropdown' | 'image') | null;
         name: string;
         description?: string | null;
+        requiredField?: boolean | null;
         fieldid: string;
         dropdownOptions?:
           | {
@@ -565,6 +566,7 @@ export interface EventsSelect<T extends boolean = true> {
         type?: T;
         name?: T;
         description?: T;
+        requiredField?: T;
         fieldid?: T;
         dropdownOptions?:
           | T

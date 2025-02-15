@@ -60,6 +60,7 @@
     "react-day-picker": "8.10.1",
     "react-dom": "19.0.0-rc-65a56d0e-20241020",
     "react-hook-form": "7.45.4",
+    "react-hot-toast": "^2.5.1",
     "react-lottie": "^1.2.10",
     "sharp": "0.32.6",
     "tailwind-merge": "^2.3.0",

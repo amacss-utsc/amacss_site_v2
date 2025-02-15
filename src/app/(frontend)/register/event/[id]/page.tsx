@@ -38,7 +38,7 @@ async function checkExistingRegistration(eventId: string, userId: string) {
 }
 
 export default async function Page({ params }: any) {
-  const { id } = params
+  const { id } = await params
 
   const cookieStore = await cookies()
   const token = cookieStore.get("payload-token")

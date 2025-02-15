@@ -178,6 +178,12 @@ export const Events: CollectionConfig = {
           },
         },
         {
+          name: "requiredField",
+          type: "checkbox",
+          label: "Required?",
+          defaultValue: true,
+        },
+        {
           name: "fieldid",
           type: "text",
           label: "Field ID",

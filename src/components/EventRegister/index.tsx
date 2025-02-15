@@ -6,6 +6,8 @@ import { useAuth } from "@/providers/Auth"
 import { Event, EventTag } from "@/payload-types"
 import Image from "next/image"
 import RichText from "../RichText"
+// Example toast library
+import { toast } from "react-hot-toast"
 
 type PageProps = {
   event: Event
@@ -14,108 +16,126 @@ type PageProps = {
 const EventRegister: FC<PageProps> = ({ event }) => {
   const { user } = useAuth()
   const router = useRouter()
-  const [formData, setFormData] = useState<{ [key: string]: string | File }>({})
+
+  const [formData, setFormData] = useState<Record<string, string | File>>({})
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  // Simple check for image
   const im = typeof event.image !== "number" ? event.image : null
-
   if (!im) return null
-
   const { url, alt, width, height } = im
   if (!url || !alt || width == null || height == null) return null
 
   const eTags = typeof event?.eventTag !== "number" ? event.eventTag : []
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
-    const { name } = e.target;
+    const { name } = e.target
 
     if (e.target instanceof HTMLInputElement && e.target.type === "file") {
-      // Check if files exist in the input
       if (e.target.files && e.target.files.length > 0) {
-        console.log("ADDING FILE", e)
-        const file = e.target.files[0]; // Get the first file
+        const file = e.target.files[0]
         setFormData((prev) => ({
           ...prev,
-          [name]: file, // Save the File object to formData
-        }));
-      } else {
-        console.error(`No file selected for field: ${name}`);
+          [name]: file,
+        }))
       }
     } else {
-      // For text and dropdown inputs
-      const { value } = e.target;
+      const { value } = e.target
       setFormData((prev) => ({
         ...prev,
         [name]: value,
-      }));
+      }))
     }
-  };
-
-
-  const clearForm = () => {
-    setFormData({})
+    // Clear error once user changes input
+    setFormErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }))
   }
 
+  // Local validation for required fields
+  const validateForm = () => {
+    const errors: Record<string, string> = {}
+
+    event.registrationForm?.forEach((field) => {
+      if (field.requiredField) {
+        const value = formData[field.fieldid]
+        // For files, if it’s not there, or for text fields if empty string
+        if (!value || (typeof value === "string" && value.trim() === "")) {
+          errors[field.fieldid] = "This field is required"
+        }
+      }
+    })
+
+    return errors
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+    e.preventDefault()
+    setIsSubmitting(true)
 
     if (!user) {
-      alert("You must be logged in to register.");
-      return;
+      toast.error("You must be logged in to register.")
+      setIsSubmitting(false)
+      return
     }
 
     if (!event.id) {
-      alert("Invalid event.");
-      return;
+      toast.error("Invalid event.")
+      setIsSubmitting(false)
+      return
     }
 
+    // 1) Validate local data
+    const errors = validateForm()
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors)
+      toast.error("Please fill out all required fields.")
+      setIsSubmitting(false)
+      return
+    }
+
+    // 2) Build submission data (multipart)
+    const submissionData = new FormData()
+    submissionData.append("eventId", event.id.toString())
+    submissionData.append("userId", user.id.toString())
+
+    // Add each field’s answer
+    Object.keys(formData).forEach((key) => {
+      const value = formData[key]
+      if (value instanceof File) {
+        submissionData.append(key, value)
+      } else {
+        submissionData.append(key, value)
+      }
+    })
+
+    // 3) Submit via API
     try {
-      const submissionData = new FormData();
-
-      // Append the event and user IDs
-      submissionData.append("eventId", event.id.toString());
-      submissionData.append("userId", user.id.toString());
-
-      // Append form answers
-      Object.keys(formData).forEach((key) => {
-        const value = formData[key];
-        if (value instanceof File) {
-          // Append file fields
-          submissionData.append(key, value);
-        } else if (typeof value === "string") {
-          // Append text fields
-          submissionData.append(key, value);
-        }
-      });
-
-      // Perform the POST request
-      const response = await fetch("/api/registrations", {
+      const response = await fetch("/apiv2/registrations", {
         method: "POST",
         body: submissionData,
-      });
-
+      })
       if (response.ok) {
-        alert("Registration successful!");
-        clearForm();
-        router.push("/");
+        toast.success("Registration successful!")
+        router.push(`/register/event/${event.id}/thanks`)
       } else {
-        const errorData = await response.json();
-        console.error("Error:", errorData);
-        alert("Registration failed. Please try again.");
+        const errorData = await response.json()
+        console.error("Error:", errorData)
+        toast.error("Registration failed. Please try again.")
       }
     } catch (error) {
-      console.error("Registration failed:", error);
-      alert("Registration failed. Please try again.");
+      console.error("Registration failed:", error)
+      toast.error("Registration failed. Please try again.")
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
-
-
+  }
 
   return (
     <main className="bg-gray-02 h-full lg:rounded-tl-[32px] overflow-y-scroll">
@@ -128,7 +148,9 @@ const EventRegister: FC<PageProps> = ({ event }) => {
       /> */}
       <div className="pt-6 px-8 lg:pt-11 lg:px-16">
         <hgroup className="flex items-center justify-between w-full">
-          <h1 className="text-gray-90 font-bold uppercase text-4xl">{event.title}</h1>
+          <h1 className="text-gray-90 font-bold uppercase text-4xl">
+            {event.title}
+          </h1>
         </hgroup>
         <div className="w-full h-[3px] bg-gray-90 my-2" />
         <h2 className="text-gray-90 font-bold uppercase mb-2">
@@ -140,12 +162,12 @@ const EventRegister: FC<PageProps> = ({ event }) => {
           {event.startTime} - {event.endTime}
         </h2>
         <div className="w-full mb-4 flex flex-row gap-2">
-          {eTags.map((i: EventTag, j) => (
+          {eTags.map((tag: EventTag, j) => (
             <div
               className="rounded-[8px] border-[2px] border-gray-05 p-1.5 bg-gray-02 text-black text-xs font-semibold text-opacity-40"
               key={j}
             >
-              {i.eventTag}
+              {tag.eventTag}
             </div>
           ))}
         </div>
@@ -153,98 +175,160 @@ const EventRegister: FC<PageProps> = ({ event }) => {
           <RichText content={event.description} className="w-full mx-0 px-0" />
         </div>
         <form className="space-y-6 py-11" onSubmit={handleSubmit}>
-          {event.registrationForm?.map((field, i) => (
-            <div key={i} className="flex flex-col">
-              {field.type !== "image" && (
-                <label
-                  htmlFor={field.fieldid}
-                  className="mb-1.5 text-xl font-bold text-gray-90 uppercase"
-                >
-                  {field.name}
-                  {field.description && (
-                    <p className="text-sm text-gray-50 mt-1 font-normal normal-case">
-                      {field.description}
-                    </p>
-                  )}
-                </label>
-              )}
-              {field.type === "short_short" && (
-                <input
-                  id={field.fieldid}
-                  name={field.fieldid}
-                  type="text"
-                  placeholder={field.placeholder || ""}
-                  // @ts-ignore
-                  value={formData[field.fieldid] instanceof File ? "" : formData[field.fieldid] || ""}
-                  onChange={handleChange}
-                  className="border-2 border-gray-20 rounded-[16px] px-6 py-5 bg-gray-02 text-black font-bold placeholder:uppercase placeholder:text-gray-20 text-xl"
-                />
-              )}
-              {field.type === "short" && (
-                <input
-                  id={field.fieldid}
-                  name={field.fieldid}
-                  type="text"
-                  placeholder={field.placeholder || ""}
-                  // @ts-ignore
-                  value={formData[field.fieldid] instanceof File ? "" : formData[field.fieldid] || ""}
-                  onChange={handleChange}
-                  className="border-2 border-gray-20 rounded-[16px] px-6 py-5 bg-gray-02 text-black font-bold placeholder:uppercase placeholder:text-gray-20 text-xl"
-                />
-              )}
-              {field.type === "multiline" && (
-                <textarea
-                  id={field.fieldid}
-                  name={field.fieldid}
-                  placeholder={field.placeholder || ""}
-                  rows={4}
-                  // @ts-ignore
-                  value={formData[field.fieldid] instanceof File ? "" : formData[field.fieldid] || ""}
-                  onChange={handleChange}
-                  className="border-2 border-gray-20 rounded-[16px] px-6 py-5 bg-gray-02 text-black font-bold placeholder:uppercase placeholder:text-gray-20 text-xl"
-                />
-              )}
-              {field.type === "image" && (
-                <div className="flex flex-col w-1/4">
+          {event.registrationForm?.map((field, i) => {
+            const isRequired = Boolean(field.requiredField)
+
+            return (
+              <div key={i} className="flex flex-col">
+                {/* Label */}
+                {field.type !== "image" && (
                   <label
                     htmlFor={field.fieldid}
                     className="mb-1.5 text-xl font-bold text-gray-90 uppercase"
                   >
                     {field.name}
+                    {isRequired && <span className="text-red-500 ml-1">*</span>}
+                    {field.description && (
+                      <p className="text-sm text-gray-50 mt-1 font-normal normal-case">
+                        {field.description}
+                      </p>
+                    )}
                   </label>
-                  <input
-                    id={field.fieldid}
-                    name={field.fieldid}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleChange}
-                    className="border-2 border-gray-20 rounded-[16px] px-6 py-5 bg-gray-02 text-black font-bold placeholder:uppercase placeholder:text-gray-20 text-xl"
-                  />
-                </div>
-              )}
-              {field.type === "dropdown" && (
-                <select
-                  id={field.fieldid}
-                  name={field.fieldid}
-                  onChange={handleChange}
-                  // @ts-ignore
-                  value={formData[field.fieldid] || ""}
-                  className="border-2 border-gray-20 rounded-[16px] px-6 py-5 bg-gray-02 text-black font-bold placeholder:uppercase placeholder:text-gray-20 text-xl invalid:text-gray-20 invalid:uppercase"
-                  defaultValue=""
-                  required
-                >
-                  <option value="" disabled>
-                    Select an option
-                  </option>
-                  {field.dropdownOptions?.map((option, j) => (
-                    <option key={j} value={option.option}>
-                      {option.option}
-                    </option>
-                  ))}
-                </select>
-              )}
-            </div>
-          ))}
+                )}
+
+                {/* Short Text */}
+                {field.type === "short_short" && (
+                  <>
+                    <input
+                      id={field.fieldid}
+                      name={field.fieldid}
+                      type="text"
+                      placeholder={field.placeholder || ""}
+                      value={
+                        formData[field.fieldid] instanceof File
+                          ? ""
+                          : (formData[field.fieldid] as string) || ""
+                      }
+                      onChange={handleChange}
+                      className="border-2 border-gray-20 rounded-[16px] px-6 py-5 bg-gray-02 text-black font-bold placeholder:uppercase placeholder:text-gray-20 text-xl"
+                    />
+                    {formErrors[field.fieldid] && (
+                      <p className="text-red-500 mt-1">
+                        {formErrors[field.fieldid]}
+                      </p>
+                    )}
+                  </>
+                )}
+
+                {/* Single-Line Text */}
+                {field.type === "short" && (
+                  <>
+                    <input
+                      id={field.fieldid}
+                      name={field.fieldid}
+                      type="text"
+                      placeholder={field.placeholder || ""}
+                      value={
+                        formData[field.fieldid] instanceof File
+                          ? ""
+                          : (formData[field.fieldid] as string) || ""
+                      }
+                      onChange={handleChange}
+                      className="border-2 border-gray-20 rounded-[16px] px-6 py-5 bg-gray-02 text-black font-bold placeholder:uppercase placeholder:text-gray-20 text-xl"
+                    />
+                    {formErrors[field.fieldid] && (
+                      <p className="text-red-500 mt-1">
+                        {formErrors[field.fieldid]}
+                      </p>
+                    )}
+                  </>
+                )}
+
+                {/* Multiline */}
+                {field.type === "multiline" && (
+                  <>
+                    <textarea
+                      id={field.fieldid}
+                      name={field.fieldid}
+                      placeholder={field.placeholder || ""}
+                      rows={4}
+                      value={
+                        formData[field.fieldid] instanceof File
+                          ? ""
+                          : (formData[field.fieldid] as string) || ""
+                      }
+                      onChange={handleChange}
+                      className="border-2 border-gray-20 rounded-[16px] px-6 py-5 bg-gray-02 text-black font-bold placeholder:uppercase placeholder:text-gray-20 text-xl"
+                    />
+                    {formErrors[field.fieldid] && (
+                      <p className="text-red-500 mt-1">
+                        {formErrors[field.fieldid]}
+                      </p>
+                    )}
+                  </>
+                )}
+
+                {/* Image */}
+                {field.type === "image" && (
+                  <div className="flex flex-col w-1/4">
+                    <label
+                      htmlFor={field.fieldid}
+                      className="mb-1.5 text-xl font-bold text-gray-90 uppercase"
+                    >
+                      {field.name}
+                      {isRequired && <span className="text-red-500 ml-1">*</span>}
+                    </label>
+                    {field.description && (
+                      <p className="text-sm text-gray-50 mt-1 font-normal normal-case">
+                        {field.description}
+                      </p>
+                    )}
+                    <input
+                      id={field.fieldid}
+                      name={field.fieldid}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleChange}
+                      className="border-2 border-gray-20 rounded-[16px] px-6 py-5 bg-gray-02 text-black font-bold placeholder:uppercase placeholder:text-gray-20 text-xl"
+                    />
+                    {formErrors[field.fieldid] && (
+                      <p className="text-red-500 mt-1">
+                        {formErrors[field.fieldid]}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* Dropdown */}
+                {field.type === "dropdown" && (
+                  <>
+                    <select
+                      id={field.fieldid}
+                      name={field.fieldid}
+                      onChange={handleChange}
+                      value={(formData[field.fieldid] as string) || ""}
+                      className="border-2 border-gray-20 rounded-[16px] px-6 py-5 bg-gray-02 text-black font-bold placeholder:uppercase placeholder:text-gray-20 text-xl invalid:text-gray-20 invalid:uppercase"
+                      required={isRequired}
+                    >
+                      <option value="" disabled>
+                        Select an option
+                      </option>
+                      {field.dropdownOptions?.map((option, j) => (
+                        <option key={j} value={option.option}>
+                          {option.option}
+                        </option>
+                      ))}
+                    </select>
+                    {formErrors[field.fieldid] && (
+                      <p className="text-red-500 mt-1">
+                        {formErrors[field.fieldid]}
+                      </p>
+                    )}
+                  </>
+                )}
+              </div>
+            )
+          })}
           <div className="w-full flex items-center justify-center">
             <button
               type="submit"
@@ -261,4 +345,3 @@ const EventRegister: FC<PageProps> = ({ event }) => {
 }
 
 export default EventRegister
-
