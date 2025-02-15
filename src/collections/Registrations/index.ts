@@ -1,3 +1,4 @@
+import { authenticatedAdmin } from "@/access/authenticatedAdmin"
 import type { CollectionConfig } from "payload"
 
 export const Registrations: CollectionConfig = {
@@ -5,8 +6,8 @@ export const Registrations: CollectionConfig = {
   access: {
     create: ({ req: { user } }) => Boolean(user),
     read: ({ req: { user } }) => Boolean(user),
-    update: () => false,
-    delete: ({ req: { user } }) => Boolean(user),
+    update: authenticatedAdmin,
+    delete: authenticatedAdmin,
   },
   admin: {
     useAsTitle: "id",
