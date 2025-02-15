@@ -50,7 +50,7 @@ export default function LoginForm() {
   )
 
   return (
-    <main className="uppercase bg-gray-90 lg:flex lg:items-center lg:justify-center lg:flex-col min-h-screen lg:w-screen">
+    <main className="uppercase bg-gray-90 lg:flex lg:items-center lg:justify-center lg:flex-col min-h-screen h-full overflow-y-scroll lg:w-screen pb-10 lg:pb-0">
       <header className="py-28 lg:pb-14 lg:pt-0">
         <Link href="/">
           <Logo fill={colors.gray['02']} className="mx-auto lg:scale-150" />

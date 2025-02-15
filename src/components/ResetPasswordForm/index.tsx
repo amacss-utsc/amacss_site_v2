@@ -65,7 +65,7 @@ export default function ResetPasswordPage() {
   const password = watch("password")
 
   return (
-    <main className="uppercase bg-gray-90 min-h-screen lg:h-full lg:w-screen overflow-y-scroll lg:pb-28 flex flex-col lg:items-center lg:justify-center">
+    <main className="uppercase bg-gray-90 min-h-screen lg:h-full lg:w-screen overflow-y-scroll h-full lg:pb-28 flex flex-col lg:items-center lg:justify-center">
       {/* Header with Logo */}
       <header className="py-28 lg:pb-14 lg:pt-0">
         <Link href="/">

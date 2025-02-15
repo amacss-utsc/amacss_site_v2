@@ -64,7 +64,7 @@ export default function Page() {
   )
 
   return (
-    <main className="uppercase bg-gray-90 min-h-screen lg:h-full lg:w-screen overflow-y-scroll lg:pb-28">
+    <main className="uppercase bg-gray-90 min-h-screen h-full lg:w-screen overflow-y-scroll pb-10 lg:pb-28">
       <header className="py-28 lg:pb-14 lg:pt-28">
         <Link href="/">
           <Logo fill={colors.gray['02']} className="mx-auto lg:scale-150" />

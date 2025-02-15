@@ -138,7 +138,7 @@ const EventRegister: FC<PageProps> = ({ event }) => {
   }
 
   return (
-    <main className="bg-gray-02 h-full lg:rounded-tl-[32px] overflow-y-scroll">
+    <main className="bg-gray-02 h-full lg:rounded-tl-[32px] overflow-y-scroll overflow-x-hidden">
       {/* <Image
         src={url}
         alt={alt}
