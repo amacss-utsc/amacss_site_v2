@@ -1,5 +1,17 @@
 import { authenticatedAdmin } from "@/access/authenticatedAdmin"
 import type { CollectionConfig } from "payload"
+import { generate, charset, Charset } from "referral-codes"
+import config from "@payload-config"
+import { getPayload } from "payload"
+
+function generateReferralCode() {
+  const codes = generate({
+    length: 8,
+    count: 1,
+    charset: "0123456789ABCDEFGHJKLMNPQRSTUVWXYZ",
+  })
+  return codes[0]
+}
 
 export const Registrations: CollectionConfig = {
   slug: "registrations",
@@ -51,6 +63,12 @@ export const Registrations: CollectionConfig = {
       ],
     },
     {
+      name: "referralCode",
+      type: "text",
+      label: "Referral Code",
+      required: false,
+    },
+    {
       name: "images",
       type: "relationship",
       relationTo: "media",
@@ -64,4 +82,22 @@ export const Registrations: CollectionConfig = {
       defaultValue: () => new Date().toISOString(),
     },
   ],
+  hooks: {
+    beforeChange: [
+      async ({ data, operation }) => {
+        if (operation === "create" && data.eventId) {
+          const payload = await getPayload({ config })
+
+          const event = await payload.findByID({
+            collection: "events",
+            id: data.eventId,
+          })
+
+          if (event?.hasReferralCodes) {
+            data.referralCode = generateReferralCode()
+          }
+        }
+      },
+    ],
+  },
 }

@@ -5,6 +5,7 @@ import * as migration_20250201_230502_resources from "./20250201_230502_resource
 import * as migration_20250202_202832_on_sidebar_attribute from "./20250202_202832_on_sidebar_attribute"
 import * as migration_20250210_045754_question_description from "./20250210_045754_question_description"
 import * as migration_20250215_015517_required_field from "./20250215_015517_required_field"
+import * as migration_20250215_074406_referral_code from "./20250215_074406_referral_code"
 
 export const migrations = [
   {
@@ -41,5 +42,10 @@ export const migrations = [
     up: migration_20250215_015517_required_field.up,
     down: migration_20250215_015517_required_field.down,
     name: "20250215_015517_required_field",
+  },
+  {
+    up: migration_20250215_074406_referral_code.up,
+    down: migration_20250215_074406_referral_code.down,
+    name: "20250215_074406_referral_code",
   },
 ]

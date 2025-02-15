@@ -9,6 +9,7 @@ import ChevronRight from "../svg/ChevronRight"
 import Link from "next/link"
 import gsap from "gsap"
 import { useGSAP } from "@gsap/react"
+import { useAuth } from "@/providers/Auth"
 
 type MobileMenuProps = {
   closeMenu: () => void
@@ -23,6 +24,7 @@ export const Links: { n: string; u: string }[] = [
 
 const MobileMenu: React.FC<MobileMenuProps> = ({ closeMenu }) => {
   const menuRef = useRef<HTMLMenuElement>(null)
+  const { user, logout } = useAuth()
 
   useGSAP(() => {
     gsap.fromTo(
@@ -55,6 +57,41 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ closeMenu }) => {
             </Link>
           </li>
         ))}
+        {!user && (
+          <li>
+            <Link
+              href="/login"
+              onClick={closeMenu}
+              className="active:text-gray-20 hover:text-gray-20 transition-all"
+            >
+              Login
+            </Link>
+          </li>
+        )}
+         {user && (
+          <>
+            <li>
+              <Link
+                href="/profile"
+                onClick={closeMenu}
+                className="active:text-gray-20 hover:text-gray-20 transition-all"
+              >
+                Profile
+              </Link>
+            </li>
+            <li>
+              <button
+                onClick={() => {
+                  logout()
+                  closeMenu()
+                }}
+                className="active:text-gray-20 hover:text-gray-20 transition-all"
+              >
+                LOGOUT
+              </button>
+            </li>
+          </>
+        )}
       </ul>
     </menu>
   )

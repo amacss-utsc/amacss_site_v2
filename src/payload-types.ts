@@ -232,6 +232,7 @@ export interface Event {
   image: number | Media;
   eventTag: (number | EventTag)[];
   ribbonTag?: (number | null) | RibbonTag;
+  hasReferralCodes?: boolean | null;
   regStyle?: ('internal' | 'external' | 'none') | null;
   registrationLink?: string | null;
   registrationForm?:
@@ -310,6 +311,7 @@ export interface Registration {
         id?: string | null;
       }[]
     | null;
+  referralCode?: string | null;
   images?: (number | Media)[] | null;
   submittedAt: string;
   updatedAt: string;
@@ -558,6 +560,7 @@ export interface EventsSelect<T extends boolean = true> {
   image?: T;
   eventTag?: T;
   ribbonTag?: T;
+  hasReferralCodes?: T;
   regStyle?: T;
   registrationLink?: T;
   registrationForm?:
@@ -631,6 +634,7 @@ export interface RegistrationsSelect<T extends boolean = true> {
         answer?: T;
         id?: T;
       };
+  referralCode?: T;
   images?: T;
   submittedAt?: T;
   updatedAt?: T;

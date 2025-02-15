@@ -261,6 +261,13 @@ export const DesktopNav: FC = ({ }) => {
           </button>
           {dropdownOpen && (
             <div className="absolute bg-gray-80 -mt-2 right-0 shadow-lg rounded-md py-2 w-48 z-10">
+              <Link href="/profile"
+                className={cn(NavLink, "w-full text-left px-4 py-3 rounded-md",
+                  "hover:bg-gray-70 transition-colors",
+                  "text-gray-10 font-semibold text-sm uppercase",
+                  "flex items-center justify-between")}>
+                Profile
+              </Link>
               <button
                 onClick={() => {
                   logout()

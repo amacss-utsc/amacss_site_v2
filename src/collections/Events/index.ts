@@ -101,6 +101,12 @@ export const Events: CollectionConfig = {
       required: false,
     },
     {
+      name: "hasReferralCodes",
+      label: "Use Referral Codes?",
+      type: "checkbox",
+      defaultValue: false,
+    },
+    {
       name: "regStyle",
       label: "Type of Registration",
       type: "radio",

@@ -135,6 +135,9 @@ importers:
       react-lottie:
         specifier: ^1.2.10
         version: 1.2.10(react@19.0.0-rc-65a56d0e-20241020)
+      referral-codes:
+        specifier: ^3.0.0
+        version: 3.0.0
       sharp:
         specifier: 0.32.6
         version: 0.32.6
@@ -5070,6 +5073,10 @@ packages:
   refa@0.11.0:
     resolution: {integrity: sha512-486O8/pQXwj9jV0mVvUnTsxq0uknpBnNJ0eCUhkZqJRQ8KutrT1PhzmumdCeM1hSBF2eMlFPmwECRER4IbKXlQ==}
     engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
+
+  referral-codes@3.0.0:
+    resolution: {integrity: sha512-XuMWA8VvRztL6fChJCik+aDq0u7GOYwb8wWK3UeM0TeBqDbXqzM3jO1N9AZxOGnh6iEGpJXfNZAJt1sdVCi0/A==}
+    engines: {node: '>=18'}
 
   reflect.getprototypeof@1.0.7:
     resolution: {integrity: sha512-bMvFGIUKlc/eSfXNX+aZ+EL95/EgZzuwA0OBPTbZZDEJw/0AkentjMuM1oiRfwHrshqk4RzdgiTg5CcDalXN5g==}
@@ -11949,6 +11956,8 @@ snapshots:
   refa@0.11.0:
     dependencies:
       '@eslint-community/regexpp': 4.12.1
+
+  referral-codes@3.0.0: {}
 
   reflect.getprototypeof@1.0.7:
     dependencies:
