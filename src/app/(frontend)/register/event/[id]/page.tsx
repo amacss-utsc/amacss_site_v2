@@ -44,18 +44,18 @@ export default async function Page({ params }: any) {
   const token = cookieStore.get("payload-token")
 
   if (!token) {
-    redirect("/login")
+    redirect(`/login?redirect=/register/event/${id}`)
   }
 
   const user = await fetchCurrentUser(token?.value)
   if (!user || !user.user || !user.user.id) {
-    redirect("/login")
+    redirect(`/login?redirect=/register/event/${id}`)
   }
 
   const existingRegistration = await checkExistingRegistration(id, user.user.id)
   if (existingRegistration?.docs?.length > 0) {
     return (
-      <main className="pt-6 min-h-full h-full overflow-y-scroll bg-gray-90 text-gray-02 px-7 lg:px-20 lg:rounded-tl-[32px]">
+      <main className="pt-12 min-h-full h-full overflow-y-scroll bg-gray-90 text-gray-02 px-7 lg:px-20 lg:rounded-tl-[32px]">
         <h1 className="text-4xl font-bold mb-4">
           You have already registered for this event!
         </h1>

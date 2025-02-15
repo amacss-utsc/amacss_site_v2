@@ -27,9 +27,9 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({ resources: initial
 
   return (
     <main className="pt-6 min-h-full h-full overflow-y-scroll bg-gray-90 text-gray-02 px-7 lg:px-20 lg:rounded-tl-[32px]">
-      <h1 className="text-4xl font-bold mb-8">Resources</h1>
+      <h1 className="hidden lg:block text-4xl font-bold mb-8">Resources</h1>
 
-      <div className="mb-6">
+      <div className="pt-16 lg:pt-0 mb-6">
         <input
           type="text"
           placeholder="Search resources..."

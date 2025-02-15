@@ -72,7 +72,7 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
 
   return (
     <main className="pt-16 px-8 lg:p-11 bg-gray-90 h-full lg:rounded-tl-[32px] overflow-x-hidden">
-      <h1 className="text-4xl font-bold mb-4 text-white">Events</h1>
+      <h1 className="hidden lg:block text-4xl font-bold mb-4 text-white">Events</h1>
 
       <button
         onClick={() => setFilterOpen(true)}
