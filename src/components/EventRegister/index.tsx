@@ -70,6 +70,7 @@ const EventRegister: FC<PageProps> = ({ event }) => {
           errors[field.fieldid] = "This field is required"
         }
       }
+      
     })
 
     return errors
@@ -91,7 +92,6 @@ const EventRegister: FC<PageProps> = ({ event }) => {
       return
     }
 
-    // 1) Validate local data
     const errors = validateForm()
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors)
@@ -100,7 +100,44 @@ const EventRegister: FC<PageProps> = ({ event }) => {
       return
     }
 
-    // 2) Build submission data (multipart)
+    for (const field of event.registrationForm || []) {
+      if (field.type === "referral") {
+        const code = formData[field.fieldid]
+        if (code && typeof code === "string") {
+          try {
+            const encodedCode = encodeURIComponent(code)
+            const encodedEventId = encodeURIComponent(event.id.toString())
+
+            const res = await fetch(
+              `/apiv2/registrations?referralCode=${encodedCode}&eventId=${encodedEventId}`
+            )
+            const data = await res.json()
+            console.log(data)
+  
+            if (!data.docs || data.docs.length === 0) {
+              setFormErrors((prev) => ({
+                ...prev,
+                [field.fieldid]: "Invalid referral code",
+              }))
+              toast.error("Invalid referral code.")
+              setIsSubmitting(false)
+              return
+            }
+          } catch (err) {
+            console.error("Error checking referral code:", err)
+            setFormErrors((prev) => ({
+              ...prev,
+              [field.fieldid]: "Error validating code. Please try again.",
+            }))
+            toast.error("Error validating code. Please try again.")
+            setIsSubmitting(false)
+            return
+          }
+        }
+      }
+    }
+  
+
     const submissionData = new FormData()
     submissionData.append("eventId", event.id.toString())
     submissionData.append("userId", user.id.toString())
@@ -297,6 +334,30 @@ const EventRegister: FC<PageProps> = ({ event }) => {
                       </p>
                     )}
                   </div>
+                )}
+
+                {field.type === "referral" && (
+                  <>
+                    <input
+                      id={field.fieldid}
+                      name={field.fieldid}
+                      type="text"
+                      placeholder={field.placeholder || ""}
+                      value={
+                        formData[field.fieldid] instanceof File
+                          ? ""
+                          : (formData[field.fieldid] as string) || ""
+                      }
+                      onChange={handleChange}
+                      className="border-2 border-gray-20 rounded-[16px] px-6 py-5 bg-gray-02 text-black font-bold
+                                placeholder:uppercase placeholder:text-gray-20 text-xl"
+                    />
+                    {formErrors[field.fieldid] && (
+                      <p className="text-red-500 mt-1">
+                        {formErrors[field.fieldid]}
+                      </p>
+                    )}
+                  </>
                 )}
 
                 {/* Dropdown */}

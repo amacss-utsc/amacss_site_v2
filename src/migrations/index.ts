@@ -6,6 +6,8 @@ import * as migration_20250202_202832_on_sidebar_attribute from "./20250202_2028
 import * as migration_20250210_045754_question_description from "./20250210_045754_question_description"
 import * as migration_20250215_015517_required_field from "./20250215_015517_required_field"
 import * as migration_20250215_074406_referral_code from "./20250215_074406_referral_code"
+import * as migration_20250217_065250_referral_input from "./20250217_065250_referral_input"
+import * as migration_20250217_081556_answers_not_required from "./20250217_081556_answers_not_required"
 
 export const migrations = [
   {
@@ -47,5 +49,15 @@ export const migrations = [
     up: migration_20250215_074406_referral_code.up,
     down: migration_20250215_074406_referral_code.down,
     name: "20250215_074406_referral_code",
+  },
+  {
+    up: migration_20250217_065250_referral_input.up,
+    down: migration_20250217_065250_referral_input.down,
+    name: "20250217_065250_referral_input",
+  },
+  {
+    up: migration_20250217_081556_answers_not_required.up,
+    down: migration_20250217_081556_answers_not_required.down,
+    name: "20250217_081556_answers_not_required",
   },
 ]

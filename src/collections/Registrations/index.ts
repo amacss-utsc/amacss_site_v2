@@ -58,7 +58,7 @@ export const Registrations: CollectionConfig = {
           name: "answer",
           type: "text",
           label: "Answer",
-          required: true,
+          required: false,
         },
       ],
     },

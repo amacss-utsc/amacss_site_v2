@@ -237,7 +237,7 @@ export interface Event {
   registrationLink?: string | null;
   registrationForm?:
     | {
-        type?: ('short_short' | 'short' | 'multiline' | 'dropdown' | 'image') | null;
+        type?: ('short_short' | 'short' | 'multiline' | 'dropdown' | 'image' | 'referral') | null;
         name: string;
         description?: string | null;
         requiredField?: boolean | null;
@@ -307,7 +307,7 @@ export interface Registration {
     | {
         fieldId: string;
         fieldType: string;
-        answer: string;
+        answer?: string | null;
         id?: string | null;
       }[]
     | null;

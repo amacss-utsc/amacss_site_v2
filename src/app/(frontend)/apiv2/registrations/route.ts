@@ -12,6 +12,39 @@ const supabase = createClient(
   } as any,
 )
 
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url)
+  const referralCode = searchParams.get("referralCode")
+  const eventId = searchParams.get("eventId")
+
+  console.log("GET /apiv2/registrations", { referralCode, eventId })
+
+  if (!referralCode || !eventId) {
+    return NextResponse.json({ docs: [] }, { status: 200 })
+  }
+
+  try {
+    const payload = await getPayload({ config })
+
+    const data = await payload.find({
+      collection: "registrations",
+      where: {
+        referralCode: { equals: referralCode },
+        eventId: { equals: eventId },
+      },
+      depth: 1,
+    })
+
+    return NextResponse.json(data, { status: 200 })
+  } catch (error) {
+    console.error("GET /apiv2/registrations error:", error)
+    return NextResponse.json(
+      { error: "Error fetching registrations" },
+      { status: 500 },
+    )
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const contentType = req.headers.get("content-type")

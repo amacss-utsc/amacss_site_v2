@@ -166,6 +166,7 @@ export const Events: CollectionConfig = {
               label: "Image Upload",
               value: "image",
             },
+            { label: "Referral Input", value: "referral" },
           ],
         },
         {
