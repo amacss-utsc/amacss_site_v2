@@ -4,8 +4,9 @@ import { getPayload } from "payload"
 import config from "@payload-config"
 import Link from "next/link"
 
-export default async function ThankYouPage({ params }: { params: { id: string } }) {
-  const { id: eventId } = params
+
+export default async function ThankYouPage({ params }: any) {
+  const { id: eventId } = await params
 
   const cookieStore = await cookies()
   const token = cookieStore.get("payload-token")
