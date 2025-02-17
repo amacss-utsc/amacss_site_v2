@@ -7,7 +7,7 @@ import { InputStyle } from '@/utilities/tailwindShared'
 import Link from 'next/link'
 import React, { useState, useCallback, useRef } from 'react'
 import { useForm } from 'react-hook-form'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/providers/Auth'
 
 type FormData = {
@@ -23,6 +23,9 @@ export default function Page() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<null | string>(null)
+
+  const searchParams = useSearchParams()
+  const redirectParam = searchParams.get("redirect")
 
   const {
     register,
@@ -53,7 +56,11 @@ export default function Page() {
 
       try {
         await login({ email: data.email, password: data.password })
-        router.push(`/`)
+        if (redirectParam) {
+          router.push(redirectParam)
+        } else {
+          router.push("/")
+        }
       } catch {
         setError('There was an error with the credentials provided. Please try again.')
       } finally {
@@ -134,7 +141,7 @@ export default function Page() {
           {loading ? 'Processing...' : 'Register'}
         </button>
         <p className="w-full flex items-center justify-center">
-          <Link href="/login" className="text-blue-10 normal-case">
+          <Link href={`/login${redirectParam ? `?redirect=${encodeURIComponent(redirectParam)}` : ""}`} className="text-blue-10 normal-case">
             Login instead
           </Link>
         </p>

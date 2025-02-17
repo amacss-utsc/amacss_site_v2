@@ -18,6 +18,7 @@ type FormData = {
 export default function LoginForm() {
   const searchParams = useSearchParams()
   const redirect = useRef(searchParams.get('redirect'))
+  const redirectParam = searchParams.get('redirect')
   const { login } = useAuth()
   const router = useRouter()
   const [error, setError] = React.useState<null | string>(null)
@@ -96,7 +97,7 @@ export default function LoginForm() {
           {isSubmitting ? 'Processing...' : 'Login'}
         </button>
         <p className="w-full flex items-center justify-center">
-          <Link href={`/register`} className="text-blue-10">
+          <Link href={`/register${redirectParam ? `?redirect=${encodeURIComponent(redirectParam)}` : ''}`} className="text-blue-10">
             Or create account
           </Link>
         </p>

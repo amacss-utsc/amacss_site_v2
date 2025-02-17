@@ -44,12 +44,12 @@ export default async function Page({ params }: any) {
   const token = cookieStore.get("payload-token")
 
   if (!token) {
-    redirect(`/login?redirect=/register/event/${id}`)
+    redirect(`/login?redirect=${encodeURIComponent(`/register/event/${id}`)}`)
   }
 
   const user = await fetchCurrentUser(token?.value)
   if (!user || !user.user || !user.user.id) {
-    redirect(`/login?redirect=/register/event/${id}`)
+    redirect(`/login?redirect=${encodeURIComponent(`/register/event/${id}`)}`)
   }
 
   const existingRegistration = await checkExistingRegistration(id, user.user.id)
