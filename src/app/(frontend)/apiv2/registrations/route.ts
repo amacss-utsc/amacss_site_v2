@@ -23,6 +23,10 @@ export async function GET(req: Request) {
     return NextResponse.json({ docs: [] }, { status: 200 })
   }
 
+  if (referralCode === process.env.INTERNAL_EVENT_REFERRAL_CODE) {
+    return NextResponse.json({ docs: ["yay"] }, { status: 200 })
+  }
+
   try {
     const payload = await getPayload({ config })
 

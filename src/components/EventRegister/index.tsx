@@ -112,7 +112,6 @@ const EventRegister: FC<PageProps> = ({ event }) => {
               `/apiv2/registrations?referralCode=${encodedCode}&eventId=${encodedEventId}`
             )
             const data = await res.json()
-            console.log(data)
   
             if (!data.docs || data.docs.length === 0) {
               setFormErrors((prev) => ({
