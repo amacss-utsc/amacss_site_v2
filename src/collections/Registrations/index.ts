@@ -69,6 +69,12 @@ export const Registrations: CollectionConfig = {
       required: false,
     },
     {
+      name: "verified",
+      label: "Registration is Verified?",
+      type: "checkbox",
+      defaultValue: false,
+    },
+    {
       name: "images",
       type: "relationship",
       relationTo: "media",

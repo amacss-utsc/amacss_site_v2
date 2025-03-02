@@ -312,6 +312,7 @@ export interface Registration {
       }[]
     | null;
   referralCode?: string | null;
+  verified?: boolean | null;
   images?: (number | Media)[] | null;
   submittedAt: string;
   updatedAt: string;
@@ -635,6 +636,7 @@ export interface RegistrationsSelect<T extends boolean = true> {
         id?: T;
       };
   referralCode?: T;
+  verified?: T;
   images?: T;
   submittedAt?: T;
   updatedAt?: T;
