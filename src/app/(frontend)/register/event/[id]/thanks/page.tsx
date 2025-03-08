@@ -46,7 +46,7 @@ export default async function ThankYouPage({ params }: any) {
         >
           amacss.uoft@gmail.com
         </a>
-        .
+        . Please ensure that you have completed the e-transfer to amacss.pro@gmail.com.
       </p>
 
       {referralCode && (
