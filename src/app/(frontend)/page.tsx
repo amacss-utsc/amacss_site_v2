@@ -49,7 +49,7 @@ export default function Page() {
         className="hidden lg:block"
       />
       <h1 className="hidden lg:block text-gray-02 font-bold text-[27.5px]">
-        Association of Mathematical and Computer Science Students
+        Association of Mathematical and Computing Science Students
       </h1>
     </main>
   )

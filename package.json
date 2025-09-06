@@ -49,6 +49,7 @@
     "date-fns": "^4.1.0",
     "geist": "^1.3.0",
     "graphql": "^16.8.2",
+    "gsap": "^3.13.0",
     "jsonwebtoken": "9.0.2",
     "lottie-react": "^2.4.0",
     "lucide-react": "^0.378.0",
@@ -93,7 +94,12 @@
     "overrides": {
       "@types/react": "npm:types-react@19.0.0-rc.1",
       "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "core-js",
+      "esbuild",
+      "sharp"
+    ]
   },
   "overrides": {
     "@types/react": "npm:types-react@19.0.0-rc.1",
