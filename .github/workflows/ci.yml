@@ -32,7 +32,7 @@ jobs:
           echo "${{ secrets.ENV_CONTENT2 }}" > .env
 
       - name: Run Build
-        run: pnpm prod-build
+        run: echo n | pnpm prod-build
 
       - name: Stop and clean up
         run: docker compose down
