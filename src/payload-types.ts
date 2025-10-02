@@ -160,6 +160,12 @@ export interface TeamMember {
   'membership-year': string;
   nameWithYear?: string | null;
   photo: number | Media;
+  email?: string | null;
+  pronouns?: string | null;
+  linkedin?: string | null;
+  github?: string | null;
+  webpage?: string | null;
+  description?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -506,6 +512,12 @@ export interface TeamMembersSelect<T extends boolean = true> {
   'membership-year'?: T;
   nameWithYear?: T;
   photo?: T;
+  email?: T;
+  pronouns?: T;
+  linkedin?: T;
+  github?: T;
+  webpage?: T;
+  description?: T;
   updatedAt?: T;
   createdAt?: T;
 }
