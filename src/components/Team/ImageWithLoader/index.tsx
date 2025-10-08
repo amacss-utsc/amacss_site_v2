@@ -29,7 +29,7 @@ export const ImageWithLoader = ({ src, alt, width, height, className }: {
           className={cn(
             className,
             'transition-opacity duration-300',
-            isLoading ? 'opacity-0 h-0' : 'opacity-100'
+            isLoading ? 'opacity-0' : 'opacity-100'
           )}
           onLoad={() => setIsLoading(false)}
           onError={() => setIsLoading(false)}
