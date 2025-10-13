@@ -52,11 +52,6 @@ export const TeamMembers: CollectionConfig = {
       required: false,
     },
     {
-      name: "pronouns",
-      type: "text",
-      required: false,
-    },
-    {
       name: "linkedin",
       type: "text",
       required: false,

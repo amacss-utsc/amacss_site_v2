@@ -161,7 +161,6 @@ export interface TeamMember {
   nameWithYear?: string | null;
   photo: number | Media;
   email?: string | null;
-  pronouns?: string | null;
   linkedin?: string | null;
   github?: string | null;
   webpage?: string | null;
@@ -513,7 +512,6 @@ export interface TeamMembersSelect<T extends boolean = true> {
   nameWithYear?: T;
   photo?: T;
   email?: T;
-  pronouns?: T;
   linkedin?: T;
   github?: T;
   webpage?: T;
