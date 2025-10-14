@@ -9,6 +9,7 @@ import * as migration_20250215_074406_referral_code from "./20250215_074406_refe
 import * as migration_20250217_065250_referral_input from "./20250217_065250_referral_input"
 import * as migration_20250217_081556_answers_not_required from "./20250217_081556_answers_not_required"
 import * as migration_20250302_061329_verified_registation_field from "./20250302_061329_verified_registation_field"
+import * as migration_20250921_173940_add_details_to_team_members from "./20250921_173940_add_details_to_team_members"
 
 export const migrations = [
   {
@@ -65,5 +66,10 @@ export const migrations = [
     up: migration_20250302_061329_verified_registation_field.up,
     down: migration_20250302_061329_verified_registation_field.down,
     name: "20250302_061329_verified_registation_field",
+  },
+  {
+    up: migration_20250921_173940_add_details_to_team_members.up,
+    down: migration_20250921_173940_add_details_to_team_members.down,
+    name: "20250921_173940_add_details_to_team_members",
   },
 ]

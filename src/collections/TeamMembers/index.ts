@@ -46,6 +46,31 @@ export const TeamMembers: CollectionConfig = {
       required: true,
       hasMany: false,
     },
+    {
+      name: "email",
+      type: "email",
+      required: false,
+    },
+    {
+      name: "linkedin",
+      type: "text",
+      required: false,
+    },
+    {
+      name: "github",
+      type: "text",
+      required: false,
+    },
+    {
+      name: "webpage",
+      type: "text",
+      required: false,
+    },
+    {
+      name: "description",
+      type: "textarea",
+      required: false,
+    },
   ],
   hooks: {
     beforeChange: [
