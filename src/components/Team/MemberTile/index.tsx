@@ -62,7 +62,7 @@ export default function MemberTile({ member }: Props) {
     <Dialog>
       <DialogTrigger asChild>
         <article
-          className="flex cursor-pointer flex-col items-center mb-8 lg:mb-0 lg:mx-4 focus:outline-none"
+          className="text-center flex cursor-pointer flex-col items-center mb-8 lg:mb-0 lg:mx-4 focus:outline-none"
           aria-label={`${member.name}${role ? ` – ${role}` : ""}`}
         >
           <ImageWithLoader
