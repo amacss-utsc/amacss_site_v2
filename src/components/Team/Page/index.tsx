@@ -89,7 +89,7 @@ export function TeamPageClient({ subteams }: TeamPageClientProps) {
 
   return (
     <main className="pt-6 min-h-full h-full overflow-y-scroll bg-gray-90 text-gray-02 px-7 uppercase lg:rounded-tl-[32px]">
-      <div className="max-w-8xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         {/* header section */}
         <h1 className="hidden lg:block text-4xl font-bold mb-8">Meet the Team</h1>
 
