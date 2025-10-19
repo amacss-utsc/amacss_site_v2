@@ -88,9 +88,10 @@ export function TeamPageClient({ subteams }: TeamPageClientProps) {
   })
 
   return (
-    <main className="pt-6 min-h-full h-full overflow-y-scroll bg-gray-90 text-gray-02 px-7 lg:px-20 uppercase lg:rounded-tl-[32px]">
-      {/* header section */}
-      <h1 className="hidden lg:block text-4xl font-bold mb-8">Meet the Team</h1>
+    <main className="pt-6 min-h-full h-full overflow-y-scroll bg-gray-90 text-gray-02 px-7 uppercase lg:rounded-tl-[32px]">
+      <div className="max-w-8xl mx-auto">
+        {/* header section */}
+        <h1 className="hidden lg:block text-4xl font-bold mb-8">Meet the Team</h1>
 
       {/* filter section */}
       <div className="border-2 border-gray-40 bg-gray-80/50 rounded-[16px] lg:rounded-[32px] p-4 lg:p-6 mb-6 lg:mb-8 mt-16 lg:mt-0">
@@ -241,9 +242,11 @@ export function TeamPageClient({ subteams }: TeamPageClientProps) {
               </h2>
 
               {filteredPrioMembers.length > 0 && (
-                <div className={cn(MemberWrapperStyle, "lg:w-[70%]")}>
+                <div className={cn(MemberWrapperStyle, "lg:w-full")}>
                   {filteredPrioMembers.map((m: any, j: number) => (
-                    <MemberTile key={m.id ?? j} member={m} idx={j} />
+                    <div key={m.id ?? j} className="w-80 flex-shrink-0">
+                      <MemberTile member={m} idx={j} />
+                    </div>
                   ))}
                 </div>
               )}
@@ -251,7 +254,9 @@ export function TeamPageClient({ subteams }: TeamPageClientProps) {
               {filteredMembers.length > 0 && (
                 <div className={cn(MemberWrapperStyle, "lg:w-full max-w-[1500px]")}>
                   {filteredMembers.map((m: any, j: number) => (
-                    <MemberTile key={m.id ?? j} member={m} idx={j} />
+                    <div key={m.id ?? j} className='w-80 flex-shrink-0'>
+                      <MemberTile member={m} idx={j} />
+                    </div>
                   ))}
                 </div>
               )}
@@ -260,6 +265,7 @@ export function TeamPageClient({ subteams }: TeamPageClientProps) {
         })
       )}
       <div className="h-20" />
+      </div>
     </main>
   )
 }
