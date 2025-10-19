@@ -90,12 +90,7 @@ export function TeamPageClient({ subteams }: TeamPageClientProps) {
   return (
     <main className="pt-6 min-h-full h-full overflow-y-scroll bg-gray-90 text-gray-02 px-7 lg:px-20 uppercase lg:rounded-tl-[32px]">
       {/* header section */}
-      <div className="text-center mb-6 lg:mb-8">
-        <h1 className="hidden lg:block text-5xl font-bold mb-4 normal-case">Meet the Team</h1>
-        <p className="hidden lg:block text-lg text-gray-30 normal-case max-w-3xl mx-auto">
-          Meet our team of students dedicated to supporting your academic journey
-        </p>
-      </div>
+      <h1 className="hidden lg:block text-4xl font-bold mb-8">Meet the Team</h1>
 
       {/* filter section */}
       <div className="border-2 border-gray-40 bg-gray-80/50 rounded-[16px] lg:rounded-[32px] p-4 lg:p-6 mb-6 lg:mb-8 mt-16 lg:mt-0">
