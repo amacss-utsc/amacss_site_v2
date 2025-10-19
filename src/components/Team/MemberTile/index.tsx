@@ -6,6 +6,7 @@ import {
   DialogContent,
   DialogTrigger,
   DialogTitle,
+  DialogClose,
 } from "@/components/ui/dialog"
 import { Card, CardContent } from "@/components/ui/card"
 import { Linkedin, Globe } from "lucide-react"
@@ -16,6 +17,17 @@ import AvatarImageWithLoader from "@/components/Team/AvatarImageWithLoader"
 type Props = { member: TeamMember; idx?: number }
 
 export default function MemberTile({ member }: Props) {
+  const [showFade, setShowFade] = React.useState(true)
+  const scrollRef = React.useRef<HTMLDivElement>(null)
+
+  const handleScroll = () => {
+    if (scrollRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = scrollRef.current
+      // Hide fade when scrolled to bottom (with 5px tolerance)
+      setShowFade(scrollTop + clientHeight < scrollHeight - 5)
+    }
+  }
+
   const img: Media | null =
     typeof member.photo !== "number" &&
     member.photo != null &&
@@ -86,51 +98,94 @@ export default function MemberTile({ member }: Props) {
         "
       >
         <DialogTitle></DialogTitle>
-        <div className="rounded-[22px] border border-white/25 bg-[#1F1F1F] overflow-hidden shadow-2xl">
-          <Card className="bg-transparent border-0 rounded-none">
-            <CardContent className="px-7 pb-7 pt-6">
+        <div 
+          className="rounded-[22px] border border-white/25 bg-[#1F1F1F] overflow-hidden shadow-2xl relative"
+          style={{
+            height: '70vh',
+            minHeight: '70vh',
+            maxHeight: '70vh'
+          }}
+        >
+          {/* Close button */}
+          <DialogClose asChild>
+            <button className="absolute top-4 left-4 z-10 text-white/40 hover:text-white/70 transition-colors duration-200 focus:outline-none focus:text-white/70">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 6L6 18M6 6L18 18" />
+              </svg>
+            </button>
+          </DialogClose>
+          
+          <Card className="bg-transparent border-0 rounded-none h-full max-h-full min-h-full">
+            <CardContent className="px-8 pt-6 pb-7 flex flex-col h-full max-h-full min-h-full overflow-hidden">
               {/* Profile pic */}
               <div className="flex w-full justify-center">
-                <div className="relative mb-3">
-                  <div className="rounded-full p-1">
-                    <AvatarImageWithLoader
-                      src={url}
-                      alt={alt}
-                      size={160}
-                      className="rounded-full"
-                      imgClassName="rounded-full" 
-                    />
-                  </div>
+                <div className="relative">
+                  <AvatarImageWithLoader
+                    src={url}
+                    alt={alt}
+                    size={120}
+                    className="rounded-full sm:hidden"
+                    imgClassName="rounded-full" 
+                  />
+                  <AvatarImageWithLoader
+                    src={url}
+                    alt={alt}
+                    size={160}
+                    className="rounded-full hidden sm:block"
+                    imgClassName="rounded-full" 
+                  />
                 </div>
               </div>
 
               {/* Name + role */}
               <div className="text-center">
                 <div className="flex w-full justify-center">
-                  <span className="inline-flex items-center px-3 py-1.5 text-xl font-semibold tracking-wide uppercase text-white">
+                  <span className="text-2xl sm:text-3xl font-semibold tracking-wide uppercase text-white">
                     {member.name}
                   </span>
                 </div>
 
                 {role && (
-                  <div className="flex w-full justify-center">
-                    <span className="inline-flex items-center px-3 py-1.5 text-lg font-bold uppercase text-white">
+                  <div className="flex w-full justify-center mt-0.5 sm:mt-1">
+                    <span className="text-base sm:text-lg uppercase text-white">
                       {role}
                     </span>
                   </div>
                 )}
               </div>
 
+              {/* Divider */}
+              {description && (
+                <div className="flex justify-center mt-4 mb-4">
+                  <div className="w-3/4 h-px bg-white/20"></div>
+                </div>
+              )}
+
               {/* Description */}
               {description && (
-                <div className="mt-5 text-base leading-7 text-white/85">
-                  {description}
+                <div className="flex-1 min-h-0 relative">
+                  <div 
+                    ref={scrollRef}
+                    onScroll={handleScroll}
+                    className="text-base leading-7 text-white/85 overflow-y-auto h-full pr-3"
+                    style={{
+                      scrollbarWidth: 'thin',
+                      scrollbarGutter: 'stable',
+                      scrollbarColor: 'rgba(255, 255, 255, 0.3) transparent'
+                    }}
+                  >
+                    {description}
+                  </div>
+                  {/* Gradient fade to indicate scrollable content - only shows when not at bottom */}
+                  {showFade && (
+                    <div className="absolute bottom-0 left-0 right-3 h-12 bg-gradient-to-t from-[#1F1F1F] via-[#1F1F1F]/80 to-transparent pointer-events-none" />
+                  )}
                 </div>
               )}
 
               {/* links */}
               {(linkedin || github || webpage) && (
-                <div className="flex items-center justify-center gap-4 mt-5">
+                <div className="flex items-center justify-evenly pt-2 flex-shrink-0">
                   <IconLink href={linkedin} label="LinkedIn">
                     <Linkedin className="h-6 w-6" />
                   </IconLink>
