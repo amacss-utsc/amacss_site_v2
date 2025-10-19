@@ -116,7 +116,7 @@ export default function MemberTile({ member }: Props) {
           </DialogClose>
           
           <Card className="bg-transparent border-0 rounded-none h-full max-h-full min-h-full">
-            <CardContent className="px-8 pt-6 pb-7 flex flex-col h-full max-h-full min-h-full overflow-hidden">
+            <CardContent className="px-8 py-7 flex flex-col h-full max-h-full min-h-full overflow-hidden">
               {/* Profile pic */}
               <div className="flex w-full justify-center">
                 <div className="relative">
@@ -139,7 +139,7 @@ export default function MemberTile({ member }: Props) {
 
               {/* Name + role */}
               <div className="text-center">
-                <div className="flex w-full justify-center">
+                <div className="flex w-full justify-center mt-2">
                   <span className="text-2xl sm:text-3xl font-semibold tracking-wide uppercase text-white">
                     {member.name}
                   </span>
@@ -156,7 +156,7 @@ export default function MemberTile({ member }: Props) {
 
               {/* Divider */}
               {description && (
-                <div className="flex justify-center mt-4 mb-4">
+                <div className="flex justify-center mt-3 mb-3">
                   <div className="w-3/4 h-px bg-white/20"></div>
                 </div>
               )}
