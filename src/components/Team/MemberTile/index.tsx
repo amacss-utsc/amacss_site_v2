@@ -35,7 +35,6 @@ export default function MemberTile({ member }: Props) {
   const github: string | undefined = member.github ?? undefined
   const webpage: string | undefined = member.webpage ?? undefined
   const description: string | undefined = member.description ?? undefined
-  const pronouns: string | undefined = member.pronouns ?? undefined
 
   const IconLink = ({
     href,
@@ -90,9 +89,48 @@ export default function MemberTile({ member }: Props) {
         <div className="rounded-[22px] border border-white/25 bg-[#1F1F1F] overflow-hidden shadow-2xl">
           <Card className="bg-transparent border-0 rounded-none">
             <CardContent className="px-6 pb-6 pt-5">
+              {/* Profile pic */}
+              <div className="flex w-full justify-center">
+                <div className="relative mb-3">
+                  <div className="rounded-full p-1">
+                    <AvatarImageWithLoader
+                      src={url}
+                      alt={alt}
+                      size={140}
+                      className="rounded-full"
+                      imgClassName="rounded-full" 
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Name + role */}
+              <div className="text-center space-y-2">
+                <div className="flex w-full justify-center">
+                  <span className="inline-flex items-center px-3 py-1 text-base font-semibold tracking-wide uppercase text-white">
+                    {member.name}
+                  </span>
+                </div>
+
+                {role && (
+                  <div className="flex w-full justify-center">
+                    <span className="inline-flex items-center px-3 py-1 text-sm font-bold uppercase text-white">
+                      {role}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Description */}
+              {description && (
+                <div className="mt-4 text-[13px] leading-6 text-white/85">
+                  {description}
+                </div>
+              )}
+
               {/* links */}
               {(linkedin || github || webpage) && (
-                <div className="flex items-center justify-center gap-3 mb-2">
+                <div className="flex items-center justify-center gap-3 mt-4">
                   <IconLink href={linkedin} label="LinkedIn">
                     <Linkedin className="h-5 w-5" />
                   </IconLink>
@@ -110,49 +148,6 @@ export default function MemberTile({ member }: Props) {
                   <IconLink href={webpage} label="Website">
                     <Globe className="h-5 w-5" />
                   </IconLink>
-                </div>
-              )}
-
-              {/* Profile pic */}
-              <div className="flex w-full justify-center">
-                <div className="relative mb-3">
-                  <div className="rounded-full p-1">
-                    <AvatarImageWithLoader
-                      src={url}
-                      alt={alt}
-                      size={112}
-                      className="rounded-full"
-                      imgClassName="rounded-full" 
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Name + role + pronouns */}
-              <div className="text-center space-y-2">
-                <div className="flex w-full justify-center">
-                  <span className="inline-flex items-center rounded-full bg-[#4978BF] px-3 py-1 text-base font-semibold tracking-wide uppercase text-black shadow-sm">
-                    {member.name}
-                  </span>
-                </div>
-
-                {role && (
-                  <div className="flex w-full justify-center">
-                    <span className="inline-flex items-center rounded-full bg-[#4978BF] px-3 py-1 text-sm font-bold uppercase text-black shadow-sm">
-                      {role}
-                    </span>
-                  </div>
-                )}
-
-                {pronouns && (
-                  <p className="text-sm text-white/60">{pronouns}</p>
-                )}
-              </div>
-
-              {/* Description */}
-              {description && (
-                <div className="mt-4 text-[13px] leading-6 text-white/85">
-                  {description}
                 </div>
               )}
             </CardContent>
