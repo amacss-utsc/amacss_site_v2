@@ -6,7 +6,7 @@ export const Gala: React.FC = () => {
   const totalImages = 5
 
   return (
-    <section className="w-full min-h-screen bg-gray-90 relative px-6 lg:px-16 py-20">
+    <section className="w-full bg-gray-90 relative px-6 lg:px-16 py-20">
       <div className="max-w-7xl mx-auto">
         <h2 className="text-gray-02 text-5xl lg:text-6xl font-bold uppercase mb-8">
           CMS Gala
