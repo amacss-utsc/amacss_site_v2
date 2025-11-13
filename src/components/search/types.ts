@@ -1,11 +1,9 @@
-// Contracts for the reusable search component. Keep minimal and framework-agnostic.
-
 export type SearchItem = {
   id: string
   title: string
   subtitle?: string
-  href: string // site route to navigate to when selecting this item
-  tokens: string[] // keywords used for matching; include title words and aliases
+  href: string
+  tokens: string[]
   meta?: Record<string, unknown>
 }
 
@@ -21,7 +19,6 @@ export type SearchResult = {
   total: number
 }
 
-// Two data input modes — list (client-side) or query (API-based). We will start with list.
 export type DataSourceList = {
   list: SearchItem[]
 }

@@ -4,7 +4,6 @@ import React from "react"
 import HeadlessSearch from "@/components/search/HeadlessSearch"
 import type { SearchItem } from "@/components/search/types"
 
-// Minimal inline mock dataset to validate the headless core.
 const items: SearchItem[] = [
   {
     id: "mat-a31",
@@ -31,25 +30,29 @@ const items: SearchItem[] = [
 
 export default function Page() {
   return (
-    <main className="mx-auto max-w-3xl p-6">
-      <h1 className="mb-4 text-xl font-semibold">Sandbox: Headless Search (list mode)</h1>
+    <main className="mx-auto max-w-3xl p-6 text-gray-100">
+      <h1 className="mb-4 text-xl font-semibold text-gray-100">Sandbox: Headless Search (list mode)</h1>
       <HeadlessSearch
         dataSource={{ list: items }}
         pageSize={2}
         debounceMs={200}
+        persistToUrl={true}
         renderItem={(item) => (
-          <a href={item.href} className="flex items-center justify-between hover:underline">
+          <a
+            href={item.href}
+            className="flex items-center justify-between hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-1"
+          >
             <div>
-              <div className="font-medium">{item.title}</div>
+              <div className="font-medium text-gray-100">{item.title}</div>
               {item.subtitle && (
-                <div className="text-xs text-muted-foreground">{item.subtitle}</div>
+                <div className="text-xs text-gray-400">{item.subtitle}</div>
               )}
             </div>
             <span aria-hidden>→</span>
           </a>
         )}
-        emptyState={<div>No matching items.</div>}
-        loadingState={<div className="text-xs text-muted-foreground">Searching…</div>}
+        emptyState={<div className="text-gray-300">No matching items.</div>}
+        loadingState={<div className="text-xs text-gray-400">Searching…</div>}
       />
     </main>
   )
