@@ -15,6 +15,14 @@ export type HeadlessSearchProps = {
   emptyState?: React.ReactNode
   loadingState?: React.ReactNode
   filters?: Record<string, string | string[]>
+  className?: string
+  inputClassName?: string
+  countClassName?: string
+  listClassName?: string
+  optionClassName?: string
+  activeOptionClassName?: string
+  paginationClassName?: string
+  buttonClassName?: string
 }
 
 export function HeadlessSearch({
@@ -26,6 +34,14 @@ export function HeadlessSearch({
   emptyState = <div>No results</div>,
   loadingState = null,
   filters,
+  className,
+  inputClassName,
+  countClassName,
+  listClassName,
+  optionClassName,
+  activeOptionClassName,
+  paginationClassName,
+  buttonClassName,
 }: HeadlessSearchProps) {
   const [q, setQ] = useState("")
   const [page, setPage] = useState(1)
@@ -134,8 +150,17 @@ export function HeadlessSearch({
     }
   }
 
+  const rootCls = className ?? "flex flex-col gap-4"
+  const inputCls = inputClassName ?? "w-full rounded bg-neutral-900 border border-neutral-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-neutral-500"
+  const countCls = countClassName ?? "text-xs text-neutral-500"
+  const listCls = listClassName ?? "flex flex-col divide-y divide-neutral-800 rounded-md border border-neutral-800 bg-neutral-900"
+  const optBase = optionClassName ?? "py-2 px-3 text-sm text-neutral-300 focus:outline-none"
+  const optActive = activeOptionClassName ?? "bg-neutral-800 text-white"
+  const paginationCls = paginationClassName ?? "mt-3 flex items-center justify-between gap-2 text-xs text-neutral-400"
+  const buttonCls = buttonClassName ?? "rounded border border-neutral-700 bg-neutral-900 px-2 py-1 text-xs hover:bg-neutral-800 disabled:opacity-40 disabled:hover:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+
   return (
-    <div className="flex flex-col gap-3" role="search" onKeyDown={handleKeyDown}>
+    <div className={rootCls} role="search" onKeyDown={handleKeyDown}>
       <div>
         <label htmlFor="search-input" className="sr-only">
           Search
@@ -149,7 +174,7 @@ export function HeadlessSearch({
             setPage(1)
           }}
           placeholder="Search..."
-          className="w-full rounded border px-3 py-2 text-sm"
+          className={inputCls}
           aria-controls="search-results"
           aria-describedby="search-count"
         />
@@ -158,7 +183,7 @@ export function HeadlessSearch({
       {showLoading ? (
         loadingState
       ) : (
-        <div id="search-count" aria-live="polite" className="text-xs text-gray-400">
+        <div id="search-count" aria-live="polite" className={countCls}>
           {total} result{total === 1 ? "" : "s"}
         </div>
       )}
@@ -167,10 +192,10 @@ export function HeadlessSearch({
         id="search-results"
         role="listbox"
         aria-label="Search results"
-        className="flex flex-col divide-y"
+        className={listCls}
       >
         {pageItems.length === 0 ? (
-          <div role="status" className="text-gray-300">{emptyState}</div>
+          <div role="status" className="p-4 text-neutral-400">{emptyState}</div>
         ) : (
           pageItems.map((item, idx) => (
             <div
@@ -179,9 +204,7 @@ export function HeadlessSearch({
               aria-selected={activeIndex === idx}
               tabIndex={activeIndex === idx ? 0 : -1}
               onFocus={() => setActiveIndex(idx)}
-              className={`py-2 text-gray-100 outline-none ${
-                activeIndex === idx ? "bg-gray-800" : ""
-              }`}
+              className={`${optBase} ${activeIndex === idx ? optActive : ""}`}
             >
               {renderItem(item, { index: start + idx, active: activeIndex === idx })}
             </div>
@@ -189,24 +212,24 @@ export function HeadlessSearch({
         )}
       </div>
 
-      <div className="mt-2 flex items-center justify-between gap-2">
+      <div className={paginationCls}>
         <button
           type="button"
           onClick={onPrev}
           disabled={page <= 1}
-          className="rounded border px-2 py-1 text-sm disabled:opacity-50"
+          className={buttonCls}
           aria-label="Previous page"
         >
           Prev
         </button>
-        <div className="text-xs">
+        <div className="text-xs text-neutral-500">
           Page {page} / {totalPages}
         </div>
         <button
           type="button"
           onClick={onNext}
           disabled={page >= totalPages}
-          className="rounded border px-2 py-1 text-sm disabled:opacity-50"
+          className={buttonCls}
           aria-label="Next page"
         >
           Next
