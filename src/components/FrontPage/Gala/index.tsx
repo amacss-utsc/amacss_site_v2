@@ -21,15 +21,15 @@ export const Gala: React.FC = () => {
         </h2>
         
         <p className="text-gray-10 text-lg mb-12 leading-relaxed max-w-3xl">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+          Celebrate student and teacher excellence at the CMS Gala, an evening of elegance, recognition, and unforgettable memories.
         </p>
 
-        <div className="w-full h-[500px] bg-gray-70 rounded-lg mb-6 relative overflow-hidden">
+        <div className="w-full h-[500px] bg-gray-70 rounded-[32px] mb-6 relative overflow-hidden">
           <Image
             src={images[currentImage]}
             alt={`Gala photo ${currentImage + 1}`}
             fill
-            className="object-cover"
+            className="object-cover rounded-[32px]"
           />
           
           <button
@@ -52,7 +52,7 @@ export const Gala: React.FC = () => {
             <button
               key={i}
               onClick={() => setCurrentImage(i)}
-              className={`aspect-video bg-gray-70 rounded-lg relative overflow-hidden transition-all ${
+              className={`aspect-video bg-gray-70 rounded-[32px] relative overflow-hidden transition-all ${
                 currentImage === i ? "ring-2 ring-blue-20" : "hover:ring-1 hover:ring-gray-50"
               }`}
             >
@@ -60,7 +60,7 @@ export const Gala: React.FC = () => {
                 src={url}
                 alt={`Gala thumbnail ${i + 1}`}
                 fill
-                className="object-cover"
+                className="object-cover rounded-[32px]"
               />
             </button>
           ))}
