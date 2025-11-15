@@ -32,13 +32,13 @@ export const Lounge: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex-1 lg:max-w-md flex items-end">
-            <div className="w-full h-96 bg-gray-70 rounded-lg overflow-hidden relative">
+          <div className="flex-1 lg:max-w-md flex">
+            <div className="w-full h-96 lg:h-full bg-gray-70 rounded-[32px] overflow-hidden relative">
               <Image
                 src="/api/media/file/lounge_photo.jpeg"
                 alt="Description"
                 fill
-                className="object-cover rounded-lg"
+                className="object-cover rounded-[32px]"
               />
             </div>
           </div>

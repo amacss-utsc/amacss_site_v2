@@ -1,9 +1,17 @@
 "use client"
 import React, { useState } from "react"
+import Image from "next/image"
 
 export const Gala: React.FC = () => {
+  const images = [
+    "/api/media/file/gala1.JPG",
+    "/api/media/file/gala2.jpeg",
+    "/api/media/file/gala3.jpg",
+    "/api/media/file/gala4.JPG",
+    "/api/media/file/gala5.jpg",
+  ]
+  
   const [currentImage, setCurrentImage] = useState(0)
-  const totalImages = 5
 
   return (
     <section className="w-full bg-gray-90 relative px-6 lg:px-16 py-20">
@@ -16,34 +24,44 @@ export const Gala: React.FC = () => {
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
         </p>
 
-        <div className="w-full h-[500px] bg-gray-70 rounded-lg mb-6 flex items-center justify-center relative overflow-hidden">
-          <span className="text-gray-30 text-lg">Large Photo {currentImage + 1}</span>
+        <div className="w-full h-[500px] bg-gray-70 rounded-lg mb-6 relative overflow-hidden">
+          <Image
+            src={images[currentImage]}
+            alt={`Gala photo ${currentImage + 1}`}
+            fill
+            className="object-cover"
+          />
           
           <button
-            onClick={() => setCurrentImage((currentImage - 1 + totalImages) % totalImages)}
-            className="absolute left-4 top-1/2 -translate-y-1/2 bg-gray-80 text-gray-02 px-4 py-2 rounded-lg hover:bg-gray-60 transition-colors"
+            onClick={() => setCurrentImage((currentImage - 1 + images.length) % images.length)}
+            className="absolute left-4 top-1/2 -translate-y-1/2 bg-gray-80 text-gray-02 px-4 py-2 rounded-lg hover:bg-gray-60 transition-colors z-10"
           >
             ←
           </button>
           
           <button
-            onClick={() => setCurrentImage((currentImage + 1) % totalImages)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 bg-gray-80 text-gray-02 px-4 py-2 rounded-lg hover:bg-gray-60 transition-colors"
+            onClick={() => setCurrentImage((currentImage + 1) % images.length)}
+            className="absolute right-4 top-1/2 -translate-y-1/2 bg-gray-80 text-gray-02 px-4 py-2 rounded-lg hover:bg-gray-60 transition-colors z-10"
           >
             →
           </button>
         </div>
 
         <div className="grid grid-cols-5 gap-4">
-          {[...Array(totalImages)].map((_, i) => (
+          {images.map((url, i) => (
             <button
               key={i}
               onClick={() => setCurrentImage(i)}
-              className={`aspect-video bg-gray-70 rounded-lg flex items-center justify-center transition-all ${
-                currentImage === i ? "ring-2 ring-blue-20" : "hover:bg-gray-60"
+              className={`aspect-video bg-gray-70 rounded-lg relative overflow-hidden transition-all ${
+                currentImage === i ? "ring-2 ring-blue-20" : "hover:ring-1 hover:ring-gray-50"
               }`}
             >
-              <span className="text-gray-30 text-sm">{i + 1}</span>
+              <Image
+                src={url}
+                alt={`Gala thumbnail ${i + 1}`}
+                fill
+                className="object-cover"
+              />
             </button>
           ))}
         </div>
