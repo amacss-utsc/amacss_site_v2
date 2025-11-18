@@ -1,27 +1,27 @@
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import {
-  Dept,
   getCourseSemesters,
   getLatestSemester,
+  type Dept,
 } from "@/utilities/github-courses";
 
-interface PageProps {
-  params: {
+type PageProps = {
+  params: Promise<{
     dept: Dept;
     course: string;
-  };
-}
+  }>;
+};
 
 export default async function CoursePage({ params }: PageProps) {
-  const { dept, course } = params;
+  const { dept, course } = await params;
 
   const semesters = await getCourseSemesters(dept, course);
-
   const latest = getLatestSemester(semesters);
+
   if (!latest) {
-    // No semesters exist yet; render the app's not-found page
-    notFound();
+    // No semesters: send them back to the main resources page
+    redirect("/resources");
   }
 
-  notFound();
+  redirect(`/resources/${dept}/${course}/${latest.year}/${latest.semester}`);
 }

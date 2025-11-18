@@ -14,10 +14,9 @@ interface GithubContentItem {
 
 /**
  * Basic GitHub repo config.
- * Adjust branch if needed.
  */
-const GITHUB_OWNER = "amacss_uoft"
-const GITHUB_REPO = "courses"
+const GITHUB_OWNER = "SohilChanana"
+const GITHUB_REPO = "course-page-test"
 const GITHUB_BRANCH = "main"
 
 /**
@@ -27,10 +26,9 @@ async function fetchGithubContents(path: string): Promise<GithubContentItem[]> {
   const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`
 
   const headers: HeadersInit = {}
-  // Optional: use a token if you hit rate limits
-  if (process.env.GITHUB_TOKEN) {
-    headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`
-  }
+
+  // Use a token if available to increase rate limits, but we dont need it if the repo is public
+  headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`
 
   const res = await fetch(url, {
     headers,
@@ -81,7 +79,6 @@ export async function getCourseSemesters(
           semesterItem.name === "winter" ||
           semesterItem.name === "summer")
       ) {
-        // Optionally, you could check if README.md exists here
         semesters.push({
           year,
           semester: semesterItem.name as Semester,
@@ -128,6 +125,27 @@ export function getLatestSemester(
  * Fetch README.md for a specific course + semester.
  * Uses raw.githubusercontent.com for simplicity.
  */
+// export async function getReadmeMarkdown(
+//   dept: Dept,
+//   course: string,
+//   year: number,
+//   semester: Semester,
+// ): Promise<string | null> {
+//   const path = `${dept}/${course}/${year}/${semester}/README.md`
+//   const url = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${path}`
+
+//   const res = await fetch(url, {
+//     next: { revalidate: 60 },
+//   })
+
+//   if (!res.ok) {
+//     if (res.status === 404) return null
+//     throw new Error(`Failed to fetch README.md: ${res.status}`)
+//   }
+
+//   return res.text()
+// }
+
 export async function getReadmeMarkdown(
   dept: Dept,
   course: string,
@@ -135,9 +153,13 @@ export async function getReadmeMarkdown(
   semester: Semester,
 ): Promise<string | null> {
   const path = `${dept}/${course}/${year}/${semester}/README.md`
-  const url = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${path}`
+  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`
 
   const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
+      Accept: "application/vnd.github.v3+json",
+    },
     next: { revalidate: 60 },
   })
 
@@ -146,5 +168,11 @@ export async function getReadmeMarkdown(
     throw new Error(`Failed to fetch README.md: ${res.status}`)
   }
 
-  return res.text()
+  const json = await res.json()
+
+  if (!json.content) return null
+
+  // GitHub returns base64-encoded content
+  const buff = Buffer.from(json.content, "base64")
+  return buff.toString("utf8")
 }
