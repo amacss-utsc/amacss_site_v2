@@ -14,7 +14,7 @@ export default function ResourceSearchPage() {
       <header className="mb-6 space-y-2">
   <h1 className="text-2xl font-semibold text-white">Search Resources</h1>
         <p className="text-sm text-gray-400">
-          Find workshops and study aids. Try keywords ("git", "resume"), semester ("fall"), or year.
+          Find workshops and study aids. Try keywords (git, resume), semester (fall), or year.
         </p>
       </header>
       <ResourceSearch resources={resourceIndexMock} pageSize={10} persistToUrl={true} />

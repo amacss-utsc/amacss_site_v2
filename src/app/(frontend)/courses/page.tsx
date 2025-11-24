@@ -16,7 +16,7 @@ export default async function CoursesPage() {
   <h1 className="text-2xl font-semibold text-white">Courses</h1>
         <p className="text-sm text-gray-400">
           Search the course archive. Type department codes (e.g. csc), course keys (b63), or keywords
-          ("data structures", "calculus"). URL updates allow sharing deep links.
+          (&quot;data structures&quot;, &quot;calculus&quot;). URL updates allow sharing deep links.
         </p>
       </header>
       <CourseSearch courses={courses} pageSize={10} persistToUrl={true} />
