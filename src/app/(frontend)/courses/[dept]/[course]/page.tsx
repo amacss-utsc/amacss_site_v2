@@ -20,8 +20,8 @@ export default async function CoursePage({ params }: PageProps) {
 
   if (!latest) {
     // No semesters: send them back to the main resources page
-    redirect("/resources");
+    redirect("/courses");
   }
 
-  redirect(`/resources/${dept}/${course}/${latest.year}/${latest.semester}`);
+  redirect(`/courses/${dept}/${course}/${latest.year}/${latest.semester}`);
 }

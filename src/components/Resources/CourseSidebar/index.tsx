@@ -54,7 +54,7 @@ export function CourseSidebar({
           </p>
         ) : (
           sortedSemesters.map(({ year, semester }) => {
-            const href = `/resources/${dept}/${course}/${year}/${semester}`;
+            const href = `/courses/${dept}/${course}/${year}/${semester}`;
             const isActive =
               year === activeYear && semester === activeSemester;
 

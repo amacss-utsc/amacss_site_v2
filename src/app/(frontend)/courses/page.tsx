@@ -1,14 +1,15 @@
-"use client"
+// "use client"
 
 import React from "react"
 import CourseSearch from "@/components/search/CourseSearch"
-import { courseIndexMock } from "@/components/search/mocks/courses"
+import { getAllCourses } from "@/components/search/adapters/courses"
 
 // REMOVE BEFORE PROD: temporary search testing page
 // TODO: Replace mock import with real index loading (static JSON or server fetch) when available.
 // For now we keep this page lean and client-side for manual testing.
 
-export default function CoursesPage() {
+export default async function CoursesPage() {
+  const courses = await getAllCourses();
   return (
     <main className="mx-auto max-w-4xl p-6 text-gray-100">
       <header className="mb-6 space-y-2">
@@ -18,7 +19,7 @@ export default function CoursesPage() {
           ("data structures", "calculus"). URL updates allow sharing deep links.
         </p>
       </header>
-      <CourseSearch courses={courseIndexMock} pageSize={10} persistToUrl={true} />
+      <CourseSearch courses={courses} pageSize={10} persistToUrl={true} />
     </main>
   )
 }

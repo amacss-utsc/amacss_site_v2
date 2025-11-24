@@ -57,7 +57,7 @@ export function SemesterSelect({
         value={activeValue}
         onChange={(e) => {
           const [yearStr, sem] = e.target.value.split("-");
-          const href = `/resources/${dept}/${course}/${yearStr}/${sem}`;
+          const href = `/courses/${dept}/${course}/${yearStr}/${sem}`;
           router.push(href);
         }}
         className="

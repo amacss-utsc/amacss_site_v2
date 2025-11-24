@@ -15,14 +15,15 @@ interface GithubContentItem {
 /**
  * Basic GitHub repo config.
  */
-const GITHUB_OWNER = "SohilChanana"
-const GITHUB_REPO = "course-page-test"
-const GITHUB_BRANCH = "main"
+const GITHUB_OWNER = "amacss-utsc"
+const GITHUB_REPO = "courses"
 
 /**
  * Small helper to talk to the GitHub Contents API.
  */
-async function fetchGithubContents(path: string): Promise<GithubContentItem[]> {
+export async function fetchGithubContents(
+  path: string,
+): Promise<GithubContentItem[]> {
   const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`
 
   const headers: HeadersInit = {}
@@ -125,26 +126,6 @@ export function getLatestSemester(
  * Fetch README.md for a specific course + semester.
  * Uses raw.githubusercontent.com for simplicity.
  */
-// export async function getReadmeMarkdown(
-//   dept: Dept,
-//   course: string,
-//   year: number,
-//   semester: Semester,
-// ): Promise<string | null> {
-//   const path = `${dept}/${course}/${year}/${semester}/README.md`
-//   const url = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${path}`
-
-//   const res = await fetch(url, {
-//     next: { revalidate: 60 },
-//   })
-
-//   if (!res.ok) {
-//     if (res.status === 404) return null
-//     throw new Error(`Failed to fetch README.md: ${res.status}`)
-//   }
-
-//   return res.text()
-// }
 
 export async function getReadmeMarkdown(
   dept: Dept,

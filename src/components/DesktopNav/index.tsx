@@ -55,7 +55,7 @@ export const DesktopSidebar: FC<Props> = ({ events, tags }) => {
   if (pathname === "/login" || pathname === "/register" || pathname === "/forgot-password" || pathname === "/reset-password") return null
 
 
-  if (pathname !== "/events")
+  if (pathname !== "/events" && !pathname.startsWith('/courses/'))
     return (
       <nav className="min-w-[242px] hidden lg:flex lg:flex-col bg-gray-80 relative">
         <Link href="/">
@@ -157,7 +157,7 @@ export const DesktopSidebar: FC<Props> = ({ events, tags }) => {
         </div>
       </nav>
     )
-  else return (
+  else if (pathname == "/events") return (
     <nav className="min-w-[242px] hidden lg:flex lg:items-center lg:flex-col bg-gray-80 pt-[18.5px]">
 
       <Link href="/">
@@ -213,6 +213,8 @@ export const DesktopSidebar: FC<Props> = ({ events, tags }) => {
       </div>
     </nav>
   )
+  else if (pathname.startsWith('/courses/'))
+    return <nav></nav>
 }
 
 export const DesktopNav: FC = ({ }) => {
