@@ -132,7 +132,7 @@ const Nav: React.FC = () => {
   return (
     <div
       ref={navRef}
-      className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-6 pt-6 lg:hidden"
+      className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-6 pt-6 lg:hidden bg-gray-90"
     >
       {menuOpen && (
         <div
