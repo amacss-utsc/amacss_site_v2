@@ -1,12 +1,8 @@
 // "use client"
 
-import React from "react"
+import React, { Suspense } from "react"
 import CourseSearch from "@/components/search/CourseSearch"
 import { getAllCourses } from "@/components/search/adapters/courses"
-
-// REMOVE BEFORE PROD: temporary search testing page
-// TODO: Replace mock import with real index loading (static JSON or server fetch) when available.
-// For now we keep this page lean and client-side for manual testing.
 
 export default async function CoursesPage() {
   const courses = await getAllCourses();
@@ -19,7 +15,9 @@ export default async function CoursesPage() {
           (&quot;data structures&quot;, &quot;calculus&quot;). URL updates allow sharing deep links.
         </p>
       </header>
-      <CourseSearch courses={courses} pageSize={10} persistToUrl={true} />
+      <Suspense fallback={<div className="text-gray-400">Loading courses…</div>}>
+        <CourseSearch courses={courses} pageSize={10} persistToUrl={true} />
+      </Suspense>
     </main>
   )
 }

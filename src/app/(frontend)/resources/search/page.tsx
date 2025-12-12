@@ -1,6 +1,6 @@
-"use client"
+ "use client"
 
-import React from "react"
+import React, { Suspense } from "react"
 import ResourceSearch from "@/components/search/ResourceSearch"
 import { resourceIndexMock } from "@/components/search/mocks/resources"
 
@@ -17,7 +17,9 @@ export default function ResourceSearchPage() {
           Find workshops and study aids. Try keywords (git, resume), semester (fall), or year.
         </p>
       </header>
-      <ResourceSearch resources={resourceIndexMock} pageSize={10} persistToUrl={true} />
+      <Suspense fallback={<div className="text-gray-400">Loading resources…</div>}>
+        <ResourceSearch resources={resourceIndexMock} pageSize={10} persistToUrl={true} />
+      </Suspense>
     </main>
   )
 }

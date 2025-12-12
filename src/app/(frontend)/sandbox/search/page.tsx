@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { Suspense, useState } from "react"
 import CourseSearch from "@/components/search/CourseSearch"
 import ResourceSearch from "@/components/search/ResourceSearch"
 import { courseIndexMock } from "@/components/search/mocks/courses"
@@ -36,9 +36,13 @@ export default function Page() {
         </button>
       </div>
       {mode === "courses" ? (
-        <CourseSearch courses={courseIndexMock} pageSize={2} />
+        <Suspense fallback={<div className="text-gray-400">Loading courses…</div>}>
+          <CourseSearch courses={courseIndexMock} pageSize={2} />
+        </Suspense>
       ) : (
-        <ResourceSearch resources={resourceIndexMock} pageSize={2} />
+        <Suspense fallback={<div className="text-gray-400">Loading resources…</div>}>
+          <ResourceSearch resources={resourceIndexMock} pageSize={2} />
+        </Suspense>
       )}
     </main>
   )
