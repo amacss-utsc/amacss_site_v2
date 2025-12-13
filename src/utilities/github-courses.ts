@@ -32,7 +32,7 @@ export async function fetchGithubContents(
   headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`
 
   const res = await fetch(url, {
-    headers,
+    // headers,
     // Cache a bit so we don't hit GitHub too hard
     next: { revalidate: 60 },
   })
