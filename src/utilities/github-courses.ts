@@ -26,14 +26,7 @@ export async function fetchGithubContents(
 ): Promise<GithubContentItem[]> {
   const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`
 
-  const headers: HeadersInit = {}
-
-  // Use a token if available to increase rate limits, but we dont need it if the repo is public
-  headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`
-
   const res = await fetch(url, {
-    // headers,
-    // Cache a bit so we don't hit GitHub too hard
     next: { revalidate: 60 },
   })
 
@@ -137,10 +130,6 @@ export async function getReadmeMarkdown(
   const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`
 
   const res = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
-      Accept: "application/vnd.github.v3+json",
-    },
     next: { revalidate: 60 },
   })
 
