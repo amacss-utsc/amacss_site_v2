@@ -38,6 +38,7 @@ async function checkExistingRegistration(eventId: string, userId: string) {
 }
 
 export default async function Page({ params }: any) {
+  /*
   const { id } = await params
 
   const cookieStore = await cookies()
@@ -86,4 +87,8 @@ export default async function Page({ params }: any) {
   const e = ErrDefault(error, event, {})
 
   return <EventRegister event={e} />
+  */
+  return redirect(
+    "https://docs.google.com/forms/d/e/1FAIpQLSeW26PTMCVZBdmWczPUajaaTYqSC-kpiTwqcqvXGfFQ6fIVCg/viewform?usp=dialog"
+  )
 }
