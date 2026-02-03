@@ -10,6 +10,7 @@ export const Gala: React.FC = () => {
     "/api/media/file/gala4.JPG",
     "/api/media/file/gala5.jpg",
   ]
+  const galaUrl = process.env.NEXT_PUBLIC_GALA_URL
   
   const [currentImage, setCurrentImage] = useState(0)
 
@@ -23,16 +24,18 @@ export const Gala: React.FC = () => {
         <p className="text-gray-10 text-lg mb-6 leading-relaxed max-w-3xl">
           Celebrate student and teacher excellence at the CMS Gala, an evening of elegance, recognition, and unforgettable memories.
         </p>
-        <div className="flex justify-center mb-12">
-          <a
-            className="inline-flex items-center justify-center rounded-full bg-blue-30 px-8 py-4 text-base font-semibold text-gray-02 hover:bg-blue-20 transition-colors"
-            href="https://docs.google.com/forms/d/e/1FAIpQLSeW26PTMCVZBdmWczPUajaaTYqSC-kpiTwqcqvXGfFQ6fIVCg/viewform?usp=dialog"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            🎉 Sign up for the 2026 CMS Gala! 🎉
-          </a>
-        </div>
+        {galaUrl ? (
+          <div className="flex justify-center mb-12">
+            <a
+              className="inline-flex items-center justify-center rounded-full bg-blue-30 px-8 py-4 text-base font-semibold text-gray-02 hover:bg-blue-20 transition-colors"
+              href={galaUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              🎉 Sign up for the 2026 CMS Gala! 🎉
+            </a>
+          </div>
+        ) : null}
 
         <div className="w-full h-[500px] bg-gray-70 rounded-[32px] mb-6 relative overflow-hidden">
           <Image

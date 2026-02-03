@@ -88,7 +88,5 @@ export default async function Page({ params }: any) {
 
   return <EventRegister event={e} />
   */
-  return redirect(
-    "https://docs.google.com/forms/d/e/1FAIpQLSeW26PTMCVZBdmWczPUajaaTYqSC-kpiTwqcqvXGfFQ6fIVCg/viewform?usp=dialog"
-  )
+  return redirect(process.env.NEXT_PUBLIC_GALA_URL as string)
 }
