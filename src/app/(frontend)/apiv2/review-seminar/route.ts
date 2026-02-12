@@ -82,7 +82,7 @@ export async function POST(req: Request) {
     parsed.data
 
   // 3. GitHub operations
-  const folder = `resources/${department}/${courseCode}/${year}/${semester}`
+  const folder = `${department}/${courseCode}/${year}/${semester}`
   const branchName = `upload/${department}-${courseCode}-${semester}-${year}-${Date.now()}`
 
   try {

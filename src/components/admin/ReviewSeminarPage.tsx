@@ -11,10 +11,14 @@ const ReviewSeminarPage: React.FC = () => {
   const [description, setDescription] = useState<string>("")
   const [files, setFiles] = useState<FileList | null>(null)
   const [status, setStatus] = useState<string>("")
+  const [prUrl, setPrUrl] = useState<string>("")
+  const [submitting, setSubmitting] = useState(false)
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setStatus("Submitting...")
+    setPrUrl("")
+    setSubmitting(true)
 
     const formData = new FormData()
     formData.append("department", department)
@@ -35,13 +39,16 @@ const ReviewSeminarPage: React.FC = () => {
         body: formData,
       })
       const data = await response.json().catch(() => ({}))
-      setStatus(
-        response.ok
-          ? `Submitted: ${data?.message ?? "OK"}`
-          : `Error: ${data?.message ?? "Request failed"}`,
-      )
+      if (response.ok && data.prUrl) {
+        setStatus("PR created successfully!")
+        setPrUrl(data.prUrl)
+      } else {
+        setStatus(`Error: ${data?.detail ?? data?.error ?? "Request failed"}`)
+      }
     } catch (error) {
       setStatus("Error: network request failed")
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -143,9 +150,21 @@ const ReviewSeminarPage: React.FC = () => {
           />
         </label>
 
-        <button type="submit">Submit</button>
+        <button type="submit" disabled={submitting}>
+          {submitting ? "Uploading..." : "Submit"}
+        </button>
       </form>
       {status ? <p style={{ marginTop: "1rem" }}>{status}</p> : null}
+      {prUrl ? (
+        <a
+          href={prUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ display: "inline-block", marginTop: "0.5rem" }}
+        >
+          View PR on GitHub
+        </a>
+      ) : null}
     </div>
   )
 }
