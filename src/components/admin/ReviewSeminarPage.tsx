@@ -30,7 +30,7 @@ const ReviewSeminarPage: React.FC = () => {
     }
 
     try {
-      const response = await fetch("/api/review-seminar", {
+      const response = await fetch("/apiv2/review-seminar", {
         method: "POST",
         body: formData,
       })
