@@ -8,8 +8,37 @@ type ParsedForm = {
   courseCode: string
   year: string
   semester: string
-  description: string
   files: File[]
+}
+
+async function requireAuthenticatedUsersCollection(
+  req: Request,
+): Promise<{ success: true } | { success: false; error: NextResponse }> {
+  try {
+    const payload = await getPayload({ config })
+    const { user } = await payload.auth({ headers: req.headers })
+
+    if (!user) {
+      return {
+        success: false,
+        error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
+      }
+    }
+
+    if (user.collection !== "users") {
+      return {
+        success: false,
+        error: NextResponse.json({ error: "Forbidden" }, { status: 403 }),
+      }
+    }
+
+    return { success: true }
+  } catch (error) {
+    return {
+      success: false,
+      error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
+    }
+  }
 }
 
 async function parseAndValidate(
@@ -34,7 +63,6 @@ async function parseAndValidate(
   const courseCode = formData.get("courseCode")?.toString().toLowerCase()
   const year = formData.get("year")?.toString()
   const semester = formData.get("semester")?.toString().toLowerCase()
-  const description = formData.get("description")?.toString() ?? ""
 
   if (!department || !courseCode || !year || !semester) {
     return {
@@ -68,18 +96,18 @@ async function parseAndValidate(
 
   return {
     success: true,
-    data: { department, courseCode, year, semester, description, files },
+    data: { department, courseCode, year, semester, files },
   }
 }
 
 export async function POST(req: Request) {
-  // TODO: Auth — verify logged-in Payload admin user
+  // const authResult = await requireAuthenticatedUsersCollection(req)
+  // if (!authResult.success) return authResult.error
 
   // 2. Parse & validate
   const parsed = await parseAndValidate(req)
   if (!parsed.success) return parsed.error
-  const { department, courseCode, year, semester, description, files } =
-    parsed.data
+  const { department, courseCode, year, semester, files } = parsed.data
 
   // 3. GitHub operations
   const folder = `${department}/${courseCode}/${year}/${semester}`
@@ -97,7 +125,7 @@ export async function POST(req: Request) {
     const prUrl = await gh.openPR(
       branchName,
       `[Upload] ${department.toUpperCase()} ${courseCode.toUpperCase()} — ${semester.charAt(0).toUpperCase() + semester.slice(1)} ${year}`,
-      `Uploaded ${files.length} file(s) to \`${folder}/\`\n\n${description}`,
+      `Uploaded ${files.length} file(s) to \`${folder}/\``,
     )
 
     return NextResponse.json({ success: true, prUrl }, { status: 201 })

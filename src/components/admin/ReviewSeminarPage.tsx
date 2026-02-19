@@ -8,7 +8,6 @@ const ReviewSeminarPage: React.FC = () => {
   const [courseCode, setCourseCode] = useState<string>("")
   const [year, setYear] = useState<string>("")
   const [semester, setSemester] = useState<string>("")
-  const [description, setDescription] = useState<string>("")
   const [files, setFiles] = useState<FileList | null>(null)
   const [status, setStatus] = useState<string>("")
   const [prUrl, setPrUrl] = useState<string>("")
@@ -25,7 +24,6 @@ const ReviewSeminarPage: React.FC = () => {
     formData.append("courseCode", courseCode)
     formData.append("year", year)
     formData.append("semester", semester)
-    formData.append("description", description)
 
     if (files) {
       Array.from(files).forEach((file) => {
@@ -124,21 +122,6 @@ const ReviewSeminarPage: React.FC = () => {
             }
           }}
         />
-
-        <label style={{ display: "grid", gap: "0.5rem" }}>
-          Description
-          <textarea
-            name="description"
-            rows={6}
-            placeholder="Add notes here..."
-            style={{
-              fontFamily:
-                'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-            }}
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-          />
-        </label>
 
         <label style={{ display: "grid", gap: "0.5rem" }}>
           Upload files
