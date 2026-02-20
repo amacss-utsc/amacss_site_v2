@@ -38,6 +38,7 @@ async function checkExistingRegistration(eventId: string, userId: string) {
 }
 
 export default async function Page({ params }: any) {
+  /*
   const { id } = await params
 
   const cookieStore = await cookies()
@@ -86,4 +87,6 @@ export default async function Page({ params }: any) {
   const e = ErrDefault(error, event, {})
 
   return <EventRegister event={e} />
+  */
+  return redirect(process.env.NEXT_PUBLIC_GALA_URL as string)
 }
