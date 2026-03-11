@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import {
-  getCourseSemesters,
-  getLatestSemester,
+  getLatestCourseSemester,
   type Dept,
 } from "@/utilities/github-courses";
 
@@ -15,8 +14,7 @@ type PageProps = {
 export default async function CoursePage({ params }: PageProps) {
   const { dept, course } = await params;
 
-  const semesters = await getCourseSemesters(dept, course);
-  const latest = getLatestSemester(semesters);
+  const latest = await getLatestCourseSemester(dept, course);
 
   if (!latest) {
     // No semesters: send them back to the main resources page

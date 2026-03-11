@@ -1,21 +1,23 @@
 "use client"
 
-import { useMemo } from "react"
-import { marked } from "marked"
-import DOMPurify from "dompurify"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
+import remarkMath from "remark-math"
+import rehypeKatex from "rehype-katex"
+import "katex/dist/katex.min.css"
 
 interface MarkdownViewerProps {
   markdown: string | null
 }
 
 export function MarkdownViewer({ markdown }: MarkdownViewerProps) {
-  const html = useMemo(() => {
-    if (!markdown) return "<p>No content available for this semester.</p>"
-
-    const rawHtml = marked.parse(markdown) as string
-    const cleanHtml = DOMPurify.sanitize(rawHtml)
-    return cleanHtml
-  }, [markdown])
+  if (!markdown) {
+    return (
+      <div className="prose prose-invert w-full px-6 py-8 text-gray-20">
+        <p>No content available for this semester.</p>
+      </div>
+    )
+  }
 
   return (
     <div
@@ -52,7 +54,13 @@ export function MarkdownViewer({ markdown }: MarkdownViewerProps) {
 
         prose-hr:border-gray-70
       "
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
+    >
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm, remarkMath]}
+        rehypePlugins={[rehypeKatex]}
+      >
+        {markdown}
+      </ReactMarkdown>
+    </div>
   )
 }

@@ -1,10 +1,5 @@
 import type { SearchItem } from "../types"
-import {
-  fetchGithubContents,
-  getCourseSemesters,
-  getLatestSemester,
-  type Dept,
-} from "@/utilities/github-courses"
+import { getCourseCatalog, getLatestSemester } from "@/utilities/github-courses"
 
 export type CourseIndexItem = {
   id: string
@@ -57,59 +52,36 @@ export function mapCoursesIndexToSearchItems(
  * Returns a list of CourseIndexItem objects for searching.
  */
 export async function getAllCourses(): Promise<CourseIndexItem[]> {
-  const departments: Dept[] = ["mat", "sta", "csc"]
-  const courses: CourseIndexItem[] = []
+  const catalog = await getCourseCatalog()
 
-  for (const dept of departments) {
-    // Get all course directories for this department
-    const courseEntries = await fetchGithubContents(dept)
+  return catalog
+    .filter((item) => item.semesters.length > 0)
+    .map((item) => {
+      const { dept, course: courseKey, semesters } = item
 
-    const courseDirs = courseEntries
-      .filter((item: { type: string; name: string }) => item.type === "dir")
-      .map((item: { name: string }) => item.name)
+      const semesterObjects = semesters.map((sem) => ({
+        year: sem.year,
+        semester: sem.semester,
+        path: `/courses/${dept}/${courseKey}/${sem.year}/${sem.semester}`,
+      }))
 
-    for (const courseKey of courseDirs) {
-      try {
-        // Get all semesters for this course
-        const semesters = await getCourseSemesters(dept, courseKey)
+      const latestSemester = getLatestSemester(semesters)
+      const latest = latestSemester
+        ? {
+            year: latestSemester.year,
+            semester: latestSemester.semester,
+            path: `/courses/${dept}/${courseKey}/${latestSemester.year}/${latestSemester.semester}`,
+          }
+        : undefined
 
-        if (semesters.length === 0) continue
-
-        // Build semester objects with paths
-        const semesterObjects = semesters.map((sem) => ({
-          year: sem.year,
-          semester: sem.semester,
-          path: `/courses/${dept}/${courseKey}/${sem.year}/${sem.semester}`,
-        }))
-
-        // Get the latest semester
-        const latestSemester = getLatestSemester(semesters)
-        const latest = latestSemester
-          ? {
-              year: latestSemester.year,
-              semester: latestSemester.semester,
-              path: `/courses/${dept}/${latestSemester.year}/${latestSemester.semester}`,
-            }
-          : undefined
-
-        courses.push({
-          id: `${dept}-${courseKey}`,
-          dept,
-          courseKey,
-          title: `${dept}${courseKey}`.toUpperCase(),
-          tokens: [dept, courseKey, `${dept}${courseKey}`],
-          semesters: semesterObjects,
-          latest,
-        })
-      } catch (error) {
-        console.error(
-          `Failed to fetch semesters for ${dept}/${courseKey}:`,
-          error,
-        )
-        continue
+      return {
+        id: `${dept}-${courseKey}`,
+        dept,
+        courseKey,
+        title: `${dept}${courseKey}`.toUpperCase(),
+        tokens: [dept, courseKey, `${dept}${courseKey}`],
+        semesters: semesterObjects,
+        latest,
       }
-    }
-  }
-
-  return courses
+    })
 }
