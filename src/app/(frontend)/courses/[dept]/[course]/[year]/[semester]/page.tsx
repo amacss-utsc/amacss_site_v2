@@ -35,6 +35,7 @@ export default async function CourseSemesterPage({ params }: PageProps) {
   }
 
   const markdown = await getReadmeMarkdown(dept, course, yearNumber, semester)
+  const basePath = `${dept}/${course}/${year}/${semester}`
 
   return (
     <div
@@ -83,7 +84,7 @@ export default async function CourseSemesterPage({ params }: PageProps) {
         </header>
 
         <main className="flex-1 overflow-y-auto">
-          <MarkdownViewer markdown={markdown} />
+          <MarkdownViewer markdown={markdown} basePath={basePath} />
         </main>
       </div>
     </div>

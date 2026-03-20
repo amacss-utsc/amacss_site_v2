@@ -6,11 +6,37 @@ import remarkMath from "remark-math"
 import rehypeKatex from "rehype-katex"
 import "katex/dist/katex.min.css"
 
-interface MarkdownViewerProps {
-  markdown: string | null
+const GITHUB_OWNER = "amacss-utsc"
+const GITHUB_REPO = "courses"
+const GITHUB_REF = "main"
+
+function resolveRelativeUrl(
+  url: string,
+  basePath: string,
+  mode: "blob" | "raw",
+): string {
+  if (!url) return url
+  // Leave absolute URLs, fragments, mailto, and tel as-is
+  if (/^(https?:|#|mailto:|tel:)/i.test(url)) return url
+
+  const base =
+    mode === "blob"
+      ? `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/blob/${GITHUB_REF}/${basePath}/`
+      : `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_REF}/${basePath}/`
+
+  try {
+    return new URL(url, base).href
+  } catch {
+    return url
+  }
 }
 
-export function MarkdownViewer({ markdown }: MarkdownViewerProps) {
+interface MarkdownViewerProps {
+  markdown: string | null
+  basePath: string
+}
+
+export function MarkdownViewer({ markdown, basePath }: MarkdownViewerProps) {
   if (!markdown) {
     return (
       <div className="prose prose-invert w-full px-6 py-8 text-gray-20">
@@ -58,6 +84,28 @@ export function MarkdownViewer({ markdown }: MarkdownViewerProps) {
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath]}
         rehypePlugins={[rehypeKatex]}
+        components={{
+          a({ href, children, ...props }) {
+            const resolved = resolveRelativeUrl(href ?? "", basePath, "raw")
+            const isExternal = resolved.startsWith("http")
+            return (
+              <a
+                href={resolved}
+                {...(isExternal
+                  ? { target: "_blank", rel: "noopener noreferrer" }
+                  : {})}
+                {...props}
+              >
+                {children}
+              </a>
+            )
+          },
+          img({ src, alt, ...props }) {
+            const resolved = resolveRelativeUrl(src ?? "", basePath, "raw")
+            // eslint-disable-next-line @next/next/no-img-element
+            return <img src={resolved} alt={alt ?? ""} {...props} />
+          },
+        }}
       >
         {markdown}
       </ReactMarkdown>
