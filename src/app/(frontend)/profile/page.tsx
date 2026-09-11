@@ -1,133 +1,88 @@
-import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
-import { getPayload } from 'payload'
-import config from '@payload-config'
-import Link from 'next/link'
-import type { Registration, Event } from '@/payload-types'
-
-async function fetchCurrentUser(token: string) {
-    const res = await fetch(
-      `${process.env.PAYLOAD_PUBLIC_SERVER_URL}/api/club-member/me`,
-      {
-        headers: {
-          Authorization: `JWT ${token}`,
-        },
-        cache: "no-store",
-      },
-    )
-    if (!res.ok) return null
-    return res.json()
-  }
+import config from "@payload-config"
+import { createSupabaseServerClient } from "@/utilities/supabase/server"
+import Link from "next/link"
+import { redirect } from "next/navigation"
+import { getPayload } from "payload"
 
 export default async function ProfilePage() {
-  const cookieStore = await cookies()
-    const token = cookieStore.get("payload-token")
+  const supabase = await createSupabaseServerClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-    if (!token) {
-        redirect('/login?redirect=/profile')
-    }
-  
-    const user = await fetchCurrentUser(token?.value)
-    if (!user || !user.user || !user.user.id) {
-        redirect('/login?redirect=/profile')
-    }
-  if (!token) {
-    redirect('/login?redirect=/profile')
-  }
+  if (!user) redirect("/login?redirect=/profile")
 
   const payload = await getPayload({ config })
-
-  const userId = user.user.id
-
-  const registrations = (await payload.find({
-    collection: 'registrations',
-    where: {
-      userId: {
-        equals: userId,
-      },
-    },
+  const registrations = await payload.find({
+    collection: "registrations",
+    where: { supabaseUserId: { equals: user.id } },
     depth: 1,
-  }))
-
-  if (!registrations?.docs?.length) {
-    return (
-      <main className="pt-6 min-h-full h-full overflow-y-scroll bg-gray-90 text-gray-02 px-7 lg:px-20 lg:rounded-tl-[32px]">
-        <h1 className="text-4xl font-bold mb-8">Your Registrations</h1>
-        <div className="text-center py-12 text-gray-40 text-xl">
-          You have not registered for any events yet.
-        </div>
-        <Link
-          href="/events"
-          className="inline-block py-3 px-6 bg-blue-30 hover:bg-blue-40 
-            text-center rounded-[16px] text-white font-bold 
-            transition-colors normal-case mt-4"
-        >
-          Back to Events
-        </Link>
-      </main>
-    )
-  }
+  })
+  const fullName = String(user.user_metadata?.full_name || "")
+  const phone = String(user.user_metadata?.phone || "")
 
   return (
-    <main className="pt-6 min-h-full h-full overflow-y-scroll bg-gray-90 text-gray-02 px-7 lg:px-20 lg:rounded-tl-[32px]">
-      <h1 className="text-4xl font-bold mb-8">Registrations</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {registrations.docs.map((reg) => {
-          const event = typeof reg.eventId === 'object' ? reg.eventId : null
-          if (!event) return null
+    <main className="min-h-full overflow-y-auto bg-gray-90 px-7 pt-8 text-gray-02 lg:rounded-tl-[32px] lg:px-20 lg:pt-12">
+      <div className="mb-12 grid gap-5 lg:grid-cols-[1fr_auto] lg:items-end">
+        <div>
+          <p className="mb-2 text-sm font-bold uppercase tracking-[0.16em] text-blue-10">
+            Your account
+          </p>
+          <h1 className="text-4xl font-black">{fullName || user.email}</h1>
+          <p className="mt-3 normal-case text-gray-10">{user.email}</p>
+          {phone && <p className="mt-1 normal-case text-gray-10">{phone}</p>}
+        </div>
+        <div className="inline-flex w-fit items-center gap-2 rounded-full border border-red-400/50 bg-red-500/10 px-4 py-2 text-sm font-bold text-red-400">
+          <span aria-hidden="true">•</span> Email verification coming soon
+        </div>
+      </div>
 
-          return (
-            <article
-              key={reg.id}
-              className="flex flex-col bg-gray-80 rounded-[32px] p-6 
-                shadow-2xl hover:shadow-3xl transition-all duration-300 
-                hover:-translate-y-1 border-2 border-transparent 
-                hover:border-blue-30/20 group"
-            >
-              <div className="flex-1">
-                <h3 className="text-2xl font-semibold mb-4 normal-case 
-                          group-hover:text-blue-30 transition-colors">
+      <h2 className="mb-6 text-3xl font-bold">Your Registrations</h2>
+      {!registrations.docs.length ? (
+        <div className="rounded-[24px] bg-gray-80 p-8 normal-case text-gray-10">
+          <p className="text-lg">You have not registered for any events yet.</p>
+          <Link
+            href="/events"
+            className="mt-6 inline-block rounded-[16px] bg-blue-30 px-6 py-3 font-bold text-white transition-colors hover:bg-blue-40"
+          >
+            Browse events
+          </Link>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-6 pb-12 md:grid-cols-2 lg:grid-cols-3">
+          {registrations.docs.map((registration) => {
+            const event =
+              typeof registration.eventId === "object"
+                ? registration.eventId
+                : null
+            if (!event) return null
+
+            return (
+              <article
+                key={registration.id}
+                className="flex flex-col rounded-[28px] border-2 border-transparent bg-gray-80 p-6 shadow-2xl transition-all hover:-translate-y-1 hover:border-blue-30/20"
+              >
+                <h3 className="mb-4 text-2xl font-semibold normal-case">
                   {event.title}
                 </h3>
-                <p className="text-gray-20 text-lg mb-2 normal-case">
-                  {new Date(event.date).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric',
-                  })}{' '}
+                <p className="mb-2 text-lg normal-case text-gray-20">
+                  {new Date(event.date).toLocaleDateString("en-CA", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}{" "}
                   @ {event.startTime} - {event.endTime}
                 </p>
-                {reg.referralCode && (
-                  <p className="text-blue-30 font-bold">
-                    Referral Code: {reg.referralCode}
+                {registration.referralCode && (
+                  <p className="font-bold text-blue-30">
+                    Referral Code: {registration.referralCode}
                   </p>
                 )}
-              </div>
-              {/* <div className="mt-auto pt-4">
-                <Link
-                  href={`/events/${event.id}`}
-                  className="inline-block w-full py-3 px-6 bg-blue-30 hover:bg-blue-40 
-                    text-center rounded-[16px] text-white font-bold 
-                    transition-colors normal-case group-hover:scale-[1.02] 
-                    transform-gpu"
-                >
-                  View Event
-                </Link>
-              </div> */}
-            </article>
-          )
-        })}
-      </div>
-      {/* <div className="mt-10">
-        <Link
-          href="/events"
-          className="inline-block py-3 px-6 bg-blue-30 hover:bg-blue-40 
-            text-center rounded-[16px] text-white font-bold 
-            transition-colors normal-case"
-        >
-          Back to Events
-        </Link>
-      </div> */}
+              </article>
+            )
+          })}
+        </div>
+      )}
     </main>
   )
 }

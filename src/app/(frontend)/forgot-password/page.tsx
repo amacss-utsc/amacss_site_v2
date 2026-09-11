@@ -3,11 +3,12 @@
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import Logo from '@/components/svg/Logo'
 import { colors } from '@/utilities/colors'
 import { cn } from '@/utilities/cn'
 import { InputStyle } from '@/utilities/tailwindShared'
+import { useAuth } from '@/providers/Auth'
+import { isUofTEmail, UOFT_EMAIL_ERROR } from '@/utilities/auth'
 
 type ForgotPasswordFormData = {
   email: string
@@ -18,7 +19,7 @@ export default function ForgotPasswordPage() {
   const [serverError, setServerError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const router = useRouter()
+  const { forgotPassword } = useAuth()
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
     setIsSubmitting(true)
@@ -26,16 +27,7 @@ export default function ForgotPasswordPage() {
     setSuccessMessage(null)
 
     try {
-      const res = await fetch(`/api/club-member/forgot-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: data.email }),
-      })
-
-      if (!res.ok) {
-        throw new Error('Failed to request password reset.')
-      }
-
+      await forgotPassword(data)
       setSuccessMessage('Check your email for a reset link.')
     } catch (error) {
       setServerError((error as Error).message)
@@ -64,8 +56,15 @@ export default function ForgotPasswordPage() {
         <fieldset className="mb-8">
           <label>Email</label>
           <input
-            {...register('email', { required: 'Email is required' })}
+            {...register('email', {
+              required: 'Email is required',
+              validate: (value) => isUofTEmail(value) || UOFT_EMAIL_ERROR,
+            })}
             type="email"
+            inputMode="email"
+            autoComplete="username"
+            autoCapitalize="none"
+            spellCheck={false}
             className={cn(InputStyle)}
           />
           {errors.email && <p className="text-red-500 mt-1">{errors.email.message}</p>}

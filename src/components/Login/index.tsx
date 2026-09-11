@@ -1,114 +1,156 @@
-'use client'
+"use client"
 
-import Logo from '@/components/svg/Logo'
-import { cn } from '@/utilities/cn'
-import { colors } from '@/utilities/colors'
-import { InputStyle } from '@/utilities/tailwindShared'
-import Link from 'next/link'
-import React, { useCallback, useRef } from 'react'
-import { useForm } from 'react-hook-form'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useAuth } from '@/providers/Auth'
+import Logo from "@/components/svg/Logo"
+import Close from "@/components/svg/Close"
+import { useAuth } from "@/providers/Auth"
+import { isUofTEmail, UOFT_EMAIL_ERROR } from "@/utilities/auth"
+import { cn } from "@/utilities/cn"
+import { colors } from "@/utilities/colors"
+import { InputStyle } from "@/utilities/tailwindShared"
+import Link from "next/link"
+import { useRouter, useSearchParams } from "next/navigation"
+import React, { useCallback, useState } from "react"
+import { useForm } from "react-hook-form"
 
-type FormData = {
-  email: string
-  password: string
+type FormData = { email: string; password: string }
+
+function safeRedirect(value: string | null) {
+  return value?.startsWith("/") && !value.startsWith("//") ? value : "/"
 }
 
 export default function LoginForm() {
   const searchParams = useSearchParams()
-  const redirect = useRef(searchParams.get('redirect'))
-  const redirectParam = searchParams.get('redirect')
+  const redirectParam = searchParams.get("redirect")
   const { login } = useAuth()
   const router = useRouter()
-  const [error, setError] = React.useState<null | string>(null)
+  const [error, setError] = useState<string | null>(
+    searchParams.get("error") === "confirmation-link"
+      ? "That email link is invalid or has expired. Please try again."
+      : null,
+  )
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<FormData>({
-    defaultValues: {
-      email: '',
-      password: '',
-    },
-  })
+  } = useForm<FormData>()
 
   const onSubmit = useCallback(
     async (data: FormData) => {
+      setError(null)
       try {
         await login(data)
-        if (redirect?.current) {
-          router.push(redirect.current)
-        } else {
-          router.push('/')
-        }
-      } catch (_) {
-        setError('Invalid credentials. Please try again.')
+        router.replace(safeRedirect(redirectParam))
+        router.refresh()
+      } catch (cause) {
+        const message = cause instanceof Error ? cause.message : ""
+        setError(
+          message === UOFT_EMAIL_ERROR
+            ? message
+            : "We couldn't log you in. Check your email, password, and email verification.",
+        )
       }
     },
-    [login, router]
+    [login, redirectParam, router],
   )
 
   return (
-    <main className="uppercase bg-gray-90 lg:flex lg:items-center lg:justify-center lg:flex-col min-h-screen h-full overflow-y-scroll lg:w-screen pb-10 lg:pb-0">
-      <header className="py-28 lg:pb-14 lg:pt-0">
-        <Link href="/">
-          <Logo fill={colors.gray['02']} className="mx-auto lg:scale-150" />
+    <main className="uppercase bg-gray-90 flex min-h-screen flex-col overflow-y-auto pb-10 lg:w-screen lg:items-center lg:justify-center lg:pb-0">
+      <Link
+        href="/"
+        aria-label="Continue browsing without signing in"
+        title="Continue browsing"
+        className="fixed right-5 top-5 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-gray-30 bg-gray-80 transition-colors hover:border-gray-02 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-10"
+      >
+        <Close className="h-5 w-5 [&_path]:stroke-gray-02" />
+      </Link>
+
+      <header className="py-20 lg:pb-14 lg:pt-0">
+        <Link href="/" aria-label="Back to AMACSS home">
+          <Logo fill={colors.gray["02"]} className="mx-auto lg:scale-150" />
         </Link>
       </header>
 
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="text-white font-bold px-8 lg:bg-gray-80 lg:px-14 lg:py-12 lg:w-[670px] lg:mx-auto lg:rounded-[32px]"
+        className="px-8 font-bold text-white lg:mx-auto lg:w-[670px] lg:rounded-[32px] lg:bg-gray-80 lg:px-14 lg:py-12"
       >
+        <div className="mb-8 normal-case">
+          <h1 className="text-3xl font-black uppercase">Welcome back</h1>
+          <p className="mt-2 font-medium text-gray-10">
+            Log in with your University of Toronto email.
+          </p>
+        </div>
+
         {error && (
-          <p className="text-red-500 text-center mb-4">
+          <p role="alert" className="mb-5 normal-case text-red-400">
             {error}
           </p>
         )}
-        <fieldset className="mb-8">
-          <label>Email</label>
+
+        <fieldset className="mb-6">
+          <label htmlFor="login-email">UofT Email</label>
           <input
-            {...register('email', { required: 'Email is required' })}
+            id="login-email"
+            {...register("email", {
+              required: "Email is required",
+              validate: (value) => isUofTEmail(value) || UOFT_EMAIL_ERROR,
+            })}
             type="email"
+            inputMode="email"
+            autoComplete="username"
+            autoCapitalize="none"
+            spellCheck={false}
             className={cn(InputStyle)}
           />
           {errors.email && (
-            <p className="text-red-500 mt-1">{errors.email.message}</p>
+            <p className="mt-1 normal-case text-red-400">
+              {errors.email.message}
+            </p>
           )}
         </fieldset>
-        <fieldset className="mb-16">
-          <label>Password</label>
+
+        <fieldset className="mb-10">
+          <div className="flex items-center justify-between">
+            <label htmlFor="login-password">Password</label>
+            <Link
+              href="/forgot-password"
+              className="normal-case text-sm text-blue-10"
+            >
+              Forgot password?
+            </Link>
+          </div>
           <input
-            {...register('password', { required: 'Password is required' })}
+            id="login-password"
+            {...register("password", { required: "Password is required" })}
             type="password"
+            autoComplete="current-password"
             className={cn(InputStyle)}
           />
           {errors.password && (
-            <p className="text-red-500 mt-1">{errors.password.message}</p>
+            <p className="mt-1 normal-case text-red-400">
+              {errors.password.message}
+            </p>
           )}
         </fieldset>
+
         <button
           type="submit"
-          className="mb-2 uppercase font-black text-2xl bg-blue-30 w-full py-[18px] rounded-2xl"
+          className="mb-3 w-full rounded-2xl bg-blue-30 py-[18px] text-2xl font-black uppercase transition-colors hover:bg-blue-40 disabled:cursor-wait disabled:opacity-60"
           disabled={isSubmitting}
         >
-          {isSubmitting ? 'Processing...' : 'Login'}
+          {isSubmitting ? "Logging in..." : "Log in"}
         </button>
-        <p className="w-full flex items-center justify-center">
-          <Link href={`/register${redirectParam ? `?redirect=${encodeURIComponent(redirectParam)}` : ''}`} className="text-blue-10">
-            Or create account
+        <p className="flex w-full items-center justify-center normal-case text-gray-10">
+          New here?{" "}
+          <Link
+            href={`/register${redirectParam ? `?redirect=${encodeURIComponent(redirectParam)}` : ""}`}
+            className="ml-1 text-blue-10"
+          >
+            Create an account
           </Link>
         </p>
-
-        <div className="flex flex-col items-center mt-4 text-sm">
-        <Link href="/forgot-password" className="text-blue-10 normal-case">
-          Forgot Password?
-        </Link>
-      </div>
       </form>
     </main>
   )
 }
-

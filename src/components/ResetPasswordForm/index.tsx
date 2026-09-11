@@ -3,11 +3,11 @@
 import React, { useState } from "react"
 import Link from "next/link"
 import { useForm } from "react-hook-form"
-import { useSearchParams } from "next/navigation"
 import { cn } from "@/utilities/cn"
 import { InputStyle } from "@/utilities/tailwindShared"
 import Logo from "@/components/svg/Logo"
 import { colors } from "@/utilities/colors"
+import { useAuth } from "@/providers/Auth"
 
 type ResetFormData = {
   password: string
@@ -18,6 +18,7 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const { resetPassword } = useAuth()
 
   const {
     register,
@@ -25,35 +26,13 @@ export default function ResetPasswordPage() {
     watch,
     formState: { errors },
   } = useForm<ResetFormData>()
-  const searchParams = useSearchParams()
-  const token = searchParams.get("token")
-
   const onSubmit = async (data: ResetFormData) => {
     setIsSubmitting(true)
     setError(null)
     setSuccess(null)
 
-    if (!token) {
-      setError("Missing or invalid reset token.")
-      setIsSubmitting(false)
-      return
-    }
-
     try {
-      const res = await fetch("/api/club-member/reset-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          token,
-          password: data.password,
-        }),
-      })
-
-      if (!res.ok) {
-        const errData = await res.json()
-        throw new Error(errData.message || "Error resetting password")
-      }
-
+      await resetPassword(data)
       setSuccess("Password has been reset! You can now log in.")
     } catch (err: any) {
       setError(err.message)
@@ -90,7 +69,11 @@ export default function ResetPasswordPage() {
           <label>New Password</label>
           <input
             type="password"
-            {...register("password", { required: "Password is required" })}
+            autoComplete="new-password"
+            {...register("password", {
+              required: "Password is required",
+              minLength: { value: 8, message: "Use at least 8 characters" },
+            })}
             className={cn(InputStyle)}
           />
           {errors.password && (
@@ -102,6 +85,7 @@ export default function ResetPasswordPage() {
           <label>Confirm Password</label>
           <input
             type="password"
+            autoComplete="new-password"
             {...register("passwordConfirm", {
               required: "Please confirm password",
               validate: (value) =>

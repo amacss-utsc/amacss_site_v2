@@ -35,7 +35,16 @@ export const Registrations: CollectionConfig = {
       name: "userId",
       type: "relationship",
       relationTo: "club-member", // Link to the club members collection
-      required: true,
+      required: false,
+    },
+    {
+      name: "supabaseUserId",
+      type: "text",
+      index: true,
+      admin: {
+        description:
+          "Supabase Auth user ID for accounts created with the current sign-up flow.",
+      },
     },
     {
       name: "answers",

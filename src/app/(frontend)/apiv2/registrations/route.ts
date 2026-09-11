@@ -2,15 +2,19 @@ import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import config from "@payload-config"
 import { getPayload } from "payload"
+import { createSupabaseServerClient } from "@/utilities/supabase/server"
+import { EVENT_REGISTRATION_OPEN } from "@/utilities/auth"
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_KEY!,
-  {
+function createSupabaseStorageClient() {
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_KEY) {
+    throw new Error("Supabase Storage is not configured.")
+  }
+
+  return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY, {
     fetch: (url, init) =>
-      fetch(url, { ...init, duplex: "half" } as RequestInit), // Add duplex option here
-  } as any,
-)
+      fetch(url, { ...init, duplex: "half" } as RequestInit),
+  } as any)
+}
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
@@ -53,6 +57,13 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  if (!EVENT_REGISTRATION_OPEN) {
+    return NextResponse.json(
+      { error: "Event registration is not open yet." },
+      { status: 403 },
+    )
+  }
+
   try {
     const contentType = req.headers.get("content-type")
     if (!contentType || !contentType.includes("multipart/form-data")) {
@@ -64,13 +75,25 @@ export async function POST(req: Request) {
 
     const payload = await getPayload({ config })
     const formData = await req.formData()
+    const storageClient = createSupabaseStorageClient()
+    const authClient = await createSupabaseServerClient()
+    const {
+      data: { user },
+      error: authError,
+    } = await authClient.auth.getUser()
 
     const eventId = formData.get("eventId")
-    const userId = formData.get("userId")
 
-    if (!eventId || !userId) {
+    if (authError || !user) {
       return NextResponse.json(
-        { error: "Missing required fields: eventId or userId." },
+        { error: "You must be logged in." },
+        { status: 401 },
+      )
+    }
+
+    if (!eventId) {
+      return NextResponse.json(
+        { error: "Missing required field: eventId." },
         { status: 400 },
       )
     }
@@ -87,10 +110,10 @@ export async function POST(req: Request) {
       if (value instanceof File) {
         const fileBuffer = await value.arrayBuffer() // Convert File to Buffer
         const fileExtension = value.name.split(".").pop()
-        const fileName = `${eventId}_${userId}_${Date.now()}.${fileExtension}`
+        const fileName = `${eventId}_${user.id}_${Date.now()}.${fileExtension}`
 
         try {
-          const { data, error } = await supabase.storage
+          const { data, error } = await storageClient.storage
             .from(process.env.S3_BUCKET!)
             .upload(fileName, Buffer.from(fileBuffer), {
               contentType: value.type,
@@ -108,7 +131,7 @@ export async function POST(req: Request) {
           } else {
             // Generate a signed URL for the file
             const { data: signedUrlData, error: signedUrlError } =
-              await supabase.storage
+              await storageClient.storage
                 .from(process.env.S3_BUCKET!)
                 .createSignedUrl(data.path, 60 * 60 * 24) // Signed URL valid for 24 hours
 
@@ -152,7 +175,7 @@ export async function POST(req: Request) {
       collection: "registrations",
       data: {
         eventId: parseInt(eventId.toString(), 10),
-        userId: parseInt(userId.toString(), 10),
+        supabaseUserId: user.id,
         answers,
         submittedAt: new Date().toISOString(),
       },

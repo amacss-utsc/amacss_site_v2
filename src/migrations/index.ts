@@ -10,6 +10,7 @@ import * as migration_20250217_065250_referral_input from "./20250217_065250_ref
 import * as migration_20250217_081556_answers_not_required from "./20250217_081556_answers_not_required"
 import * as migration_20250302_061329_verified_registation_field from "./20250302_061329_verified_registation_field"
 import * as migration_20250921_173940_add_details_to_team_members from "./20250921_173940_add_details_to_team_members"
+import * as migration_20260910_000000_supabase_auth_registrations from "./20260910_000000_supabase_auth_registrations"
 
 export const migrations = [
   {
@@ -71,5 +72,10 @@ export const migrations = [
     up: migration_20250921_173940_add_details_to_team_members.up,
     down: migration_20250921_173940_add_details_to_team_members.down,
     name: "20250921_173940_add_details_to_team_members",
+  },
+  {
+    up: migration_20260910_000000_supabase_auth_registrations.up,
+    down: migration_20260910_000000_supabase_auth_registrations.down,
+    name: "20260910_000000_supabase_auth_registrations",
   },
 ]

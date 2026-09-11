@@ -31,7 +31,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ closeMenu }) => {
     gsap.fromTo(
       menuRef.current,
       { x: "100%" },
-      { x: "0%", ease: "power3.out", duration: 0.3 }
+      { x: "0%", ease: "power3.out", duration: 0.3 },
     )
   })
 
@@ -65,11 +65,11 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ closeMenu }) => {
               onClick={closeMenu}
               className="active:text-gray-20 hover:text-gray-20 transition-all"
             >
-              Login
+              Log in / Sign up
             </Link>
           </li>
         )}
-         {user && (
+        {user && (
           <>
             <li>
               <Link
@@ -109,13 +109,13 @@ const Nav: React.FC = () => {
         gsap.fromTo(
           menu.current,
           { x: "100%" },
-          { x: "0%", ease: "power3.out", duration: 0.3 }
+          { x: "0%", ease: "power3.out", duration: 0.3 },
         )
       } else {
         gsap.to(menu.current, { x: "100%", ease: "power3.out", duration: 0.3 })
       }
     },
-    { dependencies: [menuOpen], scope: navRef }
+    { dependencies: [menuOpen], scope: navRef },
   )
 
   const { contextSafe } = useGSAP({ scope: navRef })
@@ -127,7 +127,13 @@ const Nav: React.FC = () => {
 
   const pathname = usePathname()
 
-  if (pathname === "/login" || pathname === "/register" || pathname === "forgot-password" || pathname === "/reset-password") return null
+  if (
+    pathname === "/login" ||
+    pathname === "/register" ||
+    pathname === "/forgot-password" ||
+    pathname === "/reset-password"
+  )
+    return null
 
   return (
     <div
@@ -156,4 +162,3 @@ const Nav: React.FC = () => {
 }
 
 export default Nav
-
