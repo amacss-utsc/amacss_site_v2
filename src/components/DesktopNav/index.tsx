@@ -278,14 +278,14 @@ export const DesktopNav: FC = ({}) => {
       </ul>
       {user == null ? (
         <Link
-          href={"/login"}
+          href={"/register"}
           className={cn(
             NavLink,
             "font-bold w-fit uppercase h-full flex items-center justify-center group",
           )}
         >
           <Login className="inline mr-2 transition-colors stroke-[#FFFFFF] group-hover:[stroke:#818488]" />
-          Log in / Sign up
+          Sign up / Log in
         </Link>
       ) : (
         <div

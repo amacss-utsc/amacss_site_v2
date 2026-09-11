@@ -61,11 +61,11 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ closeMenu }) => {
         {!user && (
           <li>
             <Link
-              href="/login"
+              href="/register"
               onClick={closeMenu}
               className="active:text-gray-20 hover:text-gray-20 transition-all"
             >
-              Log in / Sign up
+              Sign up / Log in
             </Link>
           </li>
         )}
