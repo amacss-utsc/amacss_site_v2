@@ -7,7 +7,7 @@ import { LottieBackground } from "@/components/LottieBackground"
 
 export const Title: React.FC = () => {
   return (
-    <section className="w-full h-screen relative flex items-center justify-center flex-col">
+    <section className="w-full min-h-[92vh] relative flex items-center justify-center flex-col">
       <LottieBackground />
       
       <div className="w-full h-screen flex items-center justify-center lg:hidden flex-col">
