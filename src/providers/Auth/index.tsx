@@ -1,181 +1,160 @@
-'use client'
+"use client"
 
-import type { Permissions } from 'payload'
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import type { User } from "@supabase/supabase-js"
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react"
+import {
+  isUofTEmail,
+  isValidPhoneNumber,
+  normalizeEmail,
+  ACCOUNT_REGISTRATION_OPEN,
+  PHONE_ERROR,
+  UOFT_EMAIL_ERROR,
+} from "@/utilities/auth"
+import {
+  createSupabaseBrowserClient,
+  hasSupabaseBrowserConfig,
+} from "@/utilities/supabase/client"
+import type { AuthContext, AuthUser } from "./types"
 
-import type { AuthContext, Create, ForgotPassword, Login, Logout, ResetPassword } from './types'
+const Context = createContext<AuthContext | null>(null)
 
-import { gql, CLUB_MEMBER } from './gql'
-import { rest } from './rest'
-import { ClubMember } from '@/payload-types'
+function mapUser(user: User): AuthUser {
+  const fullName = String(user.user_metadata?.full_name || "").trim()
+  const [firstName = "", ...lastNameParts] = fullName.split(/\s+/)
 
-const Context = createContext({} as AuthContext)
+  return {
+    id: user.id,
+    email: user.email || "",
+    fullName,
+    firstName,
+    lastName: lastNameParts.join(" "),
+    phone: String(user.user_metadata?.phone || ""),
+    emailConfirmed: Boolean(user.email_confirmed_at),
+  }
+}
 
-export const AuthProvider: React.FC<{ api?: 'gql' | 'rest'; children: React.ReactNode }> = ({
-  api = 'rest',
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [user, setUser] = useState<null | ClubMember>()
-  const [permissions, setPermissions] = useState<null | Permissions>(null)
-
-  const create = useCallback<Create>(
-    async (args) => {
-      if (api === 'rest') {
-        const clubMember = await rest(`/api/club-member`, args)
-        setUser(clubMember)
-        return clubMember
-      }
-
-      if (api === 'gql') {
-        const { createClubMember: clubMember } = await gql(`mutation {
-          createClubMember(data: { email: "${args.email}", password: "${args.password}", firstName: "${args.firstName}", lastName: "${args.lastName}" }) {
-            ${CLUB_MEMBER}
-          }
-        }`)
-
-        setUser(clubMember)
-        return clubMember
-      }
-    },
-    [api],
+  const supabase = useMemo(
+    () => (hasSupabaseBrowserConfig() ? createSupabaseBrowserClient() : null),
+    [],
   )
-
-  const login = useCallback<Login>(
-    async (args) => {
-      if (api === 'rest') {
-        const clubMember = await rest(`/api/club-member/login`, args)
-        setUser(clubMember)
-        return clubMember
-      }
-
-      if (api === 'gql') {
-        const { loginClubMember } = await gql(`mutation {
-          loginClubMember(email: "${args.email}", password: "${args.password}") {
-            clubMember {
-              ${CLUB_MEMBER}
-            }
-            exp
-          }
-        }`)
-
-        setUser(loginClubMember?.clubMember)
-        return loginClubMember?.clubMember
-      }
-    },
-    [api],
-  )
-
-  const logout = useCallback<Logout>(async () => {
-    if (api === 'rest') {
-      await rest(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/club-member/logout`)
-      setUser(null)
-      return
-    }
-
-    if (api === 'gql') {
-      await gql(`mutation {
-        logoutClubMember
-      }`)
-
-      setUser(null)
-    }
-  }, [api])
+  const [user, setUser] = useState<AuthUser | null>(null)
 
   useEffect(() => {
-    const fetchMe = async () => {
-      if (api === 'rest') {
-        const clubMember = await rest(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/club-member/me`,
-          {},
-          { method: 'GET' },
+    if (!supabase) return
+
+    void supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user ? mapUser(data.user) : null)
+    })
+
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ? mapUser(session.user) : null)
+    })
+
+    return () => data.subscription.unsubscribe()
+  }, [supabase])
+
+  const requireClient = useCallback(() => {
+    if (!supabase) throw new Error("Supabase is not configured yet.")
+    return supabase
+  }, [supabase])
+
+  const create = useCallback<AuthContext["create"]>(
+    async ({ email, fullName, phone, password }) => {
+      if (!ACCOUNT_REGISTRATION_OPEN) {
+        throw new Error("New member registration is not open yet.")
+      }
+
+      if (!isUofTEmail(email)) throw new Error(UOFT_EMAIL_ERROR)
+      if (!isValidPhoneNumber(phone)) throw new Error(PHONE_ERROR)
+
+      const client = requireClient()
+      const { data, error } = await client.auth.signUp({
+        email: normalizeEmail(email),
+        password,
+        options: {
+          data: { full_name: fullName.trim(), phone: phone.trim() },
+        },
+      })
+
+      if (error) throw error
+      if (!data.user || !data.session) {
+        throw new Error(
+          "Email confirmation is still enabled in Supabase. Turn it off and try again.",
         )
-        setUser(clubMember)
       }
 
-      if (api === 'gql') {
-        const { meClubMember } = await gql(`query {
-          meClubMember {
-            clubMember {
-              ${CLUB_MEMBER}
-            }
-            exp
-          }
-        }`)
-
-        setUser(meClubMember.clubMember)
-      }
-    }
-
-    void fetchMe()
-  }, [api])
-
-  const forgotPassword = useCallback<ForgotPassword>(
-    async (args) => {
-      if (api === 'rest') {
-        const clubMember = await rest(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/club-member/forgot-password`,
-          args,
-        )
-        setUser(clubMember)
-        return clubMember
-      }
-
-      if (api === 'gql') {
-        const { forgotPasswordClubMember } = await gql(`mutation {
-          forgotPasswordClubMember(email: "${args.email}")
-        }`)
-
-        return forgotPasswordClubMember
-      }
+      setUser(mapUser(data.user))
     },
-    [api],
+    [requireClient],
   )
 
-  const resetPassword = useCallback<ResetPassword>(
-    async (args) => {
-      if (api === 'rest') {
-        const clubMember = await rest(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/club-member/reset-password`,
-          args,
-        )
-        setUser(clubMember)
-        return clubMember
-      }
+  const login = useCallback<AuthContext["login"]>(
+    async ({ email, password }) => {
+      if (!isUofTEmail(email)) throw new Error(UOFT_EMAIL_ERROR)
 
-      if (api === 'gql') {
-        const { resetPasswordClubMember } = await gql(`mutation {
-          resetPasswordClubMember(password: "${args.password}", token: "${args.token}") {
-            clubMember {
-              ${CLUB_MEMBER}
-            }
-          }
-        }`)
+      const { data, error } = await requireClient().auth.signInWithPassword({
+        email: normalizeEmail(email),
+        password,
+      })
+      if (error) throw error
 
-        setUser(resetPasswordClubMember.clubMember)
-        return resetPasswordClubMember.clubMember
-      }
+      const authUser = mapUser(data.user)
+      setUser(authUser)
+      return authUser
     },
-    [api],
+    [requireClient],
+  )
+
+  const logout = useCallback<AuthContext["logout"]>(async () => {
+    const { error } = await requireClient().auth.signOut()
+    if (error) throw error
+    setUser(null)
+  }, [requireClient])
+
+  const forgotPassword = useCallback<AuthContext["forgotPassword"]>(
+    async ({ email }) => {
+      if (!isUofTEmail(email)) throw new Error(UOFT_EMAIL_ERROR)
+
+      const { error } = await requireClient().auth.resetPasswordForEmail(
+        normalizeEmail(email),
+        {
+          redirectTo: `${window.location.origin}/auth/callback?next=/reset-password`,
+        },
+      )
+      if (error) throw error
+    },
+    [requireClient],
+  )
+
+  const resetPassword = useCallback<AuthContext["resetPassword"]>(
+    async ({ password }) => {
+      const { error } = await requireClient().auth.updateUser({ password })
+      if (error) throw error
+    },
+    [requireClient],
   )
 
   return (
     <Context.Provider
-      value={{
-        create,
-        forgotPassword,
-        login,
-        logout,
-        permissions,
-        resetPassword,
-        setPermissions,
-        setUser,
-        user,
-      }}
+      value={{ create, forgotPassword, login, logout, resetPassword, user }}
     >
       {children}
     </Context.Provider>
   )
 }
 
-export const useAuth: () => AuthContext = () => useContext(Context)
-
+export const useAuth = () => {
+  const context = useContext(Context)
+  if (!context) throw new Error("useAuth must be used inside AuthProvider")
+  return context
+}

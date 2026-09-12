@@ -5,6 +5,7 @@
   "description": "AMACSS Payload Site",
   "license": "MIT",
   "type": "module",
+  "packageManager": "pnpm@10.22.0",
   "scripts": {
     "local-build": "cross-env NODE_OPTIONS=--no-deprecation next build",
     "prod-build": "cross-env NODE_OPTIONS=--no-deprecation payload migrate && cross-env NODE_OPTIONS=--no-deprecation next build",
@@ -45,6 +46,8 @@
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@splidejs/react-splide": "^0.7.12",
+    "@splidejs/splide": "^4.1.3",
+    "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.48.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -101,21 +104,6 @@
   },
   "engines": {
     "node": "^18.20.2 || >=20.9.0"
-  },
-  "pnpm": {
-    "overrides": {
-      "@types/react": "npm:types-react@19.0.0-rc.1",
-      "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1"
-    },
-    "onlyBuiltDependencies": [
-      "core-js",
-      "esbuild",
-      "sharp"
-    ]
-  },
-  "overrides": {
-    "@types/react": "npm:types-react@19.0.0-rc.1",
-    "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1"
   },
   "lint-staged": {
     "*.{ts, tsx}": "eslint --cache --fix",

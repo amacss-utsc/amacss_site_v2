@@ -307,7 +307,8 @@ export interface ClubMember {
 export interface Registration {
   id: number;
   eventId: number | Event;
-  userId: number | ClubMember;
+  userId?: (number | null) | ClubMember;
+  supabaseUserId?: string | null;
   answers?:
     | {
         fieldId: string;
@@ -637,6 +638,7 @@ export interface ClubMemberSelect<T extends boolean = true> {
 export interface RegistrationsSelect<T extends boolean = true> {
   eventId?: T;
   userId?: T;
+  supabaseUserId?: T;
   answers?:
     | T
     | {

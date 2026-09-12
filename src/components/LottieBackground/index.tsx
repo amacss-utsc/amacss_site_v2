@@ -1,5 +1,5 @@
 "use client"
-import React from "react"
+import React, { useEffect, useState } from "react"
 import dynamic from "next/dynamic"
 import gsap from "gsap"
 import topLeft from "@/utilities/lottie/desktop-top-left.json"
@@ -8,12 +8,15 @@ import topRight from "@/utilities/lottie/desktop-top-right.json"
 import bottomRight from "@/utilities/lottie/desktop-bottom-right.json"
 import center from "@/utilities/lottie/desktop-center.json"
 import mobileAnimation from "@/utilities/lottie/mobile.json"
-import canUseDOM from "@/utilities/canUseDOM"
 
 const Lottie = dynamic(() => import("react-lottie"), { ssr: false })
 
 export const LottieBackground = () => {
-  const mounted = canUseDOM
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   if (!mounted) return null
 

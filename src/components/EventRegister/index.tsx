@@ -139,8 +139,6 @@ const EventRegister: FC<PageProps> = ({ event }) => {
 
     const submissionData = new FormData()
     submissionData.append("eventId", event.id.toString())
-    submissionData.append("userId", user.id.toString())
-
     // Add each field’s answer
     Object.keys(formData).forEach((key) => {
       const value = formData[key]
