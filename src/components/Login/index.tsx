@@ -80,6 +80,10 @@ export default function LoginForm() {
           <p className="mt-2 font-medium text-gray-10">
             Log in with your University of Toronto email.
           </p>
+          <p className="mt-5 rounded-2xl border border-blue-30/40 bg-blue-30/10 px-4 py-3 text-sm font-semibold leading-6 text-gray-02">
+            If you signed up on September 11 between 3:30 and 5:30 PM,
+            please create your account again.
+          </p>
         </div>
 
         {error && (
