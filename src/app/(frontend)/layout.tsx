@@ -13,6 +13,7 @@ import { Providers } from "@/providers"
 import { EventModal } from "@/components/Events/Modal"
 import { FilterModal } from "@/components/Events/Filter"
 import { DesktopNav, DesktopSidebar } from "@/components/DesktopNav"
+import { Footer } from "@/components/Footer"
 import { ErrDefault, FetchEventTags, FetchSidebarEvents } from "./_data"
 import { Toaster } from "react-hot-toast"
 
@@ -57,10 +58,13 @@ export default async function RootLayout({
             <DesktopSidebar events={e} tags={t} />
             <div className="w-full h-full lg:flex lg:flex-col bg-gray-80 relative">
               <DesktopNav />
-              <div className="relative w-full h-full lg:rounded-tl-[32px] overflow-y-auto">
+              <div className="relative w-full flex-1 lg:rounded-tl-[32px] overflow-y-auto">
                 <Toaster position="top-right" />
                 <EventModal />
-                {children}
+                <div className="min-h-full flex flex-col">
+                  <div className="flex-1">{children}</div>
+                  <Footer />
+                </div>
               </div>
             </div>
           </div>
