@@ -110,7 +110,7 @@ export const EventModal = () => {
 
   const { url, alt, width, height } = im
 
-  if (!url || !alt || width == null || height == null) return null
+  if (!url || width == null || height == null) return null
 
   const eTags =
     typeof focusedEvent?.eventTag !== "number" ? focusedEvent.eventTag : []
@@ -120,7 +120,7 @@ export const EventModal = () => {
       <div className="w-screen h-screen flex flex-col lg:w-[833px] lg:h-[545px] relative lg:rounded-[32px] overflow-hidden lg:flex-row">
         <Image
           src={url}
-          alt={alt}
+          alt={alt ?? ""}
           width={width}
           height={height}
           className="w-full min-h-[40%] max-h-[40%] lg:h-full lg:max-h-full lg:min-h-full lg:min-w-[55%] object-cover bg-white"

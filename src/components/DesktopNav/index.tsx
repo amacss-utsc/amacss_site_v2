@@ -109,7 +109,7 @@ export const DesktopSidebar: FC<Props> = ({ events, tags }) => {
 
                 const { url, alt, width, height } = img
 
-                if (!url || !alt || width == null || height == null) return null
+                if (!url || width == null || height == null) return null
 
                 const rT =
                   typeof ev.ribbonTag !== "number" && ev.ribbonTag?.ribbonTag
@@ -131,7 +131,7 @@ export const DesktopSidebar: FC<Props> = ({ events, tags }) => {
                       )}
                       <CompactEventImageWithLoader
                         src={url}
-                        alt={alt}
+                        alt={alt ?? ""}
                         width={width}
                         height={height}
                         className="w-[218px] max-w-[218px] h-[189px] object-cover"

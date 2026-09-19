@@ -25,7 +25,7 @@ const EventRegister: FC<PageProps> = ({ event }) => {
   const im = typeof event.image !== "number" ? event.image : null
   if (!im) return null
   const { url, alt, width, height } = im
-  if (!url || !alt || width == null || height == null) return null
+  if (!url || width == null || height == null) return null
 
   const eTags = typeof event?.eventTag !== "number" ? event.eventTag : []
 
@@ -175,7 +175,7 @@ const EventRegister: FC<PageProps> = ({ event }) => {
     <main className="bg-gray-02 h-full lg:rounded-tl-[32px] overflow-y-scroll overflow-x-hidden">
       {/* <Image
         src={url}
-        alt={alt}
+        alt={alt ?? ""}
         width={width}
         height={height}
         className="w-full h-[340px] object-cover"
