@@ -33,8 +33,11 @@ jobs:
 
       - name: Run Build
         run: |
-          NODE_ENV=production NODE_OPTIONS=--no-deprecation pnpm payload migrate --forceAcceptWarning
-          NODE_ENV=production NODE_OPTIONS=--no-deprecation pnpm exec next build
+          export DATABASE_URI=postgres://amacss:amacss@localhost:5432/amacss
+          export NODE_ENV=production
+          export NODE_OPTIONS=--no-deprecation
+          pnpm payload migrate
+          pnpm exec next build
 
       - name: Stop and clean up
         run: docker compose down
