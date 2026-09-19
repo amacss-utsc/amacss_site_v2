@@ -142,6 +142,71 @@ export const FetchEvents = async ({
   }
 }
 
+type FetchEventsInRangeType = {
+  events: Event[] | null
+  error: DataError
+}
+
+interface FetchEventsInRangeArgs {
+  start: Date
+  end: Date
+  limit?: number
+}
+
+// Powers the calendar: everything overlapping the visible window
+// An empty window is a normal result, not an error.
+export const FetchEventsInRange = async ({
+  start,
+  end,
+  limit = 200,
+}: FetchEventsInRangeArgs): Promise<FetchEventsInRangeType> => {
+  const payload = await getPayload({ config })
+
+  if (!payload) {
+    return {
+      events: null,
+      error: {
+        code: 500,
+        message: "Failed to load Payload Config",
+      },
+    }
+  }
+
+  try {
+    const events = await payload.find({
+      collection: "events",
+      limit,
+      sort: "date",
+      where: {
+        and: [
+          { date: { less_than_equal: end.toISOString() } },
+          {
+            or: [
+              { endDate: { greater_than_equal: start.toISOString() } },
+              { date: { greater_than_equal: start.toISOString() } },
+            ],
+          },
+        ],
+      },
+    })
+
+    return {
+      events: events?.docs ?? [],
+      error: null,
+    }
+  } catch (error) {
+    console.error("FetchEventsInRange error:", error)
+
+    return {
+      events: null,
+      error: {
+        code: 500,
+        message: "Failed to fetch events for the requested range",
+      },
+    }
+  }
+}
+
 type FetchSidebarEventsType = {
   events: PaginatedDocs<Event> | null
   error: DataError
