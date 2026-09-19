@@ -1,7 +1,7 @@
 export const UOFT_EMAIL_ERROR = "Use your University of Toronto email address."
 export const PHONE_ERROR = "Enter a valid phone number with 10 to 15 digits."
 export const ACCOUNT_REGISTRATION_OPEN = true
-export const EVENT_REGISTRATION_OPEN = false
+export const EVENT_REGISTRATION_OPEN = true
 
 export function normalizeEmail(email: string) {
   return email.trim().toLowerCase()
