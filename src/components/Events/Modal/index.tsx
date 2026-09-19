@@ -86,6 +86,12 @@ export const EventModal = () => {
     setFocusedEvent(null)
   }
 
+  // Only a click that lands on the backdrop itself closes the modal;
+  // clicks inside the card bubble up here but carry a different target.
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) setFocusedEvent(null)
+  }
+
   useEffect(() => {
     const element = ref.current
     if (element) {
@@ -98,6 +104,18 @@ export const EventModal = () => {
       }
     }
   }, [ref, focusedEvent])
+
+  useEffect(() => {
+    if (focusedEvent === null) return
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setFocusedEvent(null)
+    }
+
+    document.addEventListener("keydown", onKeyDown)
+
+    return () => document.removeEventListener("keydown", onKeyDown)
+  }, [focusedEvent, setFocusedEvent])
 
   if (focusedEvent === null) return null
 
@@ -116,7 +134,10 @@ export const EventModal = () => {
     typeof focusedEvent?.eventTag !== "number" ? focusedEvent.eventTag : []
 
   return (
-    <div className="w-screen h-screen absolute top-0 left-0 z-50 overflow-hidden lg:w-full lg:h-full lg:flex lg:items-center lg:justify-center lg:bg-gray-90 lg:bg-opacity-60 lg:backdrop-blur">
+    <div
+      className="w-screen h-screen absolute top-0 left-0 z-50 overflow-hidden lg:w-full lg:h-full lg:flex lg:items-center lg:justify-center lg:bg-gray-90 lg:bg-opacity-60 lg:backdrop-blur"
+      onClick={handleBackdropClick}
+    >
       <div className="w-screen h-screen flex flex-col lg:w-[833px] lg:h-[545px] relative lg:rounded-[32px] lg:border lg:border-gray-50 overflow-hidden lg:flex-row">
         <Image
           src={url}
