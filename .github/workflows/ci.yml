@@ -32,7 +32,9 @@ jobs:
           echo "${{ secrets.ENV_CONTENT2 }}" > .env
 
       - name: Run Build
-        run: pnpm prod-build
+        run: |
+          cross-env NODE_ENV=production NODE_OPTIONS=--no-deprecation pnpm payload migrate --forceAcceptWarning
+          cross-env NODE_ENV=production NODE_OPTIONS=--no-deprecation pnpm exec next build
 
       - name: Stop and clean up
         run: docker compose down
