@@ -7,6 +7,7 @@ import { EventTag } from "@/payload-types"
 import { useStateContext } from "@/providers/State"
 import { cn } from "@/utilities/cn"
 import { EVENT_REGISTRATION_OPEN } from "@/utilities/auth"
+import { isRegistrationOpen } from "@/utilities/eventRegistration"
 import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
@@ -86,6 +87,12 @@ export const EventModal = () => {
     setFocusedEvent(null)
   }
 
+  // Only a click that lands on the backdrop itself closes the modal;
+  // clicks inside the card bubble up here but carry a different target.
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) setFocusedEvent(null)
+  }
+
   useEffect(() => {
     const element = ref.current
     if (element) {
@@ -99,6 +106,18 @@ export const EventModal = () => {
     }
   }, [ref, focusedEvent])
 
+  useEffect(() => {
+    if (focusedEvent === null) return
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setFocusedEvent(null)
+    }
+
+    document.addEventListener("keydown", onKeyDown)
+
+    return () => document.removeEventListener("keydown", onKeyDown)
+  }, [focusedEvent, setFocusedEvent])
+
   if (focusedEvent === null) return null
 
   const im = typeof focusedEvent.image !== "number" ? focusedEvent.image : null
@@ -110,22 +129,27 @@ export const EventModal = () => {
 
   const { url, alt, width, height } = im
 
-  if (!url || !alt || width == null || height == null) return null
+  if (!url || width == null || height == null) return null
 
   const eTags =
     typeof focusedEvent?.eventTag !== "number" ? focusedEvent.eventTag : []
 
+  const registrationClosed = !isRegistrationOpen(focusedEvent)
+
   return (
-    <div className="w-screen h-screen absolute top-0 left-0 z-50 overflow-hidden lg:w-full lg:h-full lg:flex lg:items-center lg:justify-center lg:bg-gray-90 lg:bg-opacity-60 lg:backdrop-blur">
-      <div className="w-screen h-screen flex flex-col lg:w-[833px] lg:h-[545px] relative lg:rounded-[32px] overflow-hidden lg:flex-row">
+    <div
+      className="w-screen h-screen absolute top-0 left-0 z-50 overflow-hidden lg:w-full lg:h-full lg:flex lg:items-center lg:justify-center lg:bg-gray-90 lg:bg-opacity-60 lg:backdrop-blur"
+      onClick={handleBackdropClick}
+    >
+      <div className="w-screen h-screen flex flex-col lg:w-[833px] lg:h-[545px] relative lg:rounded-[32px] lg:border lg:border-gray-50 overflow-hidden lg:flex-row">
         <Image
           src={url}
-          alt={alt}
+          alt={alt ?? ""}
           width={width}
           height={height}
-          className="w-full min-h-[40%] max-h-[40%] lg:h-full lg:max-h-full lg:min-h-full lg:min-w-[55%] object-cover bg-white"
+          className="w-full min-h-[40%] max-h-[40%] lg:h-full lg:max-h-full lg:min-h-full lg:min-w-[55%] object-cover bg-gray-70"
         />
-        <div className="bg-white flex-grow px-5 pt-3 overflow-hidden flex flex-col relative lg:w-full ">
+        <div className="bg-gray-80 flex-grow px-5 pt-6 overflow-hidden flex flex-col relative lg:w-full ">
           {overflowing && (
             <div
               className={cn(
@@ -133,7 +157,7 @@ export const EventModal = () => {
                   focusedEvent.regStyle === "internal"
                   ? "bottom-[10px] lg:bottom-[84px]"
                   : "bottom-0",
-                "absolute right-0 w-full bg-gradient-to-b from-white/0 to-white h-[95px] lg:h-[70px] z-10 flex items-center justify-center",
+                "absolute right-0 w-full bg-gradient-to-b from-gray-80/0 to-gray-80 h-[95px] lg:h-[70px] z-10 flex items-center justify-center",
               )}
             >
               <button className="animate-bob" onClick={handleChevronClick}>
@@ -146,8 +170,8 @@ export const EventModal = () => {
               </button>
             </div>
           )}
-          <hgroup className="flex items-center justify-between w-full">
-            <h1 className="text-gray-90 font-bold uppercase text-4xl">
+          <hgroup className="flex items-start justify-between w-full gap-4">
+            <h1 className="text-white font-bold uppercase text-4xl">
               {focusedEvent.title}
             </h1>
             <button
@@ -157,8 +181,8 @@ export const EventModal = () => {
               <Close />
             </button>
           </hgroup>
-          <div className="w-full h-[3px] bg-gray-90 my-2" />
-          <h2 className="text-gray-90 font-bold uppercase mb-2">
+          <div className="w-full h-[2px] bg-gray-50 my-3" />
+          <h2 className="text-blue-10 font-bold uppercase mb-2">
             {new Date(focusedEvent.date).toLocaleDateString("en-US", {
               month: "short",
               day: "numeric",
@@ -172,7 +196,7 @@ export const EventModal = () => {
             {eTags.map((i: EventTag, j) => {
               return (
                 <div
-                  className="rounded-[8px] border-[2px] border-gray-05 p-1.5 bg-gray-02 text-black text-xs font-semibold text-opacity-40"
+                  className="rounded-[8px] border-[2px] border-gray-50 p-1.5 bg-gray-70 text-gray-10 text-xs font-semibold"
                   key={j}
                 >
                   {i.eventTag}
@@ -185,15 +209,22 @@ export const EventModal = () => {
               content={focusedEvent.description}
               enableProse
               enableGutter
-              className="w-full px-0"
+              className="w-full px-0 prose-invert"
             />
           </div>
 
           {(focusedEvent.regStyle === "internal" ||
             (focusedEvent.registrationLink &&
               focusedEvent.regStyle === "external")) && (
-            <div className="w-full bg-white bottom-0 left-0 pb-4 px-5 lg:relative hidden lg:flex">
-              {focusedEvent.regStyle === "external" ? (
+            <div className="w-full bg-gray-80 bottom-0 left-0 pb-4 px-5 lg:relative hidden lg:flex">
+              {registrationClosed ? (
+                <button
+                  disabled
+                  className="bg-gray-60 py-4 w-full rounded-[48px] text-gray-20 text-center font-black text-3xl cursor-not-allowed"
+                >
+                  Registration Closed
+                </button>
+              ) : focusedEvent.regStyle === "external" ? (
                 <a
                   href={focusedEvent.registrationLink ?? "/"}
                   target="_blank"
@@ -201,7 +232,7 @@ export const EventModal = () => {
                   className="w-full"
                   onClick={handleRegistrationClick}
                 >
-                  <button className="bg-blue-30 py-4 w-full rounded-[48px] text-white text-center font-black text-3xl">
+                  <button className="bg-blue-30 hover:bg-blue-40 transition-colors py-4 w-full rounded-[48px] text-white text-center font-black text-3xl">
                     Register Now
                   </button>
                 </a>
@@ -212,7 +243,7 @@ export const EventModal = () => {
                   className="w-full"
                   onClick={handleRegistrationClick}
                 >
-                  <button className="bg-blue-30 py-4 w-full rounded-[48px] text-white text-center font-black text-3xl">
+                  <button className="bg-blue-30 hover:bg-blue-40 transition-colors py-4 w-full rounded-[48px] text-white text-center font-black text-3xl">
                     Register Now
                   </button>
                 </Link>
@@ -224,8 +255,15 @@ export const EventModal = () => {
         {(focusedEvent.regStyle === "internal" ||
           (focusedEvent.registrationLink &&
             focusedEvent.regStyle === "external")) && (
-          <div className="w-full bg-white bottom-0 left-0 pb-4 px-5 lg:relative lg:hidden">
-            {focusedEvent.regStyle === "external" ? (
+          <div className="w-full bg-gray-80 bottom-0 left-0 pb-4 px-5 lg:relative lg:hidden">
+            {registrationClosed ? (
+              <button
+                disabled
+                className="bg-gray-60 py-4 w-full rounded-[48px] text-gray-20 text-center font-black text-3xl cursor-not-allowed"
+              >
+                Registration Closed
+              </button>
+            ) : focusedEvent.regStyle === "external" ? (
               <a
                 href={focusedEvent.registrationLink ?? "/"}
                 target="_blank"
@@ -233,7 +271,7 @@ export const EventModal = () => {
                 className="w-full"
                 onClick={handleRegistrationClick}
               >
-                <button className="bg-blue-30 py-4 w-full rounded-[48px] text-white text-center font-black text-3xl">
+                <button className="bg-blue-30 hover:bg-blue-40 transition-colors py-4 w-full rounded-[48px] text-white text-center font-black text-3xl">
                   Register Now
                 </button>
               </a>
@@ -244,7 +282,7 @@ export const EventModal = () => {
                 className="w-full"
                 onClick={handleRegistrationClick}
               >
-                <button className="bg-blue-30 py-4 w-full rounded-[48px] text-white text-center font-black text-3xl">
+                <button className="bg-blue-30 hover:bg-blue-40 transition-colors py-4 w-full rounded-[48px] text-white text-center font-black text-3xl">
                   Register Now
                 </button>
               </Link>

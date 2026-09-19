@@ -239,6 +239,7 @@ export interface Event {
   ribbonTag?: (number | null) | RibbonTag;
   hasReferralCodes?: boolean | null;
   regStyle?: ('internal' | 'external' | 'none') | null;
+  registrationDeadline?: string | null;
   registrationLink?: string | null;
   registrationForm?:
     | {
@@ -309,6 +310,7 @@ export interface Registration {
   eventId: number | Event;
   userId?: (number | null) | ClubMember;
   supabaseUserId?: string | null;
+  email?: string | null;
   answers?:
     | {
         fieldId: string;
@@ -574,6 +576,7 @@ export interface EventsSelect<T extends boolean = true> {
   ribbonTag?: T;
   hasReferralCodes?: T;
   regStyle?: T;
+  registrationDeadline?: T;
   registrationLink?: T;
   registrationForm?:
     | T
@@ -639,6 +642,7 @@ export interface RegistrationsSelect<T extends boolean = true> {
   eventId?: T;
   userId?: T;
   supabaseUserId?: T;
+  email?: T;
   answers?:
     | T
     | {

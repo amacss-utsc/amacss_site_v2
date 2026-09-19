@@ -8,6 +8,7 @@ node_modules
 .next
 .vercel
 .eslintcache
+*.tsbuildinfo
 
 # Payload default media upload directory
 public/media/

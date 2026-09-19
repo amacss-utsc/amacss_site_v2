@@ -4,6 +4,7 @@ import config from "@payload-config"
 import { getPayload } from "payload"
 import { createSupabaseServerClient } from "@/utilities/supabase/server"
 import { EVENT_REGISTRATION_OPEN } from "@/utilities/auth"
+import { isRegistrationOpen } from "@/utilities/eventRegistration"
 
 function createSupabaseStorageClient() {
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_KEY) {
@@ -98,6 +99,41 @@ export async function POST(req: Request) {
       )
     }
 
+    // Checked before any uploads so a closed event never touches storage.
+    const event = await payload
+      .findByID({ collection: "events", id: eventId.toString(), depth: 0 })
+      .catch(() => null)
+
+    if (!event) {
+      return NextResponse.json({ error: "Event not found." }, { status: 404 })
+    }
+
+    if (!isRegistrationOpen(event)) {
+      return NextResponse.json(
+        { error: "Registration for this event has closed." },
+        { status: 403 },
+      )
+    }
+
+    // The register page checks this too, but only the API can stop a direct
+    // POST from registering the same member twice.
+    const existing = await payload.find({
+      collection: "registrations",
+      where: {
+        eventId: { equals: event.id },
+        supabaseUserId: { equals: user.id },
+      },
+      limit: 1,
+      depth: 0,
+    })
+
+    if (existing.totalDocs > 0) {
+      return NextResponse.json(
+        { error: "You have already registered for this event." },
+        { status: 409 },
+      )
+    }
+
     const answers: Array<{
       fieldId: string
       fieldType: string
@@ -176,6 +212,7 @@ export async function POST(req: Request) {
       data: {
         eventId: parseInt(eventId.toString(), 10),
         supabaseUserId: user.id,
+        email: user.email,
         answers,
         submittedAt: new Date().toISOString(),
       },

@@ -16,7 +16,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18.20.2 || >=20.9.0'
+          node-version: "18.20.2 || >=20.9.0"
 
       - name: Start Postgres
         run: docker compose -f docker-compose.workflows.yml up -d
@@ -31,8 +31,11 @@ jobs:
         run: |
           echo "${{ secrets.ENV_CONTENT2 }}" > .env
 
+      # Build against the throwaway Postgres started above
       - name: Run Build
-        run: echo n | pnpm prod-build
+        env:
+          DATABASE_URI: postgres://amacss:amacss@localhost:5432/amacss
+        run: pnpm prod-build
 
       - name: Stop and clean up
         run: docker compose down
