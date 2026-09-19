@@ -178,6 +178,7 @@ export interface Team {
   year: string;
   nameWithYear?: string | null;
   'sub-teams'?: (number | SubTeam)[] | null;
+  isCurrent: boolean;
   updatedAt: string;
   createdAt: string;
 }
@@ -529,6 +530,7 @@ export interface TeamsSelect<T extends boolean = true> {
   year?: T;
   nameWithYear?: T;
   'sub-teams'?: T;
+  isCurrent?: T;
   updatedAt?: T;
   createdAt?: T;
 }

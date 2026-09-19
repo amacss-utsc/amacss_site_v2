@@ -73,6 +73,9 @@ export default buildConfig({
   // This config helps us configure global or default features that the other editors can inherit
   editor: defaultLexical,
   db: postgresAdapter({
+    // Keep local development's existing schema-push behavior, but require
+    // committed migrations in CI and production deployments.
+    push: process.env.NODE_ENV !== "production",
     pool: {
       connectionString: process.env.DATABASE_URI || "",
     },
