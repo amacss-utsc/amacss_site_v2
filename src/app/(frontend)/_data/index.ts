@@ -27,6 +27,12 @@ export const FetchTeam = async (): Promise<FetchTeamType> => {
 
   const teams = await payload.find({
     collection: "teams",
+    where: {
+      isCurrent: {
+        equals: true,
+      },
+    },
+    limit: 2,
     depth: 10,
   })
 
@@ -40,11 +46,15 @@ export const FetchTeam = async (): Promise<FetchTeamType> => {
     }
   }
 
-  teams.docs.sort((a, b) => {
-    const yearA = typeof a.year === "number" ? a.year : 0
-    const yearB = typeof b.year === "number" ? b.year : 0
-    return yearB - yearA
-  })
+  if (teams.docs.length > 1) {
+    return {
+      team: null,
+      error: {
+        code: 500,
+        message: "Multiple Valid Teams Found",
+      },
+    }
+  }
 
   const t = teams.docs[0]
 
