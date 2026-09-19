@@ -4,6 +4,7 @@ import config from "@payload-config"
 import { getPayload } from "payload"
 import { createSupabaseServerClient } from "@/utilities/supabase/server"
 import { EVENT_REGISTRATION_OPEN } from "@/utilities/auth"
+import { isRegistrationOpen } from "@/utilities/eventRegistration"
 
 function createSupabaseStorageClient() {
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_KEY) {
@@ -95,6 +96,22 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { error: "Missing required field: eventId." },
         { status: 400 },
+      )
+    }
+
+    // Checked before any uploads so a closed event never touches storage.
+    const event = await payload
+      .findByID({ collection: "events", id: eventId.toString(), depth: 0 })
+      .catch(() => null)
+
+    if (!event) {
+      return NextResponse.json({ error: "Event not found." }, { status: 404 })
+    }
+
+    if (!isRegistrationOpen(event)) {
+      return NextResponse.json(
+        { error: "Registration for this event has closed." },
+        { status: 403 },
       )
     }
 

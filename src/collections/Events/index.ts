@@ -126,6 +126,19 @@ export const Events: CollectionConfig = {
       ],
     },
     {
+      name: "registrationDeadline",
+      label: "Registration Deadline",
+      type: "date",
+      required: false,
+      admin: {
+        condition: (data) =>
+          data.regStyle == "internal" || data.regStyle == "external",
+        date: { pickerAppearance: "dayAndTime" },
+        description:
+          "Optional. Leave empty to close registration at the end of the event's last day (Toronto time).",
+      },
+    },
+    {
       name: "registrationLink",
       type: "text",
       required: false,

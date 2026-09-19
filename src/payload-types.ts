@@ -239,6 +239,7 @@ export interface Event {
   ribbonTag?: (number | null) | RibbonTag;
   hasReferralCodes?: boolean | null;
   regStyle?: ('internal' | 'external' | 'none') | null;
+  registrationDeadline?: string | null;
   registrationLink?: string | null;
   registrationForm?:
     | {
@@ -574,6 +575,7 @@ export interface EventsSelect<T extends boolean = true> {
   ribbonTag?: T;
   hasReferralCodes?: T;
   regStyle?: T;
+  registrationDeadline?: T;
   registrationLink?: T;
   registrationForm?:
     | T

@@ -7,6 +7,7 @@ import { EventTag } from "@/payload-types"
 import { useStateContext } from "@/providers/State"
 import { cn } from "@/utilities/cn"
 import { EVENT_REGISTRATION_OPEN } from "@/utilities/auth"
+import { isRegistrationOpen } from "@/utilities/eventRegistration"
 import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
@@ -133,6 +134,8 @@ export const EventModal = () => {
   const eTags =
     typeof focusedEvent?.eventTag !== "number" ? focusedEvent.eventTag : []
 
+  const registrationClosed = !isRegistrationOpen(focusedEvent)
+
   return (
     <div
       className="w-screen h-screen absolute top-0 left-0 z-50 overflow-hidden lg:w-full lg:h-full lg:flex lg:items-center lg:justify-center lg:bg-gray-90 lg:bg-opacity-60 lg:backdrop-blur"
@@ -214,7 +217,14 @@ export const EventModal = () => {
             (focusedEvent.registrationLink &&
               focusedEvent.regStyle === "external")) && (
             <div className="w-full bg-gray-80 bottom-0 left-0 pb-4 px-5 lg:relative hidden lg:flex">
-              {focusedEvent.regStyle === "external" ? (
+              {registrationClosed ? (
+                <button
+                  disabled
+                  className="bg-gray-60 py-4 w-full rounded-[48px] text-gray-20 text-center font-black text-3xl cursor-not-allowed"
+                >
+                  Registration Closed
+                </button>
+              ) : focusedEvent.regStyle === "external" ? (
                 <a
                   href={focusedEvent.registrationLink ?? "/"}
                   target="_blank"
@@ -246,7 +256,14 @@ export const EventModal = () => {
           (focusedEvent.registrationLink &&
             focusedEvent.regStyle === "external")) && (
           <div className="w-full bg-gray-80 bottom-0 left-0 pb-4 px-5 lg:relative lg:hidden">
-            {focusedEvent.regStyle === "external" ? (
+            {registrationClosed ? (
+              <button
+                disabled
+                className="bg-gray-60 py-4 w-full rounded-[48px] text-gray-20 text-center font-black text-3xl cursor-not-allowed"
+              >
+                Registration Closed
+              </button>
+            ) : focusedEvent.regStyle === "external" ? (
               <a
                 href={focusedEvent.registrationLink ?? "/"}
                 target="_blank"
