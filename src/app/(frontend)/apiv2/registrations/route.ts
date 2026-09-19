@@ -115,6 +115,25 @@ export async function POST(req: Request) {
       )
     }
 
+    // The register page checks this too, but only the API can stop a direct
+    // POST from registering the same member twice.
+    const existing = await payload.find({
+      collection: "registrations",
+      where: {
+        eventId: { equals: event.id },
+        supabaseUserId: { equals: user.id },
+      },
+      limit: 1,
+      depth: 0,
+    })
+
+    if (existing.totalDocs > 0) {
+      return NextResponse.json(
+        { error: "You have already registered for this event." },
+        { status: 409 },
+      )
+    }
+
     const answers: Array<{
       fieldId: string
       fieldType: string
@@ -193,6 +212,7 @@ export async function POST(req: Request) {
       data: {
         eventId: parseInt(eventId.toString(), 10),
         supabaseUserId: user.id,
+        email: user.email,
         answers,
         submittedAt: new Date().toISOString(),
       },

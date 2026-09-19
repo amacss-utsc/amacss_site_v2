@@ -22,7 +22,8 @@ export const Registrations: CollectionConfig = {
     delete: authenticatedAdmin,
   },
   admin: {
-    useAsTitle: "id",
+    useAsTitle: "email",
+    defaultColumns: ["email", "eventId", "submittedAt"],
   },
   fields: [
     {
@@ -44,6 +45,14 @@ export const Registrations: CollectionConfig = {
       admin: {
         description:
           "Supabase Auth user ID for accounts created with the current sign-up flow.",
+      },
+    },
+    {
+      name: "email",
+      type: "email",
+      index: true,
+      admin: {
+        description: "The member's email at the time they registered.",
       },
     },
     {

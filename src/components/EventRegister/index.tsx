@@ -159,9 +159,9 @@ const EventRegister: FC<PageProps> = ({ event }) => {
         toast.success("Registration successful!")
         router.push(`/register/event/${event.id}/thanks`)
       } else {
-        const errorData = await response.json()
+        const errorData = await response.json().catch(() => ({}))
         console.error("Error:", errorData)
-        toast.error("Registration failed. Please try again.")
+        toast.error(errorData.error || "Registration failed. Please try again.")
       }
     } catch (error) {
       console.error("Registration failed:", error)
