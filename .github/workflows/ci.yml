@@ -32,12 +32,7 @@ jobs:
           echo "${{ secrets.ENV_CONTENT2 }}" > .env
 
       - name: Run Build
-        run: |
-          export DATABASE_URI=postgres://amacss:amacss@localhost:5432/amacss
-          export NODE_ENV=production
-          export NODE_OPTIONS=--no-deprecation
-          pnpm payload migrate
-          pnpm exec next build
+        run: echo n | pnpm prod-build
 
       - name: Stop and clean up
         run: docker compose down
