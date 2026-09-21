@@ -27,6 +27,18 @@ export const Events: CollectionConfig = {
   },
   fields: [
     {
+      name: "points",
+      label: "Points",
+      type: "number",
+      required: true,
+      defaultValue: 0,
+      min: 0,
+      validate: (value) =>
+        typeof value === "number" && Number.isInteger(value) && value >= 0
+          ? true
+          : "Points must be a nonnegative whole number.",
+    },
+    {
       name: "title",
       type: "text",
       required: true,
