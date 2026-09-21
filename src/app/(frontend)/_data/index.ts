@@ -2,6 +2,54 @@ import { Team, Event, Resource } from "@/payload-types"
 import config from "@payload-config"
 import { getPayload, PaginatedDocs } from "payload"
 
+const DEV_CONTENT_ORIGIN = "https://www.amacss.org"
+
+async function fetchDevContent<T>(path: string): Promise<T | null> {
+  if (process.env.NODE_ENV !== "development") return null
+
+  try {
+    const response = await fetch(`${DEV_CONTENT_ORIGIN}${path}`, {
+      cache: "no-store",
+    })
+    if (!response.ok) return null
+    return (await response.json()) as T
+  } catch {
+    return null
+  }
+}
+
+async function fetchDevEvents(
+  limit: number,
+  page: number,
+  onSidebar = false,
+): Promise<PaginatedDocs<Event> | null> {
+  const query = new URLSearchParams({
+    limit: String(limit),
+    page: String(Math.max(1, page)),
+    depth: "1",
+  })
+  if (onSidebar) query.set("where[onSidebar][equals]", "true")
+
+  const events = await fetchDevContent<PaginatedDocs<Event>>(
+    `/api/events?${query}`,
+  )
+  if (!events?.docs?.length) return null
+
+  return {
+    ...events,
+    docs: events.docs.map((event) => ({
+      ...event,
+      image:
+        typeof event.image !== "number" && event.image?.url?.startsWith("/")
+          ? {
+              ...event.image,
+              url: new URL(event.image.url, DEV_CONTENT_ORIGIN).toString(),
+            }
+          : event.image,
+    })),
+  }
+}
+
 type DataError = {
   code: number
   message: string
@@ -60,6 +108,16 @@ type FetchEventTagsType = {
 }
 
 export const FetchEventTags = async (): Promise<FetchEventTagsType> => {
+  if (process.env.NODE_ENV === "development") {
+    const previewTags = await fetchDevContent<
+      PaginatedDocs<{ eventTag: string }>
+    >("/api/event-tag?limit=100")
+    return {
+      tags: previewTags?.docs?.map((tag) => tag.eventTag) ?? [],
+      error: null,
+    }
+  }
+
   const payload = await getPayload({ config })
 
   if (!payload) {
@@ -108,6 +166,10 @@ export const FetchEvents = async ({
   limit = 10,
   page = 0,
 }: FetchEventsArgs = {}): Promise<FetchEventsType> => {
+  if (process.env.NODE_ENV === "development") {
+    return { events: await fetchDevEvents(limit, page), error: null }
+  }
+
   const payload = await getPayload({ config })
 
   if (!payload) {
@@ -216,6 +278,10 @@ export const FetchSidebarEvents = async ({
   limit = 100,
   page = 0,
 }: FetchEventsArgs = {}): Promise<FetchSidebarEventsType> => {
+  if (process.env.NODE_ENV === "development") {
+    return { events: await fetchDevEvents(limit, page, true), error: null }
+  }
+
   const payload = await getPayload({ config })
 
   if (!payload) {
