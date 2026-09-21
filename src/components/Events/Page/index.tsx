@@ -3,8 +3,8 @@ import Filter from "@/components/svg/Filter"
 import { Event, Media } from "@/payload-types"
 import { PaginatedDocs } from "payload"
 import { FC, useEffect, useState } from "react"
-import Image from "next/image"
 import InfoI from "@/components/svg/InfoI"
+import Link from "next/link"
 import { cn } from "@/utilities/cn"
 import { RibbonStyle } from "@/utilities/tailwindShared"
 import { useStateContext } from "@/providers/State"
@@ -20,7 +20,6 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([])
 
   const {
-    setFocusedEvent,
     setFilterOpen,
     tags: cTags,
     setTags,
@@ -106,8 +105,11 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
                 ? ev.ribbonTag?.ribbonTag
                 : ""
             return (
-              <article
-                key={j}
+              <Link
+                key={ev.id}
+                href={`/register/event/${ev.id}`}
+                prefetch={false}
+                aria-label={`Register now for ${ev.title}`}
                 className="w-full h-[412px] bg-white rounded-b-[12px] flex flex-col relative overflow-hidden mb-11 max-w-[400px] lg:mb-6 lg:hover:-translate-y-1.5 transition-all duration-300 lg:hover:shadow-[0_8px_30px_rgba(255,255,255,0.2)] group"
               >
                 {rT && (
@@ -142,16 +144,15 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
                         day: "numeric",
                       }) ?? ""}
                     </p>
-                    <button
+                    <span
                       className="text-blue-20 text-sm font-semibold flex items-center uppercase transition-all duration-300 lg:hover:text-blue-30 lg:group-hover:translate-x-1"
-                      onClick={() => setFocusedEvent(ev)}
                     >
-                      Learn more
+                      Register Now
                       <InfoI className="inline ml-[3px]" />
-                    </button>
+                    </span>
                   </div>
                 </div>
-              </article>
+              </Link>
             )
           })
         )}
