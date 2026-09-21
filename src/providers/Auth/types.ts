@@ -5,7 +5,6 @@ export type AuthUser = {
   firstName: string
   lastName: string
   phone: string
-  emailConfirmed: boolean
 }
 
 export type ResetPassword = (args: {

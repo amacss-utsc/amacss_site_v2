@@ -36,7 +36,6 @@ function mapUser(user: User): AuthUser {
     firstName,
     lastName: lastNameParts.join(" "),
     phone: String(user.user_metadata?.phone || ""),
-    emailConfirmed: Boolean(user.email_confirmed_at),
   }
 }
 

@@ -51,7 +51,8 @@ export default function RegisterForm() {
       setError(null)
       try {
         await create(data)
-        router.replace(safeRedirect(redirectParam))
+        const next = safeRedirect(redirectParam)
+        router.replace(`/profile${next === "/" ? "" : `?next=${encodeURIComponent(next)}`}`)
         router.refresh()
       } catch (cause) {
         const message = cause instanceof Error ? cause.message : ""
