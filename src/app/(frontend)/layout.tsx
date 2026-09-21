@@ -22,6 +22,11 @@ const mtsrt = Montserrat({
   display: "swap",
 })
 
+// The shared navigation reads live Payload data. Rendering it at request time
+// keeps Vercel builds independent of database availability and avoids baking
+// stale sidebar events into every statically generated page.
+export const dynamic = "force-dynamic"
+
 export default async function RootLayout({
   children,
 }: {
