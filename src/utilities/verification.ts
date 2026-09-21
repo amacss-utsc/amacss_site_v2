@@ -1,6 +1,6 @@
 import "server-only"
 import { createHmac } from "node:crypto"
-import { createSupabaseAdminClient } from "@/utilities/supabase/admin"
+import { createSupabaseServerClient } from "@/utilities/supabase/server"
 import { isUofTEmail, normalizeEmail } from "@/utilities/auth"
 
 export function hashEmailCode(userId: string, email: string, code: string) {
@@ -19,8 +19,8 @@ export async function getEmailVerification(user: {
 }) {
   if (!user.email || !isUofTEmail(user.email)) return false
   try {
-    const admin = createSupabaseAdminClient()
-    const { data, error } = await admin
+    const supabase = await createSupabaseServerClient()
+    const { data, error } = await supabase
       .from("member_profiles")
       .select("email,email_verified_at")
       .eq("id", user.id)

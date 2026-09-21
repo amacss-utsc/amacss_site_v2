@@ -3,7 +3,11 @@ import { NextResponse } from "next/server"
 import { createSupabaseServerClient } from "@/utilities/supabase/server"
 import { createSupabaseAdminClient } from "@/utilities/supabase/admin"
 import { getEmailVerification, hashEmailCode } from "@/utilities/verification"
-import { isUofTEmail, normalizeEmail } from "@/utilities/auth"
+import {
+  isUofTEmail,
+  isValidPhoneNumber,
+  normalizeEmail,
+} from "@/utilities/auth"
 import { sendTransactionalEmail } from "@/utilities/notifications/email"
 
 export async function POST() {
@@ -34,12 +38,38 @@ export async function POST() {
     }
 
     const admin = createSupabaseAdminClient()
-    const { data: profile, error: profileError } = await admin
+    const { data: existingProfile, error: profileError } = await auth
       .from("member_profiles")
       .select("email")
       .eq("id", user.id)
-      .single()
+      .maybeSingle()
     if (profileError) throw profileError
+    let profile = existingProfile
+    if (!profile) {
+      const fullName = String(user.user_metadata?.full_name || "").trim()
+      const phone = String(user.user_metadata?.phone || "").trim()
+      if (fullName.length < 2 || !isValidPhoneNumber(phone)) {
+        return NextResponse.json(
+          {
+            error:
+              "Your older account is missing profile information. Contact AMACSS support to update it.",
+          },
+          { status: 409 },
+        )
+      }
+      const { data: repairedProfile, error: repairError } = await admin
+        .from("member_profiles")
+        .insert({
+          id: user.id,
+          full_name: fullName,
+          email: normalizeEmail(user.email),
+          phone,
+        })
+        .select("email")
+        .single()
+      if (repairError) throw repairError
+      profile = repairedProfile
+    }
     if (normalizeEmail(profile.email) !== normalizeEmail(user.email)) {
       return NextResponse.json(
         { error: "Your account email is updating. Please try again shortly." },
