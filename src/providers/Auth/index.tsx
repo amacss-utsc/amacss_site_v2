@@ -127,7 +127,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       const { error } = await requireClient().auth.resetPasswordForEmail(
         normalizeEmail(email),
         {
-          redirectTo: `${window.location.origin}/auth/callback?next=/reset-password`,
+          redirectTo: `${window.location.origin}/auth/recovery?next=/reset-password`,
         },
       )
       if (error) throw error
