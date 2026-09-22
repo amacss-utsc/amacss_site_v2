@@ -75,10 +75,9 @@ export default buildConfig({
   db: postgresAdapter({
     pool: {
       connectionString: process.env.DATABASE_URI || "",
-      // Each Vercel function instance creates its own pg pool. Keep that pool
-      // deliberately small so horizontally scaled instances cannot exhaust
-      // Supabase's client-connection limit.
-      max: process.env.VERCEL ? 1 : 10,
+      // Payload permanently checks out one client to monitor connection
+      // errors, so Vercel needs one additional client for actual queries.
+      max: process.env.VERCEL ? 2 : 10,
       connectionTimeoutMillis: 10_000,
       idleTimeoutMillis: 10_000,
     },
