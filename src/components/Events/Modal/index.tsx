@@ -195,9 +195,7 @@ export const EventModal = () => {
             <div className="w-full bg-white bottom-0 left-0 pb-4 px-5 lg:relative hidden lg:flex">
               {focusedEvent.regStyle === "external" ? (
                 <a
-                  href={focusedEvent.registrationLink ?? "/"}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href={`/register/event/${focusedEvent.id}`}
                   className="w-full"
                   onClick={handleRegistrationClick}
                 >
@@ -227,9 +225,7 @@ export const EventModal = () => {
           <div className="w-full bg-white bottom-0 left-0 pb-4 px-5 lg:relative lg:hidden">
             {focusedEvent.regStyle === "external" ? (
               <a
-                href={focusedEvent.registrationLink ?? "/"}
-                target="_blank"
-                rel="noopener noreferrer"
+                href={`/register/event/${focusedEvent.id}`}
                 className="w-full"
                 onClick={handleRegistrationClick}
               >
