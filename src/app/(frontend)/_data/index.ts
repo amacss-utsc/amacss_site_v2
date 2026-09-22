@@ -276,14 +276,32 @@ type FetchEventByIdType = {
   error: DataError
 }
 
+const EVENT_NOT_FOUND: FetchEventByIdType = {
+  event: null,
+  error: {
+    code: 404,
+    message: "Event Not Found",
+  },
+}
+
 export const FetchEventById = async (
   id: string,
 ): Promise<FetchEventByIdType> => {
+  if (!/^\d+$/.test(id)) return EVENT_NOT_FOUND
+
   if (process.env.NODE_ENV === "development") {
-    const devEvent = await fetchDevContent<Event>(
-      `/api/events/${encodeURIComponent(id)}?depth=1`,
-    )
-    if (devEvent) return { event: withDevImageUrl(devEvent), error: null }
+    const response = await fetch(
+      `${DEV_CONTENT_ORIGIN}/api/events/${id}?depth=1`,
+      { cache: "no-store" },
+    ).catch(() => null)
+
+    if (response?.ok) {
+      return {
+        event: withDevImageUrl((await response.json()) as Event),
+        error: null,
+      }
+    }
+    if (response?.status === 404) return EVENT_NOT_FOUND
   }
 
   const payload = await getPayload({ config })
@@ -306,15 +324,7 @@ export const FetchEventById = async (
     })
     .catch(() => null)
 
-  if (!event) {
-    return {
-      event: null,
-      error: {
-        code: 404,
-        message: "Event Not Found",
-      },
-    }
-  }
+  if (!event) return EVENT_NOT_FOUND
 
   return {
     event,

@@ -33,7 +33,6 @@ export const DesktopSidebar: FC<Props> = ({ events, tags }) => {
   const pathname = usePathname()
 
   const {
-    setFocusedEvent,
     tags: cTags,
     setTags,
     tagsIndices,
@@ -148,13 +147,14 @@ export const DesktopSidebar: FC<Props> = ({ events, tags }) => {
                               day: "numeric",
                             }) ?? ""}
                           </p>
-                          <button
+                          <Link
+                            href={`/events/${ev.id}`}
+                            prefetch={false}
                             className="text-blue-20 text-sm font-semibold flex items-center uppercase"
-                            onClick={() => setFocusedEvent(ev)}
                           >
                             Go now
                             <Linkificator className="inline ml-1.5" />
-                          </button>
+                          </Link>
                         </div>
                       </div>
                     </article>

@@ -44,9 +44,6 @@ export default async function RootLayout({
       <head>
         <link href="/favicon.ico" rel="icon" sizes="32x32" />
         <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
-        <title>
-          AMACSS | Association of Mathematical and Computer Science Students
-        </title>
       </head>
       <Providers>
         <body className="relative">
@@ -72,6 +69,11 @@ export default async function RootLayout({
 
 export const metadata: Metadata = {
   metadataBase: new URL(getServerSideURL()),
+  title: {
+    default:
+      "AMACSS | Association of Mathematical and Computer Science Students",
+    template: "%s | AMACSS",
+  },
   openGraph: mergeOpenGraph(),
   twitter: {
     card: "summary_large_image",
