@@ -28,14 +28,6 @@ async function checkExistingRegistration(eventId: string, userId: string) {
 export default async function Page({ params }: any) {
   const { id } = await params
 
-  const supabase = await createSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) {
-    redirect(`/login?redirect=${encodeURIComponent(`/register/event/${id}`)}`)
-  }
-
   if (!EVENT_REGISTRATION_OPEN) {
     return (
       <main className="flex min-h-full items-center justify-center overflow-y-auto bg-gray-90 px-7 py-12 text-gray-02 lg:rounded-tl-[32px] lg:px-20">
