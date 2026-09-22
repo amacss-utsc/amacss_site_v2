@@ -37,16 +37,20 @@ async function fetchDevEvents(
 
   return {
     ...events,
-    docs: events.docs.map((event) => ({
-      ...event,
-      image:
-        typeof event.image !== "number" && event.image?.url?.startsWith("/")
-          ? {
-              ...event.image,
-              url: new URL(event.image.url, DEV_CONTENT_ORIGIN).toString(),
-            }
-          : event.image,
-    })),
+    docs: events.docs.map(withDevImageUrl),
+  }
+}
+
+function withDevImageUrl(event: Event): Event {
+  return {
+    ...event,
+    image:
+      typeof event.image !== "number" && event.image?.url?.startsWith("/")
+        ? {
+            ...event.image,
+            url: new URL(event.image.url, DEV_CONTENT_ORIGIN).toString(),
+          }
+        : event.image,
   }
 }
 
@@ -275,6 +279,13 @@ type FetchEventByIdType = {
 export const FetchEventById = async (
   id: string,
 ): Promise<FetchEventByIdType> => {
+  if (process.env.NODE_ENV === "development") {
+    const devEvent = await fetchDevContent<Event>(
+      `/api/events/${encodeURIComponent(id)}?depth=1`,
+    )
+    if (devEvent) return { event: withDevImageUrl(devEvent), error: null }
+  }
+
   const payload = await getPayload({ config })
 
   if (!payload) {
@@ -287,10 +298,13 @@ export const FetchEventById = async (
     }
   }
 
-  const event = await payload.findByID({
-    collection: "events",
-    id,
-  })
+  const event = await payload
+    .findByID({
+      collection: "events",
+      id,
+      depth: 1,
+    })
+    .catch(() => null)
 
   if (!event) {
     return {
