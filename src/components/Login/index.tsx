@@ -47,7 +47,7 @@ export default function LoginForm() {
         setError(
           message === UOFT_EMAIL_ERROR
             ? message
-            : "We couldn't log you in. Check your email, password, and email verification.",
+            : "We couldn't log you in. Check your email and password.",
         )
       }
     },
@@ -79,6 +79,10 @@ export default function LoginForm() {
           <h1 className="text-3xl font-black uppercase">Welcome back</h1>
           <p className="mt-2 font-medium text-gray-10">
             Log in with your University of Toronto email.
+          </p>
+          <p className="mt-5 rounded-2xl border border-blue-30/40 bg-blue-30/10 px-4 py-3 text-sm font-semibold leading-6 text-gray-02">
+            If you signed up on September 11 between 3:30 and 5:30 PM,
+            please create your account again.
           </p>
         </div>
 
