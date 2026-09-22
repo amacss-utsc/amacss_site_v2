@@ -212,6 +212,7 @@ export interface SubTeam {
  */
 export interface Event {
   id: number;
+  points: number;
   title: string;
   date: string;
   endDate?: string | null;
@@ -561,6 +562,7 @@ export interface SubTeamsSelect<T extends boolean = true> {
  * via the `definition` "events_select".
  */
 export interface EventsSelect<T extends boolean = true> {
+  points?: T;
   title?: T;
   date?: T;
   endDate?: T;
