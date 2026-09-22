@@ -34,7 +34,8 @@ export default async function Page({ params }: any) {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) {
-    redirect(`/login?redirect=${encodeURIComponent(`/register/event/${id}`)}`)
+    const registrationPath = `/register/event/${id}`
+    redirect(`/register?redirect=${encodeURIComponent(registrationPath)}`)
   }
 
   if (!EVENT_REGISTRATION_OPEN) {
