@@ -178,6 +178,7 @@ export interface Team {
   year: string;
   nameWithYear?: string | null;
   'sub-teams'?: (number | SubTeam)[] | null;
+  isCurrent: boolean;
   updatedAt: string;
   createdAt: string;
 }
@@ -212,6 +213,7 @@ export interface SubTeam {
  */
 export interface Event {
   id: number;
+  points: number;
   title: string;
   date: string;
   endDate?: string | null;
@@ -531,6 +533,7 @@ export interface TeamsSelect<T extends boolean = true> {
   year?: T;
   nameWithYear?: T;
   'sub-teams'?: T;
+  isCurrent?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -563,6 +566,7 @@ export interface SubTeamsSelect<T extends boolean = true> {
  * via the `definition` "events_select".
  */
 export interface EventsSelect<T extends boolean = true> {
+  points?: T;
   title?: T;
   date?: T;
   endDate?: T;

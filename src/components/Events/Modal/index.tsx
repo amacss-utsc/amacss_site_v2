@@ -226,9 +226,7 @@ export const EventModal = () => {
                 </button>
               ) : focusedEvent.regStyle === "external" ? (
                 <a
-                  href={focusedEvent.registrationLink ?? "/"}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href={`/register/event/${focusedEvent.id}`}
                   className="w-full"
                   onClick={handleRegistrationClick}
                 >
@@ -265,9 +263,7 @@ export const EventModal = () => {
               </button>
             ) : focusedEvent.regStyle === "external" ? (
               <a
-                href={focusedEvent.registrationLink ?? "/"}
-                target="_blank"
-                rel="noopener noreferrer"
+                href={`/register/event/${focusedEvent.id}`}
                 className="w-full"
                 onClick={handleRegistrationClick}
               >

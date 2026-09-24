@@ -5,7 +5,7 @@ export type AuthUser = {
   firstName: string
   lastName: string
   phone: string
-  emailConfirmed: boolean
+  yearOfStudy: number | null
 }
 
 export type ResetPassword = (args: {
@@ -19,6 +19,7 @@ export type Create = (args: {
   email: string
   fullName: string
   phone: string
+  yearOfStudy: number
   password: string
 }) => Promise<void>
 

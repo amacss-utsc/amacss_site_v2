@@ -5,24 +5,42 @@ import { getPayload } from "payload"
 import { createSupabaseServerClient } from "@/utilities/supabase/server"
 import { EVENT_REGISTRATION_OPEN } from "@/utilities/auth"
 import { isRegistrationOpen } from "@/utilities/eventRegistration"
+import { getEmailVerification } from "@/utilities/verification"
+import { createSupabaseAdminClient } from "@/utilities/supabase/admin"
+import {
+  eventStartAt,
+  processEventNotificationJobs,
+} from "@/utilities/notifications/event"
+import {
+  normalizeSmsPhone,
+  smsIsConfigured,
+} from "@/utilities/notifications/sms"
 
 function createSupabaseStorageClient() {
-  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_KEY) {
+  const key = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_KEY
+  if (!process.env.SUPABASE_URL || !key) {
     throw new Error("Supabase Storage is not configured.")
   }
 
-  return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY, {
+  return createClient(process.env.SUPABASE_URL, key, {
     fetch: (url, init) =>
       fetch(url, { ...init, duplex: "half" } as RequestInit),
   } as any)
 }
 
 export async function GET(req: Request) {
+  if (!EVENT_REGISTRATION_OPEN)
+    return NextResponse.json({ docs: [] }, { status: 403 })
+  const auth = await createSupabaseServerClient()
+  const {
+    data: { user },
+  } = await auth.auth.getUser()
+  if (!user) return NextResponse.json({ docs: [] }, { status: 401 })
+  if (!(await getEmailVerification(user)))
+    return NextResponse.json({ docs: [] }, { status: 403 })
   const { searchParams } = new URL(req.url)
   const referralCode = searchParams.get("referralCode")
   const eventId = searchParams.get("eventId")
-
-  console.log("GET /apiv2/registrations", { referralCode, eventId })
 
   if (!referralCode || !eventId) {
     return NextResponse.json({ docs: [] }, { status: 200 })
@@ -74,9 +92,7 @@ export async function POST(req: Request) {
       )
     }
 
-    const payload = await getPayload({ config })
     const formData = await req.formData()
-    const storageClient = createSupabaseStorageClient()
     const authClient = await createSupabaseServerClient()
     const {
       data: { user },
@@ -92,6 +108,13 @@ export async function POST(req: Request) {
       )
     }
 
+    if (!(await getEmailVerification(user))) {
+      return NextResponse.json(
+        { error: "Verify your U of T email before registering." },
+        { status: 403 },
+      )
+    }
+
     if (!eventId) {
       return NextResponse.json(
         { error: "Missing required field: eventId." },
@@ -99,19 +122,35 @@ export async function POST(req: Request) {
       )
     }
 
-    // Checked before any uploads so a closed event never touches storage.
-    const event = await payload
-      .findByID({ collection: "events", id: eventId.toString(), depth: 0 })
-      .catch(() => null)
-
-    if (!event) {
-      return NextResponse.json({ error: "Event not found." }, { status: 404 })
+    const eventNumber = Number(eventId)
+    if (!Number.isSafeInteger(eventNumber) || eventNumber < 1) {
+      return NextResponse.json({ error: "Invalid event." }, { status: 400 })
     }
 
+    // Checked before any uploads so a closed event never touches storage.
+    const payload = await getPayload({ config })
+    const event = await payload
+      .findByID({ collection: "events", id: eventNumber })
+      .catch(() => null)
+    if (!event)
+      return NextResponse.json({ error: "Event not found." }, { status: 404 })
+    if (event.regStyle !== "internal") {
+      return NextResponse.json(
+        { error: "This event does not use internal registration." },
+        { status: 400 },
+      )
+    }
     if (!isRegistrationOpen(event)) {
       return NextResponse.json(
         { error: "Registration for this event has closed." },
         { status: 403 },
+      )
+    }
+    const startAt = eventStartAt(event)
+    if (startAt && startAt.getTime() <= Date.now()) {
+      return NextResponse.json(
+        { error: "This event has already started." },
+        { status: 400 },
       )
     }
 
@@ -120,18 +159,41 @@ export async function POST(req: Request) {
     const existing = await payload.find({
       collection: "registrations",
       where: {
-        eventId: { equals: event.id },
-        supabaseUserId: { equals: user.id },
+        and: [
+          { eventId: { equals: eventNumber } },
+          { supabaseUserId: { equals: user.id } },
+        ],
       },
       limit: 1,
-      depth: 0,
     })
-
-    if (existing.totalDocs > 0) {
+    if (existing.docs.length) {
       return NextResponse.json(
-        { error: "You have already registered for this event." },
+        { error: "You are already registered for this event." },
         { status: 409 },
       )
+    }
+
+    const storageClient = createSupabaseStorageClient()
+    const smsOptIn = formData.get("smsOptIn") === "yes" && smsIsConfigured()
+    let smsPhone: string | null = null
+    if (smsOptIn) {
+      const admin = createSupabaseAdminClient()
+      const { data: profile, error: profileError } = await admin
+        .from("member_profiles")
+        .select("phone")
+        .eq("id", user.id)
+        .single()
+      if (profileError) throw profileError
+      smsPhone = normalizeSmsPhone(profile.phone)
+      if (!smsPhone) {
+        return NextResponse.json(
+          {
+            error:
+              "Your account phone number cannot receive SMS. Please update it or leave SMS unchecked.",
+          },
+          { status: 400 },
+        )
+      }
     }
 
     const answers: Array<{
@@ -141,7 +203,7 @@ export async function POST(req: Request) {
     }> = []
 
     for (const [key, value] of formData.entries()) {
-      if (key === "eventId" || key === "userId") continue
+      if (key === "eventId" || key === "userId" || key === "smsOptIn") continue
 
       if (value instanceof File) {
         const fileBuffer = await value.arrayBuffer() // Convert File to Buffer
@@ -207,18 +269,84 @@ export async function POST(req: Request) {
     }
 
     // Save the registration entry
-    await payload.create({
+    const registration = await payload.create({
       collection: "registrations",
       data: {
-        eventId: parseInt(eventId.toString(), 10),
+        eventId: eventNumber,
         supabaseUserId: user.id,
         email: user.email,
         answers,
         submittedAt: new Date().toISOString(),
       },
     })
+    let notificationsQueued = false
+    try {
+      const admin = createSupabaseAdminClient()
+      const now = new Date()
+      const jobs: Array<Record<string, unknown>> = [
+        {
+          registration_id: registration.id,
+          event_id: eventNumber,
+          member_id: user.id,
+          kind: "confirmation",
+          channel: "email",
+          due_at: now.toISOString(),
+        },
+      ]
+      if (startAt && startAt.getTime() > now.getTime() + 24 * 60 * 60_000) {
+        jobs.push({
+          registration_id: registration.id,
+          event_id: eventNumber,
+          member_id: user.id,
+          kind: "reminder",
+          channel: "email",
+          due_at: new Date(startAt.getTime() - 24 * 60 * 60_000).toISOString(),
+        })
+      }
+      if (smsOptIn && smsPhone) {
+        const consentedAt = now.toISOString()
+        jobs.push({
+          registration_id: registration.id,
+          event_id: eventNumber,
+          member_id: user.id,
+          kind: "confirmation",
+          channel: "sms",
+          due_at: now.toISOString(),
+          consented_at: consentedAt,
+          consented_phone: smsPhone,
+        })
+        if (startAt && startAt.getTime() > now.getTime() + 24 * 60 * 60_000) {
+          jobs.push({
+            registration_id: registration.id,
+            event_id: eventNumber,
+            member_id: user.id,
+            kind: "reminder",
+            channel: "sms",
+            due_at: new Date(
+              startAt.getTime() - 24 * 60 * 60_000,
+            ).toISOString(),
+            consented_at: consentedAt,
+            consented_phone: smsPhone,
+          })
+        }
+      }
+      const { error: queueError } = await admin
+        .from("event_notification_jobs")
+        .insert(jobs)
+      if (queueError) throw queueError
+      notificationsQueued = true
+      await processEventNotificationJobs(registration.id)
+    } catch (notificationError) {
+      console.error(
+        "Event registered but notification queue failed",
+        notificationError,
+      )
+    }
 
-    return NextResponse.json({ success: true }, { status: 201 })
+    return NextResponse.json(
+      { success: true, notificationsQueued },
+      { status: 201 },
+    )
   } catch (error) {
     console.error("API Route Error:", error)
     return NextResponse.json(

@@ -75,6 +75,11 @@ export default buildConfig({
   db: postgresAdapter({
     pool: {
       connectionString: process.env.DATABASE_URI || "",
+      // Payload permanently checks out one client to monitor connection
+      // errors, so Vercel needs one additional client for actual queries.
+      max: process.env.VERCEL ? 2 : 10,
+      connectionTimeoutMillis: 10_000,
+      idleTimeoutMillis: 10_000,
     },
   }),
   collections: [

@@ -5,9 +5,11 @@ import Close from "@/components/svg/Close"
 import { useAuth } from "@/providers/Auth"
 import {
   isUofTEmail,
+  isValidStudyYear,
   isValidPhoneNumber,
   ACCOUNT_REGISTRATION_OPEN,
   PHONE_ERROR,
+  STUDY_YEAR_ERROR,
   UOFT_EMAIL_ERROR,
 } from "@/utilities/auth"
 import { cn } from "@/utilities/cn"
@@ -22,6 +24,7 @@ type FormData = {
   fullName: string
   email: string
   phone: string
+  yearOfStudy: number
   password: string
   passwordConfirm: string
 }
@@ -51,7 +54,8 @@ export default function RegisterForm() {
       setError(null)
       try {
         await create(data)
-        router.replace(safeRedirect(redirectParam))
+        const next = safeRedirect(redirectParam)
+        router.replace(`/profile${next === "/" ? "" : `?next=${encodeURIComponent(next)}`}`)
         router.refresh()
       } catch (cause) {
         const message = cause instanceof Error ? cause.message : ""
@@ -201,6 +205,35 @@ export default function RegisterForm() {
             {errors.phone && (
               <p className="mt-1 normal-case text-red-400">
                 {errors.phone.message}
+              </p>
+            )}
+          </fieldset>
+
+          <fieldset className="mb-5">
+            <label htmlFor="signup-year">What year are you in?</label>
+            <select
+              id="signup-year"
+              defaultValue=""
+              {...register("yearOfStudy", {
+                required: STUDY_YEAR_ERROR,
+                valueAsNumber: true,
+                validate: (value) =>
+                  isValidStudyYear(value) || STUDY_YEAR_ERROR,
+              })}
+              className={cn(InputStyle)}
+            >
+              <option value="" disabled>
+                Select your year
+              </option>
+              {[1, 2, 3, 4, 5].map((year) => (
+                <option key={year} value={year}>
+                  Year {year}
+                </option>
+              ))}
+            </select>
+            {errors.yearOfStudy && (
+              <p className="mt-1 normal-case text-red-400">
+                {errors.yearOfStudy.message}
               </p>
             )}
           </fieldset>

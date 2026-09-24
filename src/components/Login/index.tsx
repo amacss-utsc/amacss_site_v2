@@ -47,7 +47,7 @@ export default function LoginForm() {
         setError(
           message === UOFT_EMAIL_ERROR
             ? message
-            : "We couldn't log you in. Check your email, password, and email verification.",
+            : "We couldn't log you in. Check your email and password.",
         )
       }
     },

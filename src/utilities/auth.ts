@@ -1,5 +1,6 @@
 export const UOFT_EMAIL_ERROR = "Use your University of Toronto email address."
 export const PHONE_ERROR = "Enter a valid phone number with 10 to 15 digits."
+export const STUDY_YEAR_ERROR = "Select your current year of study."
 export const ACCOUNT_REGISTRATION_OPEN = true
 export const EVENT_REGISTRATION_OPEN = true
 
@@ -32,4 +33,8 @@ export function isValidPhoneNumber(phone: string) {
 
   const digitCount = value.replace(/\D/g, "").length
   return digitCount >= 10 && digitCount <= 15
+}
+
+export function isValidStudyYear(year: number) {
+  return Number.isInteger(year) && year >= 1 && year <= 5
 }

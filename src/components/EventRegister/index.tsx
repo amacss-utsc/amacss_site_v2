@@ -11,15 +11,19 @@ import { toast } from "react-hot-toast"
 
 type PageProps = {
   event: Event
+  smsAvailable: boolean
+  smsTermsUrl: string
+  smsPrivacyUrl: string
 }
 
-const EventRegister: FC<PageProps> = ({ event }) => {
+const EventRegister: FC<PageProps> = ({ event, smsAvailable, smsTermsUrl, smsPrivacyUrl }) => {
   const { user } = useAuth()
   const router = useRouter()
 
   const [formData, setFormData] = useState<Record<string, string | File>>({})
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [smsOptIn, setSmsOptIn] = useState(false)
 
   // Simple check for image
   const im = typeof event.image !== "number" ? event.image : null
@@ -139,6 +143,7 @@ const EventRegister: FC<PageProps> = ({ event }) => {
 
     const submissionData = new FormData()
     submissionData.append("eventId", event.id.toString())
+    if (smsAvailable && smsOptIn) submissionData.append("smsOptIn", "yes")
     // Add each field’s answer
     Object.keys(formData).forEach((key) => {
       const value = formData[key]
@@ -156,7 +161,8 @@ const EventRegister: FC<PageProps> = ({ event }) => {
         body: submissionData,
       })
       if (response.ok) {
-        toast.success("Registration successful!")
+        const result = await response.json()
+        toast.success(result.notificationsQueued ? "Registration successful! Confirmation is on its way." : "Registration successful! Notification may be delayed.")
         router.push(`/register/event/${event.id}/thanks`)
       } else {
         const errorData = await response.json().catch(() => ({}))
@@ -387,6 +393,12 @@ const EventRegister: FC<PageProps> = ({ event }) => {
               </div>
             )
           })}
+          {smsAvailable && (
+            <label className="flex gap-3 rounded-2xl border border-gray-20 p-4 normal-case text-gray-90">
+              <input type="checkbox" checked={smsOptIn} onChange={(event) => setSmsOptIn(event.target.checked)} className="h-5 w-5" />
+              <span>Send me an event confirmation and a reminder by SMS from AMACSS. Standard message and data rates may apply. Reply STOP to opt out or HELP for help. See our <a href={smsTermsUrl} className="underline">terms</a> and <a href={smsPrivacyUrl} className="underline">privacy policy</a>.</span>
+            </label>
+          )}
           <div className="w-full flex items-center justify-center">
             <button
               type="submit"
