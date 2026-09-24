@@ -6,6 +6,7 @@ import config from "@payload-config"
 import Link from "next/link"
 import { createSupabaseServerClient } from "@/utilities/supabase/server"
 import { EVENT_REGISTRATION_OPEN } from "@/utilities/auth"
+import { isRegistrationOpen } from "@/utilities/eventRegistration"
 import { getEmailVerification } from "@/utilities/verification"
 import { smsIsConfigured } from "@/utilities/notifications/sms"
 
@@ -28,15 +29,6 @@ async function checkExistingRegistration(eventId: string, userId: string) {
 
 export default async function Page({ params }: any) {
   const { id } = await params
-
-  const supabase = await createSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) {
-    const registrationPath = `/register/event/${id}`
-    redirect(`/register?redirect=${encodeURIComponent(registrationPath)}`)
-  }
 
   if (!EVENT_REGISTRATION_OPEN) {
     return (
@@ -61,6 +53,40 @@ export default async function Page({ params }: any) {
     )
   }
 
+  const { event, error } = await FetchEventById(id)
+
+  // No point asking someone to log in for an event they can't register for.
+  if (event && !isRegistrationOpen(event)) {
+    return (
+      <main className="flex min-h-full items-center justify-center overflow-y-auto bg-gray-90 px-7 py-12 text-gray-02 lg:rounded-tl-[32px] lg:px-20">
+        <section className="max-w-xl rounded-[28px] bg-gray-80 p-8 text-center shadow-2xl">
+          <p className="mb-3 text-sm font-bold uppercase tracking-[0.16em] text-blue-10">
+            {event.title}
+          </p>
+          <h1 className="text-4xl font-black">Registration has closed</h1>
+          <p className="mt-4 text-lg normal-case text-gray-10">
+            This event is no longer accepting registrations.
+          </p>
+          <Link
+            href="/calendar"
+            className="mt-8 inline-block rounded-2xl bg-blue-30 px-8 py-4 text-xl font-black uppercase text-white transition-colors hover:bg-blue-40"
+          >
+            Back to calendar
+          </Link>
+        </section>
+      </main>
+    )
+  }
+
+  const supabase = await createSupabaseServerClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) {
+    const registrationPath = `/register/event/${id}`
+    redirect(`/register?redirect=${encodeURIComponent(registrationPath)}`)
+  }
+
   if (!(await getEmailVerification(user))) {
     return (
       <main className="flex min-h-full items-center justify-center overflow-y-auto bg-gray-90 px-7 py-12 text-gray-02 lg:rounded-tl-[32px] lg:px-20">
@@ -74,7 +100,6 @@ export default async function Page({ params }: any) {
     )
   }
 
-  const { event, error } = await FetchEventById(id)
   const e = ErrDefault(error, event, {})
   if (e.regStyle === "external" && e.registrationLink) {
     let destination: URL | null = null

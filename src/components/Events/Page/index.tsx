@@ -98,7 +98,7 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
 
             const { url, alt, width, height } = img
 
-            if (!url || !alt || width == null || height == null) return null
+            if (!url || width == null || height == null) return null
 
             const rT =
               typeof ev.ribbonTag !== "number" && ev.ribbonTag?.ribbonTag
@@ -126,7 +126,7 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
 
                 <EventImageWithLoader
                   src={url}
-                  alt={alt}
+                  alt={alt ?? ""}
                   width={width}
                   height={height}
                   className="w-full h-[300px] object-cover lg:group-hover:scale-[102%] transition-all duration-300"

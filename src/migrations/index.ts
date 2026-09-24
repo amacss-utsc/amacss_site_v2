@@ -11,6 +11,8 @@ import * as migration_20250217_081556_answers_not_required from "./20250217_0815
 import * as migration_20250302_061329_verified_registation_field from "./20250302_061329_verified_registation_field"
 import * as migration_20250921_173940_add_details_to_team_members from "./20250921_173940_add_details_to_team_members"
 import * as migration_20260910_000000_supabase_auth_registrations from "./20260910_000000_supabase_auth_registrations"
+import * as migration_20260919_000000_registration_deadline from "./20260919_000000_registration_deadline"
+import * as migration_20260919_000001_registration_email from "./20260919_000001_registration_email"
 import * as migration_20260919_151638_add_is_current_to_teams from "./20260919_151638_add_is_current_to_teams"
 import * as migration_20260920_000000_event_points from "./20260920_000000_event_points"
 
@@ -79,6 +81,16 @@ export const migrations = [
     up: migration_20260910_000000_supabase_auth_registrations.up,
     down: migration_20260910_000000_supabase_auth_registrations.down,
     name: "20260910_000000_supabase_auth_registrations",
+  },
+  {
+    up: migration_20260919_000000_registration_deadline.up,
+    down: migration_20260919_000000_registration_deadline.down,
+    name: "20260919_000000_registration_deadline",
+  },
+  {
+    up: migration_20260919_000001_registration_email.up,
+    down: migration_20260919_000001_registration_email.down,
+    name: "20260919_000001_registration_email",
   },
   {
     up: migration_20260919_151638_add_is_current_to_teams.up,

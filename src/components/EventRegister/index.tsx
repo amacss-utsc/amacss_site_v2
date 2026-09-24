@@ -29,7 +29,7 @@ const EventRegister: FC<PageProps> = ({ event, smsAvailable, smsTermsUrl, smsPri
   const im = typeof event.image !== "number" ? event.image : null
   if (!im) return null
   const { url, alt, width, height } = im
-  if (!url || !alt || width == null || height == null) return null
+  if (!url || width == null || height == null) return null
 
   const eTags = typeof event?.eventTag !== "number" ? event.eventTag : []
 
@@ -165,7 +165,7 @@ const EventRegister: FC<PageProps> = ({ event, smsAvailable, smsTermsUrl, smsPri
         toast.success(result.notificationsQueued ? "Registration successful! Confirmation is on its way." : "Registration successful! Notification may be delayed.")
         router.push(`/register/event/${event.id}/thanks`)
       } else {
-        const errorData = await response.json()
+        const errorData = await response.json().catch(() => ({}))
         console.error("Error:", errorData)
         toast.error(errorData.error || "Registration failed. Please try again.")
       }
@@ -178,22 +178,22 @@ const EventRegister: FC<PageProps> = ({ event, smsAvailable, smsTermsUrl, smsPri
   }
 
   return (
-    <main className="bg-gray-02 h-full lg:rounded-tl-[32px] overflow-y-scroll overflow-x-hidden">
+    <main className="bg-gray-90 [color-scheme:dark] h-full lg:rounded-tl-[32px] overflow-y-scroll overflow-x-hidden">
       {/* <Image
         src={url}
-        alt={alt}
+        alt={alt ?? ""}
         width={width}
         height={height}
         className="w-full h-[340px] object-cover"
       /> */}
       <div className="pt-6 px-8 lg:pt-11 lg:px-16">
         <hgroup className="flex items-center justify-between w-full">
-          <h1 className="text-gray-90 font-bold uppercase text-4xl">
+          <h1 className="text-white font-bold uppercase text-4xl">
             {event.title}
           </h1>
         </hgroup>
-        <div className="w-full h-[3px] bg-gray-90 my-2" />
-        <h2 className="text-gray-90 font-bold uppercase mb-2">
+        <div className="w-full h-[2px] bg-gray-50 my-3" />
+        <h2 className="text-blue-10 font-bold uppercase mb-2">
           {new Date(event.date).toLocaleDateString("en-US", {
             month: "short",
             day: "numeric",
@@ -204,7 +204,7 @@ const EventRegister: FC<PageProps> = ({ event, smsAvailable, smsTermsUrl, smsPri
         <div className="w-full mb-4 flex flex-row gap-2">
           {eTags.map((tag: EventTag, j) => (
             <div
-              className="rounded-[8px] border-[2px] border-gray-05 p-1.5 bg-gray-02 text-black text-xs font-semibold text-opacity-40"
+              className="rounded-[8px] border-[2px] border-gray-50 p-1.5 bg-gray-70 text-gray-10 text-xs font-semibold"
               key={j}
             >
               {tag.eventTag}
@@ -212,7 +212,7 @@ const EventRegister: FC<PageProps> = ({ event, smsAvailable, smsTermsUrl, smsPri
           ))}
         </div>
         <div className="overflow-y-auto flex-grow relative">
-          <RichText content={event.description} className="w-full mx-0 px-0" />
+          <RichText content={event.description} className="w-full mx-0 px-0 prose-invert" />
         </div>
         <form className="space-y-6 py-11" onSubmit={handleSubmit}>
           {event.registrationForm?.map((field, i) => {
@@ -224,12 +224,12 @@ const EventRegister: FC<PageProps> = ({ event, smsAvailable, smsTermsUrl, smsPri
                 {field.type !== "image" && (
                   <label
                     htmlFor={field.fieldid}
-                    className="mb-1.5 text-xl font-bold text-gray-90 uppercase"
+                    className="mb-1.5 text-xl font-bold text-gray-02 uppercase"
                   >
                     {field.name}
-                    {isRequired && <span className="text-red-500 ml-1">*</span>}
+                    {isRequired && <span className="text-red-400 ml-1">*</span>}
                     {field.description && (
-                      <p className="text-sm text-gray-50 mt-1 font-normal normal-case">
+                      <p className="text-sm text-gray-10 mt-1 font-normal normal-case">
                         {field.description}
                       </p>
                     )}
@@ -250,10 +250,10 @@ const EventRegister: FC<PageProps> = ({ event, smsAvailable, smsTermsUrl, smsPri
                           : (formData[field.fieldid] as string) || ""
                       }
                       onChange={handleChange}
-                      className="border-2 border-gray-20 rounded-[16px] px-6 py-5 bg-gray-02 text-black font-bold placeholder:uppercase placeholder:text-gray-20 text-xl"
+                      className="border-2 border-gray-50 rounded-[16px] px-6 py-5 bg-gray-80 text-gray-02 font-bold outline-none transition-colors focus:border-blue-30 placeholder:uppercase placeholder:text-gray-20 text-xl"
                     />
                     {formErrors[field.fieldid] && (
-                      <p className="text-red-500 mt-1">
+                      <p className="text-red-400 mt-1">
                         {formErrors[field.fieldid]}
                       </p>
                     )}
@@ -274,10 +274,10 @@ const EventRegister: FC<PageProps> = ({ event, smsAvailable, smsTermsUrl, smsPri
                           : (formData[field.fieldid] as string) || ""
                       }
                       onChange={handleChange}
-                      className="border-2 border-gray-20 rounded-[16px] px-6 py-5 bg-gray-02 text-black font-bold placeholder:uppercase placeholder:text-gray-20 text-xl"
+                      className="border-2 border-gray-50 rounded-[16px] px-6 py-5 bg-gray-80 text-gray-02 font-bold outline-none transition-colors focus:border-blue-30 placeholder:uppercase placeholder:text-gray-20 text-xl"
                     />
                     {formErrors[field.fieldid] && (
-                      <p className="text-red-500 mt-1">
+                      <p className="text-red-400 mt-1">
                         {formErrors[field.fieldid]}
                       </p>
                     )}
@@ -298,10 +298,10 @@ const EventRegister: FC<PageProps> = ({ event, smsAvailable, smsTermsUrl, smsPri
                           : (formData[field.fieldid] as string) || ""
                       }
                       onChange={handleChange}
-                      className="border-2 border-gray-20 rounded-[16px] px-6 py-5 bg-gray-02 text-black font-bold placeholder:uppercase placeholder:text-gray-20 text-xl"
+                      className="border-2 border-gray-50 rounded-[16px] px-6 py-5 bg-gray-80 text-gray-02 font-bold outline-none transition-colors focus:border-blue-30 placeholder:uppercase placeholder:text-gray-20 text-xl"
                     />
                     {formErrors[field.fieldid] && (
-                      <p className="text-red-500 mt-1">
+                      <p className="text-red-400 mt-1">
                         {formErrors[field.fieldid]}
                       </p>
                     )}
@@ -313,13 +313,13 @@ const EventRegister: FC<PageProps> = ({ event, smsAvailable, smsTermsUrl, smsPri
                   <div className="flex flex-col w-1/4">
                     <label
                       htmlFor={field.fieldid}
-                      className="mb-1.5 text-xl font-bold text-gray-90 uppercase"
+                      className="mb-1.5 text-xl font-bold text-gray-02 uppercase"
                     >
                       {field.name}
-                      {isRequired && <span className="text-red-500 ml-1">*</span>}
+                      {isRequired && <span className="text-red-400 ml-1">*</span>}
                     </label>
                     {field.description && (
-                      <p className="text-sm text-gray-50 mt-1 font-normal normal-case">
+                      <p className="text-sm text-gray-10 mt-1 font-normal normal-case">
                         {field.description}
                       </p>
                     )}
@@ -329,10 +329,10 @@ const EventRegister: FC<PageProps> = ({ event, smsAvailable, smsTermsUrl, smsPri
                       type="file"
                       accept="image/*"
                       onChange={handleChange}
-                      className="border-2 border-gray-20 rounded-[16px] px-6 py-5 bg-gray-02 text-black font-bold placeholder:uppercase placeholder:text-gray-20 text-xl"
+                      className="border-2 border-gray-50 rounded-[16px] px-6 py-5 bg-gray-80 text-gray-02 font-bold outline-none transition-colors focus:border-blue-30 placeholder:uppercase placeholder:text-gray-20 text-xl"
                     />
                     {formErrors[field.fieldid] && (
-                      <p className="text-red-500 mt-1">
+                      <p className="text-red-400 mt-1">
                         {formErrors[field.fieldid]}
                       </p>
                     )}
@@ -352,11 +352,11 @@ const EventRegister: FC<PageProps> = ({ event, smsAvailable, smsTermsUrl, smsPri
                           : (formData[field.fieldid] as string) || ""
                       }
                       onChange={handleChange}
-                      className="border-2 border-gray-20 rounded-[16px] px-6 py-5 bg-gray-02 text-black font-bold
+                      className="border-2 border-gray-50 rounded-[16px] px-6 py-5 bg-gray-80 text-gray-02 font-bold outline-none transition-colors focus:border-blue-30
                                 placeholder:uppercase placeholder:text-gray-20 text-xl"
                     />
                     {formErrors[field.fieldid] && (
-                      <p className="text-red-500 mt-1">
+                      <p className="text-red-400 mt-1">
                         {formErrors[field.fieldid]}
                       </p>
                     )}
@@ -371,7 +371,7 @@ const EventRegister: FC<PageProps> = ({ event, smsAvailable, smsTermsUrl, smsPri
                       name={field.fieldid}
                       onChange={handleChange}
                       value={(formData[field.fieldid] as string) || ""}
-                      className="border-2 border-gray-20 rounded-[16px] px-6 py-5 bg-gray-02 text-black font-bold placeholder:uppercase placeholder:text-gray-20 text-xl invalid:text-gray-20 invalid:uppercase"
+                      className="border-2 border-gray-50 rounded-[16px] px-6 py-5 bg-gray-80 text-gray-02 font-bold outline-none transition-colors focus:border-blue-30 placeholder:uppercase placeholder:text-gray-20 text-xl invalid:text-gray-20 invalid:uppercase"
                       required={isRequired}
                     >
                       <option value="" disabled>
@@ -384,7 +384,7 @@ const EventRegister: FC<PageProps> = ({ event, smsAvailable, smsTermsUrl, smsPri
                       ))}
                     </select>
                     {formErrors[field.fieldid] && (
-                      <p className="text-red-500 mt-1">
+                      <p className="text-red-400 mt-1">
                         {formErrors[field.fieldid]}
                       </p>
                     )}
@@ -403,7 +403,7 @@ const EventRegister: FC<PageProps> = ({ event, smsAvailable, smsTermsUrl, smsPri
             <button
               type="submit"
               disabled={isSubmitting}
-              className="bg-blue-30 text-gray-02 uppercase font-black text-2xl py-5 px-44 rounded-[16px]"
+              className="bg-blue-30 text-gray-02 uppercase font-black text-2xl py-5 px-44 rounded-[16px] transition-colors hover:bg-blue-40 disabled:opacity-60"
             >
               {isSubmitting ? "Submitting..." : "Register"}
             </button>
