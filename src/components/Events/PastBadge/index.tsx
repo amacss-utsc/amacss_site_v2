@@ -39,7 +39,7 @@ export const PastEventBadge = ({
   return (
     <span
       className={cn(
-        "pointer-events-none absolute z-[3] inline-flex items-center rounded-md border border-white/20 bg-slate-600 px-2.5 py-1 text-[11px] font-bold uppercase leading-4 tracking-wider text-white shadow-sm",
+        "pointer-events-none absolute z-[3] inline-flex items-center rounded-[5px] bg-[#4b5563] px-[9px] py-1 text-[10px] font-semibold uppercase leading-[15px] tracking-[0.04em] text-white",
         compact
           ? "right-2 top-2"
           : "right-3 top-3",
