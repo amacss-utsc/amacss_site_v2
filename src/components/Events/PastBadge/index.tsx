@@ -34,7 +34,7 @@ export const PastEventBadge = ({
   if (!isPast) return null
 
   return (
-    <span className="pointer-events-none absolute right-2 top-2 z-[4] rounded-md bg-gray-90 px-2 py-1 text-xs font-bold uppercase tracking-wide text-white shadow-sm">
+    <span className="pointer-events-none absolute right-2 top-2 z-[4] rounded-lg border-2 border-white bg-amber-300 px-3 py-1.5 text-sm font-black uppercase tracking-wider text-gray-90 shadow-[0_3px_12px_rgba(0,0,0,0.5)]">
       Past
     </span>
   )
