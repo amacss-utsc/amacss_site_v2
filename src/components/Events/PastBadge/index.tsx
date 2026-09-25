@@ -2,6 +2,7 @@
 
 import type { Event } from "@/payload-types"
 import { shouldShowPastBadge } from "@/utilities/pastEvent"
+import { Clock } from "lucide-react"
 import { useEffect, useState } from "react"
 
 export const PastEventBadge = ({
@@ -34,7 +35,8 @@ export const PastEventBadge = ({
   if (!isPast) return null
 
   return (
-    <span className="pointer-events-none absolute right-2 top-2 z-[4] rounded-lg border-2 border-white bg-amber-300 px-3 py-1.5 text-sm font-black uppercase tracking-wider text-gray-90 shadow-[0_3px_12px_rgba(0,0,0,0.5)]">
+    <span className="pointer-events-none absolute right-2.5 top-2.5 z-[4] inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-gray-80/[0.85] px-3 py-1.5 text-xs font-semibold normal-case text-white shadow-sm backdrop-blur-sm">
+      <Clock size={14} aria-hidden="true" className="shrink-0" />
       Past
     </span>
   )
