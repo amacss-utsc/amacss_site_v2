@@ -120,7 +120,7 @@ export const DesktopSidebar: FC<Props> = ({ events, tags }) => {
                 return (
                   <SplideSlide key={j}>
                     <article className="w-full max-w-[218px] max-h-[264px] min-h-[264px] bg-white rounded-b-[12px] flex flex-col relative overflow-hidden mb-11 ticker-tile">
-                      <PastEventBadge event={ev} />
+                      <PastEventBadge event={ev} compact />
                       {rT && (
                         <div
                           className={cn(
