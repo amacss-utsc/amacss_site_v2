@@ -134,6 +134,9 @@ export default function RegisterForm() {
             <p className="mt-2 font-medium text-gray-10">
               Create an account using your UofT email address.
             </p>
+            <p className="mt-2 text-sm font-medium text-gray-10">
+              All fields are required.
+            </p>
           </div>
 
           {error && (
@@ -143,9 +146,12 @@ export default function RegisterForm() {
           )}
 
           <fieldset className="mb-5">
-            <label htmlFor="signup-name">Full Name</label>
+            <label htmlFor="signup-name">
+              Full Name<span aria-hidden="true" className="ml-1 text-red-400">*</span>
+            </label>
             <input
               id="signup-name"
+              aria-required="true"
               {...register("fullName", {
                 required: "Full name is required",
                 minLength: { value: 2, message: "Enter your full name" },
@@ -162,9 +168,12 @@ export default function RegisterForm() {
           </fieldset>
 
           <fieldset className="mb-5">
-            <label htmlFor="signup-email">UofT Email</label>
+            <label htmlFor="signup-email">
+              UofT Email<span aria-hidden="true" className="ml-1 text-red-400">*</span>
+            </label>
             <input
               id="signup-email"
+              aria-required="true"
               {...register("email", {
                 required: "Email is required",
                 validate: (value) => isUofTEmail(value) || UOFT_EMAIL_ERROR,
@@ -185,9 +194,12 @@ export default function RegisterForm() {
           </fieldset>
 
           <fieldset className="mb-5">
-            <label htmlFor="signup-phone">Phone Number</label>
+            <label htmlFor="signup-phone">
+              Phone Number<span aria-hidden="true" className="ml-1 text-red-400">*</span>
+            </label>
             <input
               id="signup-phone"
+              aria-required="true"
               {...register("phone", {
                 required: "Phone number is required",
                 validate: (value) => isValidPhoneNumber(value) || PHONE_ERROR,
@@ -210,9 +222,12 @@ export default function RegisterForm() {
           </fieldset>
 
           <fieldset className="mb-5">
-            <label htmlFor="signup-year">What year are you in?</label>
+            <label htmlFor="signup-year">
+              What year are you in?<span aria-hidden="true" className="ml-1 text-red-400">*</span>
+            </label>
             <select
               id="signup-year"
+              aria-required="true"
               defaultValue=""
               {...register("yearOfStudy", {
                 required: STUDY_YEAR_ERROR,
@@ -240,9 +255,12 @@ export default function RegisterForm() {
 
           <div className="lg:grid lg:grid-cols-2 lg:gap-x-6">
             <fieldset className="mb-5">
-              <label htmlFor="signup-password">Password</label>
+              <label htmlFor="signup-password">
+                Password<span aria-hidden="true" className="ml-1 text-red-400">*</span>
+              </label>
               <input
                 id="signup-password"
+                aria-required="true"
                 {...register("password", {
                   required: "Password is required",
                   minLength: { value: 8, message: "Use at least 8 characters" },
@@ -259,9 +277,12 @@ export default function RegisterForm() {
             </fieldset>
 
             <fieldset className="mb-8">
-              <label htmlFor="signup-password-confirm">Confirm Password</label>
+              <label htmlFor="signup-password-confirm">
+                Confirm Password<span aria-hidden="true" className="ml-1 text-red-400">*</span>
+              </label>
               <input
                 id="signup-password-confirm"
+                aria-required="true"
                 {...register("passwordConfirm", {
                   required: "Please confirm your password",
                   validate: (value) =>
