@@ -20,7 +20,7 @@ export function TeamPageClient({ subteams }: TeamPageClientProps) {
   const isVicePresident = (role: string) => role.toLowerCase().includes('vice-president')
   const isDirector = (role: string) => role.toLowerCase().includes('director')
   const isAssociate = (role: string) => role.toLowerCase().includes('associate')
-  const isSeniorVicePresident = (role: string) => role.toLowerCase().includes('senior vice-president')
+  const isSeniorVicePresident = (role: string) => role.toLowerCase().includes('senior vice') || role.toLowerCase().includes('svp')
 
   const getRoleCategory = (role: string): string[] => {
     const categories: string[] = []
@@ -240,10 +240,22 @@ export function TeamPageClient({ subteams }: TeamPageClientProps) {
 
           const mmFn = (member, idx) => member.member
 
-          const allMembers = (s["team-members"] ?? []).filter(mfFn).map(mmFn)
+          const allMembers = (s["team-members"] ?? [])
+            .filter(mfFn)
+            .map(mmFn)
+            .filter(member =>
+              s.name === "Senior Vice-President" ||
+              selectedDepartments.includes(s.name) ||
+              !isSeniorVicePresident(member.role)
+            )
           const allPrioMembers = (s["prio-team-members"] ?? [])
             .filter(mfFn)
             .map(mmFn)
+            .filter(member =>
+              s.name === "Senior Vice-President" ||
+              selectedDepartments.includes(s.name) ||
+              !isSeniorVicePresident(member.role)
+            )
 
           const filteredMembers = allMembers.filter(member => filterMember(member, s.name))
           const filteredPrioMembers = allPrioMembers.filter(member => filterMember(member, s.name))
