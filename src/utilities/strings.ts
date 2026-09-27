@@ -1,6 +1,7 @@
 const LinkTitleMap: Record<string, string> = {
   "": "",
   events: "events",
+  calendar: "calendar",
   team: "our team",
   resources: "resources",
 }

@@ -9,6 +9,7 @@ import { cn } from "@/utilities/cn"
 import { RibbonStyle } from "@/utilities/tailwindShared"
 import { useStateContext } from "@/providers/State"
 import { EventImageWithLoader } from "../ImageLoader"
+import { PastEventBadge } from "../PastBadge"
 
 type EventsPageProps = {
   events: PaginatedDocs<Event>
@@ -98,7 +99,7 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
 
             const { url, alt, width, height } = img
 
-            if (!url || !alt || width == null || height == null) return null
+            if (!url || width == null || height == null) return null
 
             const rT =
               typeof ev.ribbonTag !== "number" && ev.ribbonTag?.ribbonTag
@@ -112,6 +113,7 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
                 aria-label={`View details for ${ev.title}`}
                 className="w-full h-[412px] bg-white rounded-b-[12px] flex flex-col relative overflow-hidden mb-11 max-w-[400px] lg:mb-6 lg:hover:-translate-y-1.5 transition-all duration-300 lg:hover:shadow-[0_8px_30px_rgba(255,255,255,0.2)] group"
               >
+                <PastEventBadge event={ev} />
                 {rT && (
                   <div
                     className={cn(
@@ -126,7 +128,7 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
 
                 <EventImageWithLoader
                   src={url}
-                  alt={alt}
+                  alt={alt ?? ""}
                   width={width}
                   height={height}
                   className="w-full h-[300px] object-cover lg:group-hover:scale-[102%] transition-all duration-300"

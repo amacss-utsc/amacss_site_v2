@@ -79,6 +79,12 @@ export const FetchTeam = async (): Promise<FetchTeamType> => {
 
   const teams = await payload.find({
     collection: "teams",
+    where: {
+      isCurrent: {
+        equals: true,
+      },
+    },
+    limit: 2,
     depth: 10,
   })
 
@@ -92,11 +98,15 @@ export const FetchTeam = async (): Promise<FetchTeamType> => {
     }
   }
 
-  teams.docs.sort((a, b) => {
-    const yearA = typeof a.year === "number" ? a.year : 0
-    const yearB = typeof b.year === "number" ? b.year : 0
-    return yearB - yearA
-  })
+  if (teams.docs.length > 1) {
+    return {
+      team: null,
+      error: {
+        code: 500,
+        message: "Multiple Valid Teams Found",
+      },
+    }
+  }
 
   const t = teams.docs[0]
 
@@ -205,6 +215,71 @@ export const FetchEvents = async ({
   return {
     events: events,
     error: null,
+  }
+}
+
+type FetchEventsInRangeType = {
+  events: Event[] | null
+  error: DataError
+}
+
+interface FetchEventsInRangeArgs {
+  start: Date
+  end: Date
+  limit?: number
+}
+
+// Powers the calendar: everything overlapping the visible window
+// An empty window is a normal result, not an error.
+export const FetchEventsInRange = async ({
+  start,
+  end,
+  limit = 200,
+}: FetchEventsInRangeArgs): Promise<FetchEventsInRangeType> => {
+  const payload = await getPayload({ config })
+
+  if (!payload) {
+    return {
+      events: null,
+      error: {
+        code: 500,
+        message: "Failed to load Payload Config",
+      },
+    }
+  }
+
+  try {
+    const events = await payload.find({
+      collection: "events",
+      limit,
+      sort: "date",
+      where: {
+        and: [
+          { date: { less_than_equal: end.toISOString() } },
+          {
+            or: [
+              { endDate: { greater_than_equal: start.toISOString() } },
+              { date: { greater_than_equal: start.toISOString() } },
+            ],
+          },
+        ],
+      },
+    })
+
+    return {
+      events: events?.docs ?? [],
+      error: null,
+    }
+  } catch (error) {
+    console.error("FetchEventsInRange error:", error)
+
+    return {
+      events: null,
+      error: {
+        code: 500,
+        message: "Failed to fetch events for the requested range",
+      },
+    }
   }
 }
 

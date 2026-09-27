@@ -3,6 +3,8 @@ import { createSupabaseServerClient } from "@/utilities/supabase/server"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { getPayload } from "payload"
+import { getEmailVerification } from "@/utilities/verification"
+import EmailVerification from "@/components/EmailVerification"
 
 export default async function ProfilePage() {
   const supabase = await createSupabaseServerClient()
@@ -11,6 +13,8 @@ export default async function ProfilePage() {
   } = await supabase.auth.getUser()
 
   if (!user) redirect("/login?redirect=/profile")
+
+  const emailVerified = await getEmailVerification(user)
 
   const payload = await getPayload({ config })
   const registrations = await payload.find({
@@ -32,9 +36,7 @@ export default async function ProfilePage() {
           <p className="mt-3 normal-case text-gray-10">{user.email}</p>
           {phone && <p className="mt-1 normal-case text-gray-10">{phone}</p>}
         </div>
-        <div className="inline-flex w-fit items-center gap-2 rounded-full border border-red-400/50 bg-red-500/10 px-4 py-2 text-sm font-bold text-red-400">
-          <span aria-hidden="true">•</span> Email verification coming soon
-        </div>
+        <EmailVerification verified={emailVerified} />
       </div>
 
       <h2 className="mb-6 text-3xl font-bold">Your Registrations</h2>

@@ -11,10 +11,12 @@ import React, {
 } from "react"
 import {
   isUofTEmail,
+  isValidStudyYear,
   isValidPhoneNumber,
   normalizeEmail,
   ACCOUNT_REGISTRATION_OPEN,
   PHONE_ERROR,
+  STUDY_YEAR_ERROR,
   UOFT_EMAIL_ERROR,
 } from "@/utilities/auth"
 import {
@@ -36,7 +38,9 @@ function mapUser(user: User): AuthUser {
     firstName,
     lastName: lastNameParts.join(" "),
     phone: String(user.user_metadata?.phone || ""),
-    emailConfirmed: Boolean(user.email_confirmed_at),
+    yearOfStudy: isValidStudyYear(Number(user.user_metadata?.year_of_study))
+      ? Number(user.user_metadata?.year_of_study)
+      : null,
   }
 }
 
@@ -69,20 +73,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [supabase])
 
   const create = useCallback<AuthContext["create"]>(
-    async ({ email, fullName, phone, password }) => {
+    async ({ email, fullName, phone, yearOfStudy, password }) => {
       if (!ACCOUNT_REGISTRATION_OPEN) {
         throw new Error("New member registration is not open yet.")
       }
 
       if (!isUofTEmail(email)) throw new Error(UOFT_EMAIL_ERROR)
       if (!isValidPhoneNumber(phone)) throw new Error(PHONE_ERROR)
+      if (!isValidStudyYear(yearOfStudy)) throw new Error(STUDY_YEAR_ERROR)
 
       const client = requireClient()
       const { data, error } = await client.auth.signUp({
         email: normalizeEmail(email),
         password,
         options: {
-          data: { full_name: fullName.trim(), phone: phone.trim() },
+          data: {
+            full_name: fullName.trim(),
+            phone: phone.trim(),
+            year_of_study: yearOfStudy,
+          },
         },
       })
 
@@ -128,7 +137,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       const { error } = await requireClient().auth.resetPasswordForEmail(
         normalizeEmail(email),
         {
-          redirectTo: `${window.location.origin}/auth/callback?next=/reset-password`,
+          redirectTo: `${window.location.origin}/auth/recovery?next=/reset-password`,
         },
       )
       if (error) throw error

@@ -22,6 +22,7 @@ import Login from "../svg/Login"
 import { useAuth } from "@/providers/Auth"
 import User from "../svg/User"
 import { CompactEventImageWithLoader } from "../Events/ImageLoader"
+import { PastEventBadge } from "../Events/PastBadge"
 
 type Props = {
   events: PaginatedDocs<Event>
@@ -108,7 +109,7 @@ export const DesktopSidebar: FC<Props> = ({ events, tags }) => {
 
                 const { url, alt, width, height } = img
 
-                if (!url || !alt || width == null || height == null) return null
+                if (!url || width == null || height == null) return null
 
                 const rT =
                   typeof ev.ribbonTag !== "number" && ev.ribbonTag?.ribbonTag
@@ -118,6 +119,7 @@ export const DesktopSidebar: FC<Props> = ({ events, tags }) => {
                 return (
                   <SplideSlide key={j}>
                     <article className="w-full max-w-[218px] max-h-[264px] min-h-[264px] bg-white rounded-b-[12px] flex flex-col relative overflow-hidden mb-11 ticker-tile">
+                      <PastEventBadge event={ev} compact />
                       {rT && (
                         <div
                           className={cn(
@@ -130,7 +132,7 @@ export const DesktopSidebar: FC<Props> = ({ events, tags }) => {
                       )}
                       <CompactEventImageWithLoader
                         src={url}
-                        alt={alt}
+                        alt={alt ?? ""}
                         width={width}
                         height={height}
                         className="w-[218px] max-w-[218px] h-[189px] object-cover"

@@ -178,6 +178,7 @@ export interface Team {
   year: string;
   nameWithYear?: string | null;
   'sub-teams'?: (number | SubTeam)[] | null;
+  isCurrent: boolean;
   updatedAt: string;
   createdAt: string;
 }
@@ -212,6 +213,7 @@ export interface SubTeam {
  */
 export interface Event {
   id: number;
+  points: number;
   title: string;
   date: string;
   endDate?: string | null;
@@ -239,6 +241,7 @@ export interface Event {
   ribbonTag?: (number | null) | RibbonTag;
   hasReferralCodes?: boolean | null;
   regStyle?: ('internal' | 'external' | 'none') | null;
+  registrationDeadline?: string | null;
   registrationLink?: string | null;
   registrationForm?:
     | {
@@ -309,6 +312,7 @@ export interface Registration {
   eventId: number | Event;
   userId?: (number | null) | ClubMember;
   supabaseUserId?: string | null;
+  email?: string | null;
   answers?:
     | {
         fieldId: string;
@@ -529,6 +533,7 @@ export interface TeamsSelect<T extends boolean = true> {
   year?: T;
   nameWithYear?: T;
   'sub-teams'?: T;
+  isCurrent?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -561,6 +566,7 @@ export interface SubTeamsSelect<T extends boolean = true> {
  * via the `definition` "events_select".
  */
 export interface EventsSelect<T extends boolean = true> {
+  points?: T;
   title?: T;
   date?: T;
   endDate?: T;
@@ -574,6 +580,7 @@ export interface EventsSelect<T extends boolean = true> {
   ribbonTag?: T;
   hasReferralCodes?: T;
   regStyle?: T;
+  registrationDeadline?: T;
   registrationLink?: T;
   registrationForm?:
     | T
@@ -639,6 +646,7 @@ export interface RegistrationsSelect<T extends boolean = true> {
   eventId?: T;
   userId?: T;
   supabaseUserId?: T;
+  email?: T;
   answers?:
     | T
     | {

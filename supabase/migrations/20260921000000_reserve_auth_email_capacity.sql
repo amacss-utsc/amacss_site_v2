@@ -1,0 +1,55 @@
+-- Follow-up for projects that already ran the first two notification migrations.
+-- Resend's free plan allows 100 messages/day. App-managed verification and event
+-- messages stop at 80 so Supabase Auth password resets retain daily capacity.
+
+create or replace function public.reserve_member_email_code(p_member_id uuid, p_hash text)
+returns text language plpgsql security definer set search_path = '' as $$
+declare
+  existing public.member_email_codes%rowtype;
+  quota integer;
+  current_email text;
+begin
+  perform pg_catalog.pg_advisory_xact_lock(2919020);
+  select email into current_email from public.member_profiles where id = p_member_id and email_verified_at is null;
+  if current_email is null then return 'unavailable'; end if;
+  select * into existing from public.member_email_codes where member_id = p_member_id;
+  if existing.last_sent_at > now() - interval '1 minute' then return 'cooldown'; end if;
+  if existing.send_window_start > now() - interval '1 day' and existing.send_count >= 3 then return 'member_limit'; end if;
+  select sent_count into quota from public.member_email_daily_quota where day = (now() at time zone 'UTC')::date;
+  if coalesce(quota, 0) >= 60 then return 'daily_limit'; end if;
+
+  insert into public.member_email_codes (member_id, code_hash, expires_at, last_sent_at, send_window_start, send_count, failed_attempts)
+  values (p_member_id, p_hash, now() + interval '10 minutes', now(), now(), 1, 0)
+  on conflict (member_id) do update set
+    code_hash = excluded.code_hash,
+    expires_at = excluded.expires_at,
+    last_sent_at = excluded.last_sent_at,
+    send_window_start = case when public.member_email_codes.send_window_start <= now() - interval '1 day' then now() else public.member_email_codes.send_window_start end,
+    send_count = case when public.member_email_codes.send_window_start <= now() - interval '1 day' then 1 else public.member_email_codes.send_count + 1 end,
+    failed_attempts = 0;
+  insert into public.member_email_daily_quota (day, sent_count)
+  values ((now() at time zone 'UTC')::date, 1)
+  on conflict (day) do update set sent_count = public.member_email_daily_quota.sent_count + 1;
+  return 'sent';
+end;
+$$;
+
+create or replace function public.reserve_member_notification_email()
+returns boolean language plpgsql security definer set search_path = '' as $$
+declare current_count integer;
+begin
+  perform pg_catalog.pg_advisory_xact_lock(2919020);
+  select sent_count into current_count from public.member_email_daily_quota
+    where day = (now() at time zone 'UTC')::date;
+  if coalesce(current_count, 0) >= 80 then return false; end if;
+  insert into public.member_email_daily_quota (day, sent_count)
+  values ((now() at time zone 'UTC')::date, 1)
+  on conflict (day) do update set sent_count = public.member_email_daily_quota.sent_count + 1;
+  return true;
+end;
+$$;
+
+revoke all on function public.reserve_member_email_code(uuid, text) from public, anon, authenticated;
+revoke all on function public.reserve_member_notification_email() from public, anon, authenticated;
+grant execute on function public.reserve_member_email_code(uuid, text) to service_role;
+grant execute on function public.reserve_member_notification_email() to service_role;

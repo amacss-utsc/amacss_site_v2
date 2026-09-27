@@ -18,6 +18,7 @@ type MobileMenuProps = {
 export const Links: { n: string; u: string }[] = [
   { n: "HOME", u: "/" },
   { n: "EVENTS", u: "/events" },
+  { n: "CALENDAR", u: "/calendar" },
   { n: "OUR TEAM", u: "/team" },
   { n: "RESOURCES", u: "/resources" },
   { n: "COURSES", u: "/courses" },

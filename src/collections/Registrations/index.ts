@@ -1,8 +1,6 @@
 import { authenticatedAdmin } from "@/access/authenticatedAdmin"
 import type { CollectionConfig } from "payload"
 import { generate, charset, Charset } from "referral-codes"
-import config from "@payload-config"
-import { getPayload } from "payload"
 
 function generateReferralCode() {
   const codes = generate({
@@ -22,7 +20,8 @@ export const Registrations: CollectionConfig = {
     delete: authenticatedAdmin,
   },
   admin: {
-    useAsTitle: "id",
+    useAsTitle: "email",
+    defaultColumns: ["email", "eventId", "submittedAt"],
   },
   fields: [
     {
@@ -44,6 +43,14 @@ export const Registrations: CollectionConfig = {
       admin: {
         description:
           "Supabase Auth user ID for accounts created with the current sign-up flow.",
+      },
+    },
+    {
+      name: "email",
+      type: "email",
+      index: true,
+      admin: {
+        description: "The member's email at the time they registered.",
       },
     },
     {
@@ -99,13 +106,15 @@ export const Registrations: CollectionConfig = {
   ],
   hooks: {
     beforeChange: [
-      async ({ data, operation }) => {
+      async ({ data, operation, req }) => {
         if (operation === "create" && data.eventId) {
-          const payload = await getPayload({ config })
-
-          const event = await payload.findByID({
+          // Reuse the request's transaction. Starting a separate Local API
+          // request here can deadlock a small serverless Postgres pool while
+          // the registration create operation holds its connection.
+          const event = await req.payload.findByID({
             collection: "events",
             id: data.eventId,
+            req,
           })
 
           if (event?.hasReferralCodes) {

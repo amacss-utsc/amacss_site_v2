@@ -1,4 +1,6 @@
 import type { Metadata } from "next"
+import type { PaginatedDocs } from "payload"
+import type { Event } from "@/payload-types"
 
 import { cn } from "src/utilities/cn"
 import React from "react"
@@ -22,18 +24,43 @@ const mtsrt = Montserrat({
   display: "swap",
 })
 
+// The shared navigation reads live Payload data. Rendering it at request time
+// keeps Vercel builds independent of database availability and avoids baking
+// stale sidebar events into every statically generated page.
+export const dynamic = "force-dynamic"
+
+const emptySidebarEvents: PaginatedDocs<Event> = {
+  docs: [],
+  totalDocs: 0,
+  limit: 0,
+  totalPages: 0,
+  page: 1,
+  pagingCounter: 0,
+  hasPrevPage: false,
+  hasNextPage: false,
+  prevPage: null,
+  nextPage: null,
+}
+
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const { events, error } = await FetchSidebarEvents()
+  let e = emptySidebarEvents
+  let t: string[] = []
 
-  const e = ErrDefault(error, events, [])
+  try {
+    const { events, error } = await FetchSidebarEvents()
+    e = ErrDefault(error, events, emptySidebarEvents)
 
-  const { tags, error: et } = await FetchEventTags()
-
-  const t = ErrDefault(et, tags, [])
+    const { tags, error: et } = await FetchEventTags()
+    t = ErrDefault(et, tags, [])
+  } catch (error) {
+    // Navigation content is optional. A temporary Payload outage should not
+    // prevent members from reaching login, signup, or account recovery.
+    console.error("Navigation data unavailable:", error)
+  }
 
   return (
     <html
