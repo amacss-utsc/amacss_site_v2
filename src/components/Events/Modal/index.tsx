@@ -4,23 +4,27 @@ import {
   EventDate,
   EventDescription,
   EventRegisterButton,
-  EventTags,
   getEventImage,
   getRegistrationHref,
 } from "@/components/Events/Details"
+import RichText from "@/components/RichText"
 import ChevronDown from "@/components/svg/ChevronDown"
 import Close from "@/components/svg/Close"
+import type { EventTag } from "@/payload-types"
 import { useStateContext } from "@/providers/State"
 import { cn } from "@/utilities/cn"
 import { EVENT_REGISTRATION_OPEN } from "@/utilities/auth"
 import { isRegistrationOpen } from "@/utilities/eventRegistration"
 import Image from "next/image"
+import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
+import { toast } from "react-hot-toast"
 
 export const EventModal = () => {
   const ref = useRef<HTMLDivElement>(null)
 
   const { focusedEvent, setFocusedEvent } = useStateContext()
+  const closeModal = () => setFocusedEvent(null)
 
   const [scrollProgress, setScrollProgress] = useState(0)
   const [overflowing, setOverflowing] = useState(false)
