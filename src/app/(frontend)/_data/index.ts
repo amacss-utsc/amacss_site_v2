@@ -37,16 +37,20 @@ async function fetchDevEvents(
 
   return {
     ...events,
-    docs: events.docs.map((event) => ({
-      ...event,
-      image:
-        typeof event.image !== "number" && event.image?.url?.startsWith("/")
-          ? {
-              ...event.image,
-              url: new URL(event.image.url, DEV_CONTENT_ORIGIN).toString(),
-            }
-          : event.image,
-    })),
+    docs: events.docs.map(withDevImageUrl),
+  }
+}
+
+function withDevImageUrl(event: Event): Event {
+  return {
+    ...event,
+    image:
+      typeof event.image !== "number" && event.image?.url?.startsWith("/")
+        ? {
+            ...event.image,
+            url: new URL(event.image.url, DEV_CONTENT_ORIGIN).toString(),
+          }
+        : event.image,
   }
 }
 
@@ -347,9 +351,34 @@ type FetchEventByIdType = {
   error: DataError
 }
 
+const EVENT_NOT_FOUND: FetchEventByIdType = {
+  event: null,
+  error: {
+    code: 404,
+    message: "Event Not Found",
+  },
+}
+
 export const FetchEventById = async (
   id: string,
 ): Promise<FetchEventByIdType> => {
+  if (!/^\d+$/.test(id)) return EVENT_NOT_FOUND
+
+  if (process.env.NODE_ENV === "development") {
+    const response = await fetch(
+      `${DEV_CONTENT_ORIGIN}/api/events/${id}?depth=1`,
+      { cache: "no-store" },
+    ).catch(() => null)
+
+    if (response?.ok) {
+      return {
+        event: withDevImageUrl((await response.json()) as Event),
+        error: null,
+      }
+    }
+    if (response?.status === 404) return EVENT_NOT_FOUND
+  }
+
   const payload = await getPayload({ config })
 
   if (!payload) {
@@ -362,20 +391,15 @@ export const FetchEventById = async (
     }
   }
 
-  const event = await payload.findByID({
-    collection: "events",
-    id,
-  })
+  const event = await payload
+    .findByID({
+      collection: "events",
+      id,
+      depth: 1,
+    })
+    .catch(() => null)
 
-  if (!event) {
-    return {
-      event: null,
-      error: {
-        code: 404,
-        message: "Event Not Found",
-      },
-    }
-  }
+  if (!event) return EVENT_NOT_FOUND
 
   return {
     event,
