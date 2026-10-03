@@ -35,8 +35,8 @@ export async function POST(request: Request) {
   // const client = twilio(accountSid, authToken)
 
   // const message = await client.messages.create({
-  //     from: "+17372508034",
-  //     to: "+16476367399",
+  //     from: "+somevalidnumber",
+  //     to: "+somevalidnumber",
   //     body: "sms_order_confirmation", // predefined template b/c Twilio trial
   // });
 
