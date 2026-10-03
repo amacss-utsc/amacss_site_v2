@@ -39,6 +39,12 @@ export const Teams: CollectionConfig = {
       hasMany: true,
       relationTo: "sub-teams",
     },
+    {
+      name: "isCurrent",
+      type: "checkbox",
+      required: true,
+      defaultValue: false,
+    },
   ],
   hooks: {
     beforeChange: [

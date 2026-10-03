@@ -18,8 +18,10 @@ type MobileMenuProps = {
 export const Links: { n: string; u: string }[] = [
   { n: "HOME", u: "/" },
   { n: "EVENTS", u: "/events" },
+  { n: "CALENDAR", u: "/calendar" },
   { n: "OUR TEAM", u: "/team" },
   { n: "RESOURCES", u: "/resources" },
+  { n: "COURSES", u: "/courses" },
 ]
 
 const MobileMenu: React.FC<MobileMenuProps> = ({ closeMenu }) => {
@@ -30,7 +32,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ closeMenu }) => {
     gsap.fromTo(
       menuRef.current,
       { x: "100%" },
-      { x: "0%", ease: "power3.out", duration: 0.3 }
+      { x: "0%", ease: "power3.out", duration: 0.3 },
     )
   })
 
@@ -60,15 +62,15 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ closeMenu }) => {
         {!user && (
           <li>
             <Link
-              href="/login"
+              href="/register"
               onClick={closeMenu}
               className="active:text-gray-20 hover:text-gray-20 transition-all"
             >
-              Login
+              Sign up / Log in
             </Link>
           </li>
         )}
-         {user && (
+        {user && (
           <>
             <li>
               <Link
@@ -108,13 +110,13 @@ const Nav: React.FC = () => {
         gsap.fromTo(
           menu.current,
           { x: "100%" },
-          { x: "0%", ease: "power3.out", duration: 0.3 }
+          { x: "0%", ease: "power3.out", duration: 0.3 },
         )
       } else {
         gsap.to(menu.current, { x: "100%", ease: "power3.out", duration: 0.3 })
       }
     },
-    { dependencies: [menuOpen], scope: navRef }
+    { dependencies: [menuOpen], scope: navRef },
   )
 
   const { contextSafe } = useGSAP({ scope: navRef })
@@ -126,12 +128,18 @@ const Nav: React.FC = () => {
 
   const pathname = usePathname()
 
-  if (pathname === "/login" || pathname === "/register" || pathname === "forgot-password" || pathname === "/reset-password") return null
+  if (
+    pathname === "/login" ||
+    pathname === "/register" ||
+    pathname === "/forgot-password" ||
+    pathname === "/reset-password"
+  )
+    return null
 
   return (
     <div
       ref={navRef}
-      className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-6 pt-6 lg:hidden"
+      className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-6 pt-6 lg:hidden bg-gray-90"
     >
       {menuOpen && (
         <div
@@ -155,4 +163,3 @@ const Nav: React.FC = () => {
 }
 
 export default Nav
-

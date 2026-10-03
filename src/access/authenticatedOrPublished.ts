@@ -1,13 +1,5 @@
 import type { Access } from "payload"
 
-export const authenticatedOrPublished: Access = ({ req: { user } }) => {
-  if (user) {
-    return true
-  }
-
-  return {
-    _status: {
-      equals: "published",
-    },
-  }
-}
+// These collections do not enable Payload drafts, so every saved document is
+// published. Filtering on `_status` would fail because that field does not exist.
+export const authenticatedOrPublished: Access = () => true

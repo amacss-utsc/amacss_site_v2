@@ -27,6 +27,18 @@ export const Events: CollectionConfig = {
   },
   fields: [
     {
+      name: "points",
+      label: "Points",
+      type: "number",
+      required: true,
+      defaultValue: 0,
+      min: 0,
+      validate: (value) =>
+        typeof value === "number" && Number.isInteger(value) && value >= 0
+          ? true
+          : "Points must be a nonnegative whole number.",
+    },
+    {
       name: "title",
       type: "text",
       required: true,
@@ -124,6 +136,19 @@ export const Events: CollectionConfig = {
           value: "none",
         },
       ],
+    },
+    {
+      name: "registrationDeadline",
+      label: "Registration Deadline",
+      type: "date",
+      required: false,
+      admin: {
+        condition: (data) =>
+          data.regStyle == "internal" || data.regStyle == "external",
+        date: { pickerAppearance: "dayAndTime" },
+        description:
+          "Optional. Leave empty to close registration at the end of the event's last day (Toronto time).",
+      },
     },
     {
       name: "registrationLink",

@@ -2,6 +2,58 @@ import { Team, Event, Resource } from "@/payload-types"
 import config from "@payload-config"
 import { getPayload, PaginatedDocs } from "payload"
 
+const DEV_CONTENT_ORIGIN = "https://www.amacss.org"
+
+async function fetchDevContent<T>(path: string): Promise<T | null> {
+  if (process.env.NODE_ENV !== "development") return null
+
+  try {
+    const response = await fetch(`${DEV_CONTENT_ORIGIN}${path}`, {
+      cache: "no-store",
+    })
+    if (!response.ok) return null
+    return (await response.json()) as T
+  } catch {
+    return null
+  }
+}
+
+async function fetchDevEvents(
+  limit: number,
+  page: number,
+  onSidebar = false,
+): Promise<PaginatedDocs<Event> | null> {
+  const query = new URLSearchParams({
+    limit: String(limit),
+    page: String(Math.max(1, page)),
+    depth: "1",
+  })
+  if (onSidebar) query.set("where[onSidebar][equals]", "true")
+
+  const events = await fetchDevContent<PaginatedDocs<Event>>(
+    `/api/events?${query}`,
+  )
+  if (!events?.docs?.length) return null
+
+  return {
+    ...events,
+    docs: events.docs.map(withDevImageUrl),
+  }
+}
+
+function withDevImageUrl(event: Event): Event {
+  return {
+    ...event,
+    image:
+      typeof event.image !== "number" && event.image?.url?.startsWith("/")
+        ? {
+            ...event.image,
+            url: new URL(event.image.url, DEV_CONTENT_ORIGIN).toString(),
+          }
+        : event.image,
+  }
+}
+
 type DataError = {
   code: number
   message: string
@@ -27,6 +79,12 @@ export const FetchTeam = async (): Promise<FetchTeamType> => {
 
   const teams = await payload.find({
     collection: "teams",
+    where: {
+      isCurrent: {
+        equals: true,
+      },
+    },
+    limit: 2,
     depth: 10,
   })
 
@@ -40,11 +98,15 @@ export const FetchTeam = async (): Promise<FetchTeamType> => {
     }
   }
 
-  teams.docs.sort((a, b) => {
-    const yearA = typeof a.year === "number" ? a.year : 0
-    const yearB = typeof b.year === "number" ? b.year : 0
-    return yearB - yearA
-  })
+  if (teams.docs.length > 1) {
+    return {
+      team: null,
+      error: {
+        code: 500,
+        message: "Multiple Valid Teams Found",
+      },
+    }
+  }
 
   const t = teams.docs[0]
 
@@ -60,6 +122,16 @@ type FetchEventTagsType = {
 }
 
 export const FetchEventTags = async (): Promise<FetchEventTagsType> => {
+  if (process.env.NODE_ENV === "development") {
+    const previewTags = await fetchDevContent<
+      PaginatedDocs<{ eventTag: string }>
+    >("/api/event-tag?limit=100")
+    return {
+      tags: previewTags?.docs?.map((tag) => tag.eventTag) ?? [],
+      error: null,
+    }
+  }
+
   const payload = await getPayload({ config })
 
   if (!payload) {
@@ -108,6 +180,10 @@ export const FetchEvents = async ({
   limit = 10,
   page = 0,
 }: FetchEventsArgs = {}): Promise<FetchEventsType> => {
+  if (process.env.NODE_ENV === "development") {
+    return { events: await fetchDevEvents(limit, page), error: null }
+  }
+
   const payload = await getPayload({ config })
 
   if (!payload) {
@@ -142,6 +218,71 @@ export const FetchEvents = async ({
   }
 }
 
+type FetchEventsInRangeType = {
+  events: Event[] | null
+  error: DataError
+}
+
+interface FetchEventsInRangeArgs {
+  start: Date
+  end: Date
+  limit?: number
+}
+
+// Powers the calendar: everything overlapping the visible window
+// An empty window is a normal result, not an error.
+export const FetchEventsInRange = async ({
+  start,
+  end,
+  limit = 200,
+}: FetchEventsInRangeArgs): Promise<FetchEventsInRangeType> => {
+  const payload = await getPayload({ config })
+
+  if (!payload) {
+    return {
+      events: null,
+      error: {
+        code: 500,
+        message: "Failed to load Payload Config",
+      },
+    }
+  }
+
+  try {
+    const events = await payload.find({
+      collection: "events",
+      limit,
+      sort: "date",
+      where: {
+        and: [
+          { date: { less_than_equal: end.toISOString() } },
+          {
+            or: [
+              { endDate: { greater_than_equal: start.toISOString() } },
+              { date: { greater_than_equal: start.toISOString() } },
+            ],
+          },
+        ],
+      },
+    })
+
+    return {
+      events: events?.docs ?? [],
+      error: null,
+    }
+  } catch (error) {
+    console.error("FetchEventsInRange error:", error)
+
+    return {
+      events: null,
+      error: {
+        code: 500,
+        message: "Failed to fetch events for the requested range",
+      },
+    }
+  }
+}
+
 type FetchSidebarEventsType = {
   events: PaginatedDocs<Event> | null
   error: DataError
@@ -151,6 +292,10 @@ export const FetchSidebarEvents = async ({
   limit = 100,
   page = 0,
 }: FetchEventsArgs = {}): Promise<FetchSidebarEventsType> => {
+  if (process.env.NODE_ENV === "development") {
+    return { events: await fetchDevEvents(limit, page, true), error: null }
+  }
+
   const payload = await getPayload({ config })
 
   if (!payload) {
@@ -206,9 +351,34 @@ type FetchEventByIdType = {
   error: DataError
 }
 
+const EVENT_NOT_FOUND: FetchEventByIdType = {
+  event: null,
+  error: {
+    code: 404,
+    message: "Event Not Found",
+  },
+}
+
 export const FetchEventById = async (
   id: string,
 ): Promise<FetchEventByIdType> => {
+  if (!/^\d+$/.test(id)) return EVENT_NOT_FOUND
+
+  if (process.env.NODE_ENV === "development") {
+    const response = await fetch(
+      `${DEV_CONTENT_ORIGIN}/api/events/${id}?depth=1`,
+      { cache: "no-store" },
+    ).catch(() => null)
+
+    if (response?.ok) {
+      return {
+        event: withDevImageUrl((await response.json()) as Event),
+        error: null,
+      }
+    }
+    if (response?.status === 404) return EVENT_NOT_FOUND
+  }
+
   const payload = await getPayload({ config })
 
   if (!payload) {
@@ -221,20 +391,15 @@ export const FetchEventById = async (
     }
   }
 
-  const event = await payload.findByID({
-    collection: "events",
-    id,
-  })
+  const event = await payload
+    .findByID({
+      collection: "events",
+      id,
+      depth: 1,
+    })
+    .catch(() => null)
 
-  if (!event) {
-    return {
-      event: null,
-      error: {
-        code: 404,
-        message: "Event Not Found",
-      },
-    }
-  }
+  if (!event) return EVENT_NOT_FOUND
 
   return {
     event,

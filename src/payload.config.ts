@@ -36,6 +36,12 @@ export default buildConfig({
       // The `BeforeDashboard` component renders the 'welcome' block that you see after logging into your admin panel.
       // Feel free to delete this at any time. Simply remove the line below and the import `BeforeDashboard` statement on line 15.
       beforeDashboard: ["@/components/BeforeDashboard"],
+      views: {
+        reviewSeminar: {
+          Component: "@/components/admin/ReviewSeminarPage",
+          path: "/review-seminar",
+        },
+      },
     },
     importMap: {
       baseDir: path.resolve(dirname),
@@ -69,6 +75,11 @@ export default buildConfig({
   db: postgresAdapter({
     pool: {
       connectionString: process.env.DATABASE_URI || "",
+      // Payload permanently checks out one client to monitor connection
+      // errors, so Vercel needs one additional client for actual queries.
+      max: process.env.VERCEL ? 2 : 10,
+      connectionTimeoutMillis: 10_000,
+      idleTimeoutMillis: 10_000,
     },
   }),
   collections: [

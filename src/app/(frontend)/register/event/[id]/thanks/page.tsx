@@ -1,29 +1,22 @@
-import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { getPayload } from "payload"
 import config from "@payload-config"
 import Link from "next/link"
+import { createSupabaseServerClient } from "@/utilities/supabase/server"
 
 
 export default async function ThankYouPage({ params }: any) {
   const { id: eventId } = await params
 
-  const cookieStore = await cookies()
-  const token = cookieStore.get("payload-token")
-  if (!token) {
-    redirect("/login")
-  }
-
-  const user = await fetchCurrentUser(token.value)
-  if (!user || !user.user?.id) {
-    redirect("/login")
-  }
+  const supabase = await createSupabaseServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect("/login")
 
   const payload = await getPayload({ config })
   const registration = await payload.find({
     collection: "registrations",
     where: {
-      userId: { equals: user.user.id },
+      supabaseUserId: { equals: user.id },
       eventId: { equals: eventId },
     },
     limit: 1,
@@ -76,18 +69,4 @@ export default async function ThankYouPage({ params }: any) {
       </div>
     </main>
   )
-}
-
-async function fetchCurrentUser(token: string) {
-  const res = await fetch(
-    `${process.env.PAYLOAD_PUBLIC_SERVER_URL}/api/club-member/me`,
-    {
-      headers: {
-        Authorization: `JWT ${token}`,
-      },
-      cache: "no-store",
-    },
-  )
-  if (!res.ok) return null
-  return res.json()
 }
