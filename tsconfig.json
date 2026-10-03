@@ -44,7 +44,7 @@
     ".next/types/**/*.ts",
     "redirects.js",
     "next.config.js"
-  ],
+,     "src/app/(payload)/api/twilio/send_sms.js"  ],
   "exclude": [
     "node_modules"
   ]
