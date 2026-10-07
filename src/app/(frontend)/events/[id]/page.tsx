@@ -1,5 +1,4 @@
 import type { Metadata } from "next"
-import Link from "next/link"
 import { notFound } from "next/navigation"
 import { cache } from "react"
 import { EventDetails, getEventImage } from "@/components/Events/Details"
@@ -62,13 +61,7 @@ export default async function EventPage({ params }: PageProps) {
   if (!event) notFound()
 
   return (
-    <main className="min-h-full bg-gray-90 text-gray-02 px-7 pt-20 pb-12 lg:px-20 lg:pt-12 lg:rounded-tl-[32px]">
-      <Link
-        href="/events"
-        className="inline-block mb-6 text-gray-10 font-bold uppercase hover:text-blue-30 transition-colors"
-      >
-        ← Back to Events
-      </Link>
+    <main className="min-h-full overflow-clip bg-[#FAFAF8] text-gray-90 lg:rounded-tl-[32px]">
       <EventDetails event={event} />
     </main>
   )
