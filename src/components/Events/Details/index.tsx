@@ -2,8 +2,8 @@ import RichText from "@/components/RichText"
 import type { Event } from "@/payload-types"
 import { cn } from "@/utilities/cn"
 import Image from "next/image"
+import Link from "next/link"
 import type { FC } from "react"
-import { EventRegisterButton } from "./RegisterButton"
 import { getEventImage, getEventTags } from "./utils"
 
 export { EventRegisterButton } from "./RegisterButton"
@@ -78,30 +78,175 @@ export const EventDescription: FC<{ event: Event; className?: string }> = ({
   />
 )
 
+type EventHost = { name: string; color: string; primary?: boolean }
+
+const EVENT_HOSTS: EventHost[] = [
+  { name: "AMACSS", color: "bg-blue-30", primary: true },
+]
+
+const dayKey = (value: string) =>
+  new Date(value).toLocaleDateString("en-CA", { timeZone: EVENT_TIME_ZONE })
+
+const isMultiDay = (event: Event) =>
+  Boolean(event.endDate) && dayKey(event.endDate!) !== dayKey(event.date)
+
+const formatSchedule = (event: Event) => {
+  const format = (value: string, options: Intl.DateTimeFormatOptions) =>
+    new Date(value).toLocaleDateString("en-US", {
+      ...options,
+      timeZone: EVENT_TIME_ZONE,
+    })
+
+  const date = isMultiDay(event)
+    ? `${format(event.date, { month: "short", day: "numeric" })} – ${format(
+        event.endDate!,
+        { month: "short", day: "numeric", year: "numeric" },
+      )}`
+    : format(event.date, {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      })
+  const time = [event.startTime, event.endTime].filter(Boolean).join(" – ")
+
+  return [date, time].filter(Boolean).join(" · ")
+}
+
+const EventMeta: FC<{ event: Event }> = ({ event }) => {
+  const ribbon =
+    typeof event.ribbonTag === "object" ? event.ribbonTag?.ribbonTag : null
+  const items = [
+    getEventTags(event)
+      .map((tag) => tag.eventTag)
+      .join(", "),
+    isMultiDay(event) ? "Multi-day event" : "One-time event",
+    event.points > 0 ? `${event.points} points` : null,
+  ].filter(Boolean)
+
+  return (
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm font-medium text-gray-30">
+      {ribbon && (
+        <span className="rounded-full border border-gray-90/10 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-wide text-gray-60 shadow-sm">
+          {ribbon}
+        </span>
+      )}
+      {items.map((item, i) => (
+        <span key={i} className="flex items-center gap-3">
+          {i > 0 && (
+            <span aria-hidden className="h-1 w-1 rounded-full bg-gray-10" />
+          )}
+          {item}
+        </span>
+      ))}
+    </div>
+  )
+}
+
+const EventHosts: FC = () => (
+  <section>
+    <h2 className="text-lg font-bold text-gray-90">Event Host</h2>
+    <ul className="mt-4 flex flex-col gap-4">
+      {EVENT_HOSTS.map((host) => (
+        <li key={host.name} className="flex items-center gap-3">
+          <span
+            aria-hidden
+            className={cn(
+              "flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-white ring-4 ring-white",
+              host.color,
+            )}
+          >
+            {host.name.charAt(0)}
+          </span>
+          <span className="font-semibold text-gray-90">{host.name}</span>
+          {host.primary && (
+            <span className="rounded-full border border-gray-90/10 px-2 py-0.5 text-xs font-medium text-gray-30">
+              Host
+            </span>
+          )}
+        </li>
+      ))}
+    </ul>
+  </section>
+)
+
 export const EventDetails: FC<{ event: Event }> = ({ event }) => {
   const image = getEventImage(event)
 
   return (
-    <article className="w-full max-w-4xl overflow-hidden rounded-[32px] bg-white">
+    <article className="relative isolate">
       {image && (
-        <Image
-          src={image.url}
-          alt={image.alt || event.title}
-          width={image.width}
-          height={image.height}
-          priority
-          className="w-full max-h-[520px] object-cover bg-white"
-        />
+        <div
+          aria-hidden
+          className="absolute inset-x-0 top-0 -z-10 h-[620px] overflow-hidden lg:h-[680px]"
+        >
+          <Image
+            src={image.url}
+            alt=""
+            fill
+            sizes="100vw"
+            className="scale-125 object-cover opacity-60 blur-3xl saturate-150"
+          />
+          <div className="absolute inset-0 bg-[#FAFAF8]/40" />
+          <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-b from-transparent to-[#FAFAF8]" />
+        </div>
       )}
-      <div className="px-5 pt-4 pb-6 lg:px-8">
-        <h1 className="text-gray-90 font-bold uppercase text-4xl">
-          {event.title}
-        </h1>
-        <div className="w-full h-[3px] bg-gray-90 my-2" />
-        <EventDate event={event} format="long" className="mb-2" />
-        <EventTags event={event} className="mb-4" />
-        <EventDescription event={event} />
-        <EventRegisterButton event={event} className="mt-8" />
+
+      <div className="mx-auto w-full max-w-6xl px-5 pb-20 pt-24 sm:px-8 lg:px-12 lg:pt-8">
+        <Link
+          href="/events"
+          className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-gray-90 shadow-[0_4px_20px_-6px_rgba(0,0,0,0.25)] ring-1 ring-gray-90/5 transition hover:-translate-y-px hover:shadow-[0_8px_24px_-6px_rgba(0,0,0,0.3)]"
+        >
+          <span aria-hidden>←</span>
+          Back
+        </Link>
+
+        <div className="mt-8 grid gap-10 lg:mt-14 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-16">
+          {image && (
+            <div className="lg:sticky lg:top-8 lg:self-start">
+              <div className="overflow-hidden rounded-[28px] bg-white shadow-[0_30px_60px_-24px_rgba(0,0,0,0.35)] ring-1 ring-gray-90/5">
+                <Image
+                  src={image.url}
+                  alt={image.alt || event.title}
+                  width={image.width}
+                  height={image.height}
+                  sizes="(min-width: 1024px) 480px, 100vw"
+                  priority
+                  className="max-h-[640px] w-full object-cover"
+                />
+              </div>
+            </div>
+          )}
+
+          <div className="flex flex-col gap-10 lg:pt-6">
+            <header className="flex flex-col gap-5">
+              <p className="text-sm font-medium text-gray-30">
+                {formatSchedule(event)}
+              </p>
+              <h1 className="text-4xl font-extrabold leading-[1.05] tracking-tight text-gray-90 sm:text-5xl lg:text-6xl">
+                {event.title}
+              </h1>
+              <EventMeta event={event} />
+              {event.previewText?.trim() && (
+                <p className="max-w-xl text-lg leading-relaxed text-gray-40">
+                  {event.previewText}
+                </p>
+              )}
+            </header>
+
+            <EventHosts />
+
+            <section className="border-t border-gray-90/10 pt-10">
+              <h2 className="text-lg font-bold text-gray-90">
+                About this event
+              </h2>
+              <EventDescription
+                event={event}
+                className="mt-4 max-w-none text-gray-50 [&_*]:text-gray-50"
+              />
+            </section>
+          </div>
+        </div>
       </div>
     </article>
   )
