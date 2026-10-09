@@ -3,6 +3,7 @@
 import type { Event } from "@/payload-types"
 import { cn } from "@/utilities/cn"
 import { shouldShowPastBadge } from "@/utilities/pastEvent"
+import { RibbonStyle } from "@/utilities/tailwindShared"
 import { useEffect, useState } from "react"
 
 export const PastEventBadge = ({
@@ -39,10 +40,11 @@ export const PastEventBadge = ({
   return (
     <span
       className={cn(
-        "pointer-events-none absolute z-[3] inline-flex items-center rounded-[5px] bg-[#4b5563] px-[9px] py-1 text-[10px] font-semibold uppercase leading-[15px] tracking-[0.04em] text-white",
+        RibbonStyle,
+        "pointer-events-none rotate-45 translate-x-1/2 bg-gray-30",
         compact
-          ? "right-2 top-2"
-          : "right-3 top-3",
+          ? "right-[36px] top-[18px] h-[33px]"
+          : "right-[38px] top-[19px] h-[35px]",
       )}
     >
       Past
