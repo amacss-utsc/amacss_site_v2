@@ -60,7 +60,9 @@ export const DesktopSidebar: FC<Props> = ({ events, tags }) => {
   )
     return null
 
-  if (pathname !== "/events" && !pathname.startsWith("/courses/"))
+  const showsFilters = pathname === "/events" || pathname === "/calendar"
+
+  if (!showsFilters && !pathname.startsWith("/courses/"))
     return (
       <nav className="min-w-[242px] hidden lg:flex lg:flex-col bg-gray-80 relative">
         <Link href="/">
@@ -168,7 +170,7 @@ export const DesktopSidebar: FC<Props> = ({ events, tags }) => {
         </div>
       </nav>
     )
-  else if (pathname == "/events")
+  else if (showsFilters)
     return (
       <nav className="min-w-[242px] hidden lg:flex lg:items-center lg:flex-col bg-gray-80 pt-[18.5px]">
         <Link href="/">

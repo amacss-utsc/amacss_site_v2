@@ -130,7 +130,7 @@ export const EventModal = () => {
 
   const im = getEventImage(focusedEvent)
 
-  if (im === null || !im.alt) {
+  if (im === null) {
     setFocusedEvent(null)
     return null
   }
@@ -152,7 +152,7 @@ export const EventModal = () => {
       <div className="w-screen h-screen flex flex-col lg:w-[833px] lg:h-[545px] relative lg:rounded-[32px] lg:border lg:border-gray-50 overflow-hidden lg:flex-row">
         <Image
           src={url}
-          alt={alt ?? ""}
+          alt={alt || focusedEvent.title}
           width={width}
           height={height}
           className="w-full min-h-[40%] max-h-[40%] lg:h-full lg:max-h-full lg:min-h-full lg:min-w-[55%] object-cover bg-gray-70"
