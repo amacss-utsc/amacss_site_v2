@@ -1,9 +1,16 @@
 "use client"
 
+import {
+  EventDate,
+  EventDescription,
+  EventRegisterButton,
+  getEventImage,
+  getRegistrationHref,
+} from "@/components/Events/Details"
 import RichText from "@/components/RichText"
 import ChevronDown from "@/components/svg/ChevronDown"
 import Close from "@/components/svg/Close"
-import { EventTag } from "@/payload-types"
+import type { EventTag } from "@/payload-types"
 import { useStateContext } from "@/providers/State"
 import { cn } from "@/utilities/cn"
 import { EVENT_REGISTRATION_OPEN } from "@/utilities/auth"
@@ -17,6 +24,7 @@ export const EventModal = () => {
   const ref = useRef<HTMLDivElement>(null)
 
   const { focusedEvent, setFocusedEvent } = useStateContext()
+  const closeModal = () => setFocusedEvent(null)
 
   const [scrollProgress, setScrollProgress] = useState(0)
   const [overflowing, setOverflowing] = useState(false)
@@ -120,9 +128,9 @@ export const EventModal = () => {
 
   if (focusedEvent === null) return null
 
-  const im = typeof focusedEvent.image !== "number" ? focusedEvent.image : null
+  const im = getEventImage(focusedEvent)
 
-  if (im === null) {
+  if (im === null || !im.alt) {
     setFocusedEvent(null)
     return null
   }
@@ -174,10 +182,7 @@ export const EventModal = () => {
             <h1 className="text-white font-bold uppercase text-4xl">
               {focusedEvent.title}
             </h1>
-            <button
-              className="cursor-pointer"
-              onClick={() => setFocusedEvent(null)}
-            >
+            <button className="cursor-pointer" onClick={closeModal}>
               <Close />
             </button>
           </hgroup>

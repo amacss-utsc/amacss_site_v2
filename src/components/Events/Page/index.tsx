@@ -9,6 +9,7 @@ import { cn } from "@/utilities/cn"
 import { RibbonStyle } from "@/utilities/tailwindShared"
 import { useStateContext } from "@/providers/State"
 import { EventImageWithLoader } from "../ImageLoader"
+import { PastEventBadge } from "../PastBadge"
 import { matchesEventFilters } from "../matchesEventFilters"
 
 type EventsPageProps = {
@@ -93,11 +94,12 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
             return (
               <Link
                 key={ev.id}
-                href={`/register/event/${ev.id}`}
+                href={`/events/${ev.id}`}
                 prefetch={false}
-                aria-label={`Register now for ${ev.title}`}
+                aria-label={`View details for ${ev.title}`}
                 className="w-full h-[412px] bg-white rounded-b-[12px] flex flex-col relative overflow-hidden mb-11 max-w-[400px] lg:mb-6 lg:hover:-translate-y-1.5 transition-all duration-300 lg:hover:shadow-[0_8px_30px_rgba(255,255,255,0.2)] group"
               >
+                <PastEventBadge event={ev} />
                 {rT && (
                   <div
                     className={cn(
@@ -133,7 +135,7 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
                     <span
                       className="text-blue-20 text-sm font-semibold flex items-center uppercase transition-all duration-300 lg:hover:text-blue-30 lg:group-hover:translate-x-1"
                     >
-                      Register Now
+                      View Details
                       <InfoI className="inline ml-[3px]" />
                     </span>
                   </div>

@@ -22,6 +22,7 @@ import Login from "../svg/Login"
 import { useAuth } from "@/providers/Auth"
 import User from "../svg/User"
 import { CompactEventImageWithLoader } from "../Events/ImageLoader"
+import { PastEventBadge } from "../Events/PastBadge"
 
 type Props = {
   events: PaginatedDocs<Event>
@@ -33,7 +34,6 @@ export const DesktopSidebar: FC<Props> = ({ events, tags }) => {
   const pathname = usePathname()
 
   const {
-    setFocusedEvent,
     tags: cTags,
     setTags,
     tagsIndices,
@@ -121,6 +121,7 @@ export const DesktopSidebar: FC<Props> = ({ events, tags }) => {
                 return (
                   <SplideSlide key={j}>
                     <article className="w-full max-w-[218px] max-h-[264px] min-h-[264px] bg-white rounded-b-[12px] flex flex-col relative overflow-hidden mb-11 ticker-tile">
+                      <PastEventBadge event={ev} compact />
                       {rT && (
                         <div
                           className={cn(
@@ -150,13 +151,14 @@ export const DesktopSidebar: FC<Props> = ({ events, tags }) => {
                               day: "numeric",
                             }) ?? ""}
                           </p>
-                          <button
+                          <Link
+                            href={`/events/${ev.id}`}
+                            prefetch={false}
                             className="text-blue-20 text-sm font-semibold flex items-center uppercase"
-                            onClick={() => setFocusedEvent(ev)}
                           >
                             Go now
                             <Linkificator className="inline ml-1.5" />
-                          </button>
+                          </Link>
                         </div>
                       </div>
                     </article>
