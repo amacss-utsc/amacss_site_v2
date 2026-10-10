@@ -1,5 +1,7 @@
 "use client"
 
+import { matchesEventFilters } from "@/components/Events/matchesEventFilters"
+import Filter from "@/components/svg/Filter"
 import { Event, EventTag } from "@/payload-types"
 import { useStateContext } from "@/providers/State"
 import { cn } from "@/utilities/cn"
@@ -33,11 +35,21 @@ const tagsOf = (event: Event): EventTag[] =>
   event.eventTag.filter((t): t is EventTag => typeof t !== "number")
 
 export const CalendarPage: FC<CalendarPageProps> = ({ events, month }) => {
-  const { setFocusedEvent } = useStateContext()
+  const { setFocusedEvent, setFilterOpen, tags, tagsIndices, startDate, endDate } =
+    useStateContext()
 
   const monthDate = useMemo(() => parseMonthParam(month), [month])
   const days = useMemo(() => monthGridDays(monthDate), [monthDate])
-  const byDay = useMemo(() => groupEventsByDay(events), [events])
+
+  const filteredEvents = useMemo(
+    () =>
+      events.filter((event) =>
+        matchesEventFilters(event, { tags, tagsIndices, startDate, endDate }),
+      ),
+    [events, tags, tagsIndices, startDate, endDate],
+  )
+
+  const byDay = useMemo(() => groupEventsByDay(filteredEvents), [filteredEvents])
 
   // Resolved after mount so the server and the browser can't disagree on what
   // "today" is while hydrating.
@@ -68,6 +80,14 @@ export const CalendarPage: FC<CalendarPageProps> = ({ events, month }) => {
       <h1 className="hidden lg:block text-4xl font-bold mb-4 text-white">
         Calendar
       </h1>
+
+      <button
+        onClick={() => setFilterOpen(true)}
+        className="text-gray-10 font-semibold text-2xl uppercase flex items-center justify-center mt-7 mb-3 lg:hidden"
+      >
+        <Filter className="inline mr-1" />
+        Filters
+      </button>
 
       <header className="flex flex-wrap items-center justify-between gap-3 mb-5">
         <p className="text-2xl lg:text-3xl font-bold text-white">

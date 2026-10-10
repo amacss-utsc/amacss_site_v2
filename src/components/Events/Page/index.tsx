@@ -9,6 +9,7 @@ import { cn } from "@/utilities/cn"
 import { RibbonStyle } from "@/utilities/tailwindShared"
 import { useStateContext } from "@/providers/State"
 import { EventImageWithLoader } from "../ImageLoader"
+import { matchesEventFilters } from "../matchesEventFilters"
 
 type EventsPageProps = {
   events: PaginatedDocs<Event>
@@ -37,24 +38,9 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
   }, [events])
 
   useEffect(() => {
-    const filtered = e.filter((event) => {
-      const eventDate = new Date(event.date)
-      const dF =
-        (!startDate && !endDate) ||
-        (startDate && !endDate && eventDate >= startDate) ||
-        (!startDate && endDate && eventDate <= endDate) ||
-        (startDate && endDate && eventDate >= startDate && eventDate <= endDate)
-
-      const eT = event.eventTag.map((tag) =>
-        typeof tag !== "number" ? tag.eventTag : null,
-      )
-
-      const tF =
-        tagsIndices.length === 0 ||
-        tagsIndices.some((index) => tags[index] && eT.includes(tags[index]))
-
-      return dF && tF
-    })
+    const filtered = e.filter((event) =>
+      matchesEventFilters(event, { tags, tagsIndices, startDate, endDate }),
+    )
 
     const sortedEvents = filtered.sort((a, b) => {
       const aRibbon = typeof a.ribbonTag !== 'number' ? a.ribbonTag?.ribbonTag : ''
