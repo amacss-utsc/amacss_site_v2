@@ -6,16 +6,16 @@ type LeaderboardEntry = {
 }
 
 const topAttendees: LeaderboardEntry[] = [
-  { name: "Ava Patel", points: 100 },
-  { name: "Noah Chen", points: 90 },
-  { name: "Maya Williams", points: 80 },
-  { name: "Ethan Brown", points: 70 },
-  { name: "Sofia Garcia", points: 60 },
-  { name: "Lucas Martin", points: 50 },
-  { name: "Chloe Wilson", points: 40 },
-  { name: "Daniel Kim", points: 30 },
-  { name: "Isabella Moore", points: 20 },
-  { name: "Oliver Thompson", points: 10 },
+  { name: "User", points: 100 },
+  { name: "User", points: 90 },
+  { name: "User", points: 80 },
+  { name: "User", points: 70 },
+  { name: "User", points: 60 },
+  { name: "User", points: 50 },
+  { name: "User", points: 40 },
+  { name: "User", points: 30 },
+  { name: "User", points: 20 },
+  { name: "User", points: 10 },
 ]
 
 export const LeaderboardPage = () => (
@@ -42,7 +42,7 @@ export const LeaderboardPage = () => (
 
             return (
               <li
-                key={attendee.name}
+                key={rank}
                 className="grid grid-cols-[64px_minmax(0,1fr)_76px] items-center overflow-hidden rounded-xl border border-gray-50 bg-gray-80 lg:grid-cols-[84px_minmax(0,1fr)_104px]"
               >
                 <div className="flex h-full min-h-16 items-center justify-center border-r border-gray-50 text-lg font-bold text-white lg:min-h-20 lg:text-xl">
