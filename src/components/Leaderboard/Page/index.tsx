@@ -77,7 +77,7 @@ export const LeaderboardPage = ({
                     {isPodium ? (
                       <Trophy
                         aria-hidden="true"
-                        className="mr-1 h-4 w-4 text-blue-20 lg:h-5 lg:w-5"
+                        className="mr-2 h-4 w-4 text-blue-20 lg:h-5 lg:w-5"
                       />
                     ) : null}
                     {rank}
