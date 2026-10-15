@@ -25,6 +25,7 @@ export default async function Page() {
     const { data: leaderboard, error: leaderboardError } = await admin
       .from("member_profiles")
       .select("id, full_name, points")
+      .gt("points", 0)
       .order("points", { ascending: false })
       .order("full_name", { ascending: true })
       .limit(10)
