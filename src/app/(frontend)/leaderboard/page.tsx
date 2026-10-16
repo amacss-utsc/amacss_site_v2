@@ -17,7 +17,7 @@ const memberName = (profile: MemberProfile) =>
   profile.full_name.trim() || "AMACSS Member"
 
 export default async function Page() {
-  let topAttendees: MemberProfile[] = []
+  let attendees: MemberProfile[] = []
   let currentMember: (MemberProfile & { rank: number }) | null = null
 
   try {
@@ -28,10 +28,9 @@ export default async function Page() {
       .gt("points", 0)
       .order("points", { ascending: false })
       .order("full_name", { ascending: true })
-      .limit(10)
 
     if (leaderboardError) throw leaderboardError
-    topAttendees = (leaderboard ?? []) as MemberProfile[]
+    attendees = (leaderboard ?? []) as MemberProfile[]
 
     const auth = await createSupabaseServerClient()
     const {
@@ -67,7 +66,7 @@ export default async function Page() {
 
   return (
     <LeaderboardPage
-      topAttendees={topAttendees.map((profile) => ({
+      attendees={attendees.map((profile) => ({
         id: profile.id,
         name: memberName(profile),
         points: profile.points,
