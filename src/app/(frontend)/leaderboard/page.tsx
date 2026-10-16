@@ -2,6 +2,7 @@ import { LeaderboardPage } from "@/components/Leaderboard/Page"
 import { createSupabaseAdminClient } from "@/utilities/supabase/admin"
 import { createSupabaseServerClient } from "@/utilities/supabase/server"
 import type { Metadata } from "next"
+import { unstable_cache } from "next/cache"
 
 export const metadata: Metadata = {
   title: "Events Leaderboard",
@@ -16,21 +17,33 @@ type MemberProfile = {
 const memberName = (profile: MemberProfile) =>
   profile.full_name.trim() || "AMACSS Member"
 
-export default async function Page() {
-  let attendees: MemberProfile[] = []
-  let currentMember: (MemberProfile & { rank: number }) | null = null
-
-  try {
+const getLeaderboard = unstable_cache(
+  async () => {
     const admin = createSupabaseAdminClient()
-    const { data: leaderboard, error: leaderboardError } = await admin
+    const { data, error } = await admin
       .from("member_profiles")
       .select("id, full_name, points")
       .gt("points", 0)
       .order("points", { ascending: false })
       .order("full_name", { ascending: true })
 
-    if (leaderboardError) throw leaderboardError
-    attendees = (leaderboard ?? []) as MemberProfile[]
+    if (error) throw error
+    return (data ?? []) as MemberProfile[]
+  },
+  ["leaderboard"],
+  {
+    revalidate: 60 * 60 * 12,
+    tags: ["leaderboard"],
+  },
+)
+
+export default async function Page() {
+  let attendees: MemberProfile[] = []
+  let currentMember: (MemberProfile & { rank: number }) | null = null
+
+  try {
+    const admin = createSupabaseAdminClient()
+    attendees = await getLeaderboard()
 
     const auth = await createSupabaseServerClient()
     const {
