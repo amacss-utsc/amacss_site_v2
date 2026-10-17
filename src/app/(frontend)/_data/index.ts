@@ -196,7 +196,7 @@ export const FetchEvents = async ({
     }
   }
 
-  await unpinPastEvents()
+  //   await unpinPastEvents()
 
   const events = await payload.find({
     collection: "events",
@@ -215,7 +215,10 @@ export const FetchEvents = async ({
   }
 
   return {
-    events: events,
+    events: {
+      ...events,
+      docs: events.docs.map(removePin),
+    },
     error: null,
   }
 }
@@ -250,7 +253,7 @@ export const FetchEventsInRange = async ({
     }
   }
 
-  await unpinPastEvents()
+  //   await unpinPastEvents()
 
   try {
     const events = await payload.find({
@@ -271,7 +274,7 @@ export const FetchEventsInRange = async ({
     })
 
     return {
-      events: events?.docs ?? [],
+      events: (events?.docs ?? []).map(removePin),
       error: null,
     }
   } catch (error) {
@@ -335,7 +338,10 @@ export const FetchSidebarEvents = async ({
     }
 
     return {
-      events,
+      events: {
+        ...events,
+        docs: events.docs.map(removePin),
+      },
       error: null,
     }
   } catch (error) {
@@ -395,7 +401,7 @@ export const FetchEventById = async (
     }
   }
 
-  await unpinPastEvents()
+  //   await unpinPastEvents()
 
   const event = await payload
     .findByID({
@@ -614,36 +620,36 @@ export const SubmitRegistration = async (
   }
 }
 
-async function unpinPastEvents() {
-  const payload = await getPayload({ config })
+// async function unpinPastEvents() {
+//   const payload = await getPayload({ config })
 
-  if (!payload) {
-    return {
-      success: false,
-      error: {
-        code: 500,
-        message: "Failed to load Payload Config",
-      },
-    }
-  }
-  try {
-    const currDate = new Date().toISOString()
-    await payload.update({
-      collection: "events",
-      where: {
-        and: [
-          { "ribbonTag.ribbonTag": { equals: "PINNED" } },
-          { date: { less_than: currDate } },
-        ],
-      },
-      data: { ribbonTag: null },
-      overrideAccess: true,
-    })
-  } catch (err) {
-    console.error("Auto-unpin failed:", err)
-  }
-  return null
-}
+//   if (!payload) {
+//     return {
+//       success: false,
+//       error: {
+//         code: 500,
+//         message: "Failed to load Payload Config",
+//       },
+//     }
+//   }
+//   try {
+//     const currDate = new Date().toISOString()
+//     await payload.update({
+//       collection: "events",
+//       where: {
+//         and: [
+//           { "ribbonTag.ribbonTag": { equals: "PINNED" } },
+//           { date: { less_than: currDate } },
+//         ],
+//       },
+//       data: { ribbonTag: null },
+//       overrideAccess: true,
+//     })
+//   } catch (err) {
+//     console.error("Auto-unpin failed:", err)
+//   }
+//   return null
+// }
 
 function removePin(event: Event) {
   const isPinned =
