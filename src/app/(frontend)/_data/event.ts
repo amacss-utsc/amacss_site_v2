@@ -1,8 +1,8 @@
+"use server"
+
 import { Event } from "@/payload-types"
 import config from "@payload-config"
 import { getPayload } from "payload"
-
-;("use server")
 
 type DataError = {
   code: number
