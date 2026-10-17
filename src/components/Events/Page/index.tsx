@@ -46,7 +46,7 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
     const sortedEvents = filtered.sort((a, b) => {
       const aRibbon = typeof a.ribbonTag !== 'number' ? a.ribbonTag?.ribbonTag : ''
       const bRibbon = typeof b.ribbonTag !== 'number' ? b.ribbonTag?.ribbonTag : ''
-      
+
       // PINNED events come first
       if (aRibbon?.toLowerCase() === 'pinned' && bRibbon?.toLowerCase() !== 'pinned') return -1
       if (aRibbon?.toLowerCase() !== 'pinned' && bRibbon?.toLowerCase() === 'pinned') return 1
