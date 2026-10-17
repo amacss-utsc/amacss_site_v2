@@ -11,7 +11,7 @@ import { useStateContext } from "@/providers/State"
 import { EventImageWithLoader } from "../ImageLoader"
 import { PastEventBadge } from "../PastBadge"
 import { shouldShowPastBadge } from "@/utilities/pastEvent"
-import { unpinEvent } from "@/app/(frontend)/_data";
+import { unpinEvent } from "@/app/(frontend)/_data/event";
 
 type EventsPageProps = {
   events: PaginatedDocs<Event>
