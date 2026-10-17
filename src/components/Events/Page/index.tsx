@@ -11,7 +11,6 @@ import { useStateContext } from "@/providers/State"
 import { EventImageWithLoader } from "../ImageLoader"
 import { PastEventBadge } from "../PastBadge"
 import { shouldShowPastBadge } from "@/utilities/pastEvent"
-import { unpinEvent } from "@/app/(frontend)/_data/event";
 
 type EventsPageProps = {
   events: PaginatedDocs<Event>
@@ -39,29 +38,29 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
     if (events?.docs !== e) sE(events?.docs ?? [])
   }, [events])
 
-  useEffect(() => {
-    const unpinPastEvents = async () => {
-        const eventsToUnpin = e.filter((event) => {
-            const isPinned = typeof event.ribbonTag !== 'number' && event.ribbonTag?.ribbonTag.toLowerCase() === 'pinned'
-            const isPast = shouldShowPastBadge(event)
-            return isPinned && isPast
-        })
-        sE((prevEvents) => prevEvents.map((event) => {
-            const isPinned = typeof event.ribbonTag !== 'number' && event.ribbonTag?.ribbonTag.toLowerCase() === 'pinned'
-            const isPast = shouldShowPastBadge(event)
-            if (isPinned && isPast) {
-                return {
-                    ...event,
-                    ribbonTag: null
-                }
-            }
-            return event
-        })) // auto updating the local
-        const updatePromises = eventsToUnpin.map((event) => unpinEvent(event))
-        await Promise.all(updatePromises)
-    }
-    unpinPastEvents()
-  }, [])
+//   useEffect(() => {
+//     const unpinPastEvents = async () => {
+//         const eventsToUnpin = e.filter((event) => {
+//             const isPinned = typeof event.ribbonTag !== 'number' && event.ribbonTag?.ribbonTag.toLowerCase() === 'pinned'
+//             const isPast = shouldShowPastBadge(event)
+//             return isPinned && isPast
+//         })
+//         sE((prevEvents) => prevEvents.map((event) => {
+//             const isPinned = typeof event.ribbonTag !== 'number' && event.ribbonTag?.ribbonTag.toLowerCase() === 'pinned'
+//             const isPast = shouldShowPastBadge(event)
+//             if (isPinned && isPast) {
+//                 return {
+//                     ...event,
+//                     ribbonTag: null
+//                 }
+//             }
+//             return event
+//         })) // auto updating the local
+//         const updatePromises = eventsToUnpin.map((event) => unpinEvent(event))
+//         await Promise.all(updatePromises)
+//     }
+//     unpinPastEvents()
+//   }, [])
 
   useEffect(() => {
     const filtered = e.filter((event) => {

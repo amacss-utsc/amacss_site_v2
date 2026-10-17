@@ -37,7 +37,7 @@ async function fetchDevEvents(
 
   return {
     ...events,
-    docs: events.docs.map(withDevImageUrl),
+    docs: events.docs.map(withDevImageUrl).map(removePin),
   }
 }
 
@@ -196,6 +196,8 @@ export const FetchEvents = async ({
     }
   }
 
+  await unpinPastEvents()
+
   const events = await payload.find({
     collection: "events",
     page: page,
@@ -247,6 +249,8 @@ export const FetchEventsInRange = async ({
       },
     }
   }
+
+  await unpinPastEvents()
 
   try {
     const events = await payload.find({
@@ -390,6 +394,8 @@ export const FetchEventById = async (
       },
     }
   }
+
+  await unpinPastEvents()
 
   const event = await payload
     .findByID({
@@ -606,6 +612,52 @@ export const SubmitRegistration = async (
       },
     }
   }
+}
+
+async function unpinPastEvents() {
+  const payload = await getPayload({ config })
+
+  if (!payload) {
+    return {
+      success: false,
+      error: {
+        code: 500,
+        message: "Failed to load Payload Config",
+      },
+    }
+  }
+  try {
+    const currDate = new Date().toISOString()
+    await payload.update({
+      collection: "events",
+      where: {
+        and: [
+          { "ribbonTag.ribbonTag": { equals: "PINNED" } },
+          { date: { less_than: currDate } },
+        ],
+      },
+      data: { ribbonTag: null },
+      overrideAccess: true,
+    })
+  } catch (err) {
+    console.error("Auto-unpin failed:", err)
+  }
+  return null
+}
+
+function removePin(event: Event) {
+  const isPinned =
+    typeof event.ribbonTag !== "number" &&
+    event.ribbonTag?.ribbonTag?.toLowerCase() === "pinned"
+  const isPast = event.date ? new Date(event.date) < new Date() : false
+
+  if (isPinned && isPast) {
+    return {
+      ...event,
+      ribbonTag: null,
+    }
+  }
+  return event
 }
 
 export const ErrDefault = (
