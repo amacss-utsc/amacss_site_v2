@@ -10,6 +10,8 @@ import { RibbonStyle } from "@/utilities/tailwindShared"
 import { useStateContext } from "@/providers/State"
 import { EventImageWithLoader } from "../ImageLoader"
 import { PastEventBadge } from "../PastBadge"
+import { shouldShowPastBadge } from "@/utilities/pastEvent"
+import { unpinEvent } from "@/app/(frontend)/_data";
 
 type EventsPageProps = {
   events: PaginatedDocs<Event>
@@ -38,6 +40,30 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
   }, [events])
 
   useEffect(() => {
+    const unpinPastEvents = async () => {
+        const eventsToUnpin = e.filter((event) => {
+            const isPinned = typeof event.ribbonTag !== 'number' && event.ribbonTag?.ribbonTag.toLowerCase() === 'pinned'
+            const isPast = shouldShowPastBadge(event)
+            return isPinned && isPast
+        })
+        sE((prevEvents) => prevEvents.map((event) => {
+            const isPinned = typeof event.ribbonTag !== 'number' && event.ribbonTag?.ribbonTag.toLowerCase() === 'pinned'
+            const isPast = shouldShowPastBadge(event)
+            if (isPinned && isPast) {
+                return {
+                    ...event,
+                    ribbonTag: null
+                }
+            }
+            return event
+        })) // auto updating the local
+        const updatePromises = eventsToUnpin.map((event) => unpinEvent(event))
+        await Promise.all(updatePromises)
+    }
+    unpinPastEvents()
+  }, [])
+
+  useEffect(() => {
     const filtered = e.filter((event) => {
       const eventDate = new Date(event.date)
       const dF =
@@ -60,7 +86,12 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
     const sortedEvents = filtered.sort((a, b) => {
       const aRibbon = typeof a.ribbonTag !== 'number' ? a.ribbonTag?.ribbonTag : ''
       const bRibbon = typeof b.ribbonTag !== 'number' ? b.ribbonTag?.ribbonTag : ''
-      
+    
+      // this doesn't change the fact that it's still pinned though, only ignores if it's a past event
+    //   if (shouldShowPastBadge(a) && shouldShowPastBadge(b)) return 0
+    //   if (shouldShowPastBadge(a)) return 1
+    //   if (shouldShowPastBadge(b)) return -1
+
       // PINNED events come first
       if (aRibbon?.toLowerCase() === 'pinned' && bRibbon?.toLowerCase() !== 'pinned') return -1
       if (aRibbon?.toLowerCase() !== 'pinned' && bRibbon?.toLowerCase() === 'pinned') return 1
