@@ -203,7 +203,6 @@ export const FetchEvents = async ({
     page: page,
     limit: limit,
     draft: true,
-    depth: 1, // apparently this will act similar to dev test
   })
 
   if (!events || !events.docs || events.docs.length === 0) {
@@ -274,7 +273,6 @@ export const FetchEventsInRange = async ({
         ],
       },
       draft: true,
-      depth: 1, // apparently this will act similar to dev test
     })
 
     return {
@@ -332,7 +330,6 @@ export const FetchSidebarEvents = async ({
         },
       },
       draft: true,
-      depth: 1,
     })
 
     if (!events?.docs?.length) {

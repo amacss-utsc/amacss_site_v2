@@ -61,11 +61,6 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
     const sortedEvents = filtered.sort((a, b) => {
       const aRibbon = typeof a.ribbonTag !== 'number' ? a.ribbonTag?.ribbonTag : ''
       const bRibbon = typeof b.ribbonTag !== 'number' ? b.ribbonTag?.ribbonTag : ''
-    
-      // this doesn't change the fact that it's still pinned though, only ignores if it's a past event
-    //   if (shouldShowPastBadge(a) && shouldShowPastBadge(b)) return 0
-    //   if (shouldShowPastBadge(a)) return 1
-    //   if (shouldShowPastBadge(b)) return -1
 
       // PINNED events come first
       if (aRibbon?.toLowerCase() === 'pinned' && bRibbon?.toLowerCase() !== 'pinned') return -1
