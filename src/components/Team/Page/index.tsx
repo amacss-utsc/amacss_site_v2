@@ -1,14 +1,14 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import { SubTeam, TeamMember } from "@/payload-types"
+import type { TeamDepartment, TeamMember } from "@/data/team"
 import { cn } from "@/utilities/cn"
 import { MemberWrapperStyle } from "@/utilities/tailwindShared"
 import MemberTile from "@/components/Team/MemberTile"
 import { ChevronDown } from "lucide-react"
 
 type TeamPageClientProps = {
-  subteams: SubTeam[]
+  subteams: TeamDepartment[]
 }
 
 export function TeamPageClient({ subteams }: TeamPageClientProps) {
@@ -78,21 +78,14 @@ export function TeamPageClient({ subteams }: TeamPageClientProps) {
   })
 
   const filteredSubteams = sortedSubteams.filter(subteam => {
-    const mfFn = (member, idx) => member && member.member && typeof member.member !== "number"
-    const mmFn = (member, idx) => member.member
-
     // handles svp only visible on respective team(s) when non-null and non-svp filter is enabled
-    const members = (subteam["team-members"] ?? [])
-      .filter(mfFn)
-      .map(mmFn)
+    const members = subteam.members
       .filter(member =>
         subteam.name === "Senior Vice-President" ||
         selectedDepartments.includes(subteam.name) ||
         !isSeniorVicePresident(member.role)
       )
-    const prioMembers = (subteam["prio-team-members"] ?? [])
-      .filter(mfFn)
-      .map(mmFn)
+    const prioMembers = subteam.priorityMembers
       .filter(member =>
         subteam.name === "Senior Vice-President" ||
         selectedDepartments.includes(subteam.name) ||
@@ -234,23 +227,14 @@ export function TeamPageClient({ subteams }: TeamPageClientProps) {
           </button>
         </div>
       ) : (
-        filteredSubteams.map((s: SubTeam, i: number) => {
-          const mfFn = (member, idx) =>
-            member && member.member && typeof member.member !== "number"
-
-          const mmFn = (member, idx) => member.member
-
-          const allMembers = (s["team-members"] ?? [])
-            .filter(mfFn)
-            .map(mmFn)
+        filteredSubteams.map((s: TeamDepartment) => {
+          const allMembers = s.members
             .filter(member =>
               s.name === "Senior Vice-President" ||
               selectedDepartments.includes(s.name) ||
               !isSeniorVicePresident(member.role)
             )
-          const allPrioMembers = (s["prio-team-members"] ?? [])
-            .filter(mfFn)
-            .map(mmFn)
+          const allPrioMembers = s.priorityMembers
             .filter(member =>
               s.name === "Senior Vice-President" ||
               selectedDepartments.includes(s.name) ||
@@ -262,7 +246,7 @@ export function TeamPageClient({ subteams }: TeamPageClientProps) {
 
           return (
             <section
-              key={i}
+              key={s.id}
               className="pt-9 flex flex-col items-center lg:gap-y-10"
             >
               <h2 className="font-bold text-3xl w-full mt-6 lg:mt-0 mb-8 lg:mb-0">
@@ -271,7 +255,7 @@ export function TeamPageClient({ subteams }: TeamPageClientProps) {
 
               {filteredPrioMembers.length > 0 && (
                 <div className={cn(MemberWrapperStyle, "lg:w-full")}>
-                  {filteredPrioMembers.map((m: any, j: number) => (
+                  {filteredPrioMembers.map((m: TeamMember, j: number) => (
                     <div key={m.id ?? j} className="w-80 flex-shrink-0">
                       <MemberTile member={m} idx={j} />
                     </div>
@@ -281,7 +265,7 @@ export function TeamPageClient({ subteams }: TeamPageClientProps) {
 
               {filteredMembers.length > 0 && (
                 <div className={cn(MemberWrapperStyle, "lg:w-full max-w-[1500px]")}>
-                  {filteredMembers.map((m: any, j: number) => (
+                  {filteredMembers.map((m: TeamMember, j: number) => (
                     <div key={m.id ?? j} className='w-80 flex-shrink-0'>
                       <MemberTile member={m} idx={j} />
                     </div>

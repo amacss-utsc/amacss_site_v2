@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog"
 import { Card, CardContent } from "@/components/ui/card"
 import { Linkedin, Globe } from "lucide-react"
-import { TeamMember, Media } from "@/payload-types"
+import type { TeamMember } from "@/data/team"
 import { ImageWithLoader } from "@/components/Team/ImageWithLoader"
 import AvatarImageWithLoader from "@/components/Team/AvatarImageWithLoader"
 
@@ -28,19 +28,7 @@ export default function MemberTile({ member }: Props) {
     }
   }
 
-  const img: Media | null =
-    typeof member.photo !== "number" &&
-    member.photo != null &&
-    "url" in member.photo &&
-    member.photo.url
-      ? (member.photo as Media)
-      : null
-
-  if (!img || !img.url || !img.alt || img.width == null || img.height == null) {
-    return null
-  }
-
-  const { url, alt, width, height } = img
+  const { src: url, alt, width, height } = member.photo
 
   const role: string | undefined = member.role ?? undefined
   const linkedin: string | undefined = member.linkedin ?? undefined
