@@ -8,7 +8,6 @@ import { createSupabaseServerClient } from "@/utilities/supabase/server"
 import { EVENT_REGISTRATION_OPEN } from "@/utilities/auth"
 import { isRegistrationOpen } from "@/utilities/eventRegistration"
 import { getEmailVerification } from "@/utilities/verification"
-import { smsIsConfigured } from "@/utilities/notifications/sms"
 
 async function checkExistingRegistration(eventId: string, userId: string) {
   const payload = await getPayload({ config })
@@ -150,5 +149,5 @@ export default async function Page({ params }: any) {
     )
   }
 
-  return <EventRegister event={e} smsAvailable={smsIsConfigured()} smsTermsUrl={process.env.SMS_TERMS_URL || ""} smsPrivacyUrl={process.env.SMS_PRIVACY_URL || ""} />
+  return <EventRegister event={e} />
 }
