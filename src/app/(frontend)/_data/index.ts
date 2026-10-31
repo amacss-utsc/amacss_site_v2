@@ -1,4 +1,4 @@
-import { Team, Event, Resource } from "@/payload-types"
+import { Event, Resource } from "@/payload-types"
 import config from "@payload-config"
 import { getPayload, PaginatedDocs } from "payload"
 
@@ -58,63 +58,6 @@ type DataError = {
   code: number
   message: string
 } | null
-
-type FetchTeamType = {
-  team: Team | null
-  error: DataError
-}
-
-export const FetchTeam = async (): Promise<FetchTeamType> => {
-  const payload = await getPayload({ config })
-
-  if (!payload) {
-    return {
-      team: null,
-      error: {
-        code: 500,
-        message: "Failed to load Payload Config",
-      },
-    }
-  }
-
-  const teams = await payload.find({
-    collection: "teams",
-    where: {
-      isCurrent: {
-        equals: true,
-      },
-    },
-    limit: 2,
-    depth: 10,
-  })
-
-  if (!teams || !teams.docs || teams.docs.length === 0) {
-    return {
-      team: null,
-      error: {
-        code: 500,
-        message: "Teams Query Failed or No Teams Found",
-      },
-    }
-  }
-
-  if (teams.docs.length > 1) {
-    return {
-      team: null,
-      error: {
-        code: 500,
-        message: "Multiple Valid Teams Found",
-      },
-    }
-  }
-
-  const t = teams.docs[0]
-
-  return {
-    team: t,
-    error: null,
-  }
-}
 
 type FetchEventTagsType = {
   tags: string[] | null
