@@ -73,29 +73,6 @@ For a production build locally, run `pnpm local-build` followed by `pnpm start`.
 - Events remain pinned through their final calendar day in Toronto. Display logic
   and daily database cleanup account for `endDate` and daylight saving changes.
 
-## Team data cleanup
-
-The cleanup script defaults to a read-only audit. `--retire-current` includes the
-current backend roster only after verifying that production serves every local
-photo and that the retired Payload collection APIs return 404.
-
-```sh
-node --env-file=.env scripts/cleanup-team-history.mjs
-node --env-file=.env scripts/cleanup-team-history.mjs --retire-current
-```
-
-Add `--apply` to execute an audited plan. Deleted-row metadata and storage progress
-are saved under `/tmp/amacss-team-cleanup-<timestamp>/`. Storage deletions are
-permanent; the metadata backup does not contain the image files. Resume an
-interrupted storage cleanup from its saved manifest:
-
-```sh
-node --env-file=.env scripts/cleanup-team-history.mjs --resume '/path/to/plan.json' --apply
-```
-
-Resume verifies the project, bucket, and current references, and skips completed
-batches. These scripts require Node 20.12+ and installed project dependencies.
-
 ## Local integration tests
 
 `tests/local-payload-smoke.ts` seeds fixtures and checks real PostgreSQL queries;
