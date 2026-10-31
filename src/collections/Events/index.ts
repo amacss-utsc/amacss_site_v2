@@ -12,7 +12,8 @@ import {
   OrderedListFeature,
   UnorderedListFeature,
 } from "@payloadcms/richtext-lexical"
-import { revalidateEvents } from "./hooks/revalidateEvents"
+import { contentInvalidationHooks } from "@/utilities/invalidateContent"
+import { CONTENT_CACHE_TAGS } from "@/utilities/contentCacheTags"
 
 export const Events: CollectionConfig = {
   slug: "events",
@@ -256,7 +257,8 @@ export const Events: CollectionConfig = {
       ],
     },
   ],
-  hooks: {
-    afterChange: [revalidateEvents],
-  },
+  hooks: contentInvalidationHooks(
+    [CONTENT_CACHE_TAGS.events],
+    ["/", "/events", "/calendar", "/team", "/resources"],
+  ),
 }

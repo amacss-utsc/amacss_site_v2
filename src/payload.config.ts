@@ -11,10 +11,6 @@ import { Users } from "./collections/Users"
 import { EventTag } from "./collections/EventTag"
 import { RibbonTag } from "./collections/RibbonTag"
 import { Events } from "./collections/Events"
-import { TeamMembers } from "./collections/TeamMembers"
-import { Teams } from "./collections/Teams"
-import { SubTeams } from "./collections/SubTeams"
-import { SubTeamTypes } from "./collections/SubTeamTypes"
 import { plugins } from "./plugins"
 import { defaultLexical } from "@/fields/defaultLexical"
 import { getServerSideURL } from "./utilities/getURL"
@@ -85,10 +81,6 @@ export default buildConfig({
   collections: [
     Media,
     Users,
-    SubTeamTypes,
-    TeamMembers,
-    Teams,
-    SubTeams,
     Events,
     EventTag,
     RibbonTag,

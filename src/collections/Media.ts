@@ -2,6 +2,8 @@ import type { CollectionConfig } from "payload"
 
 import { anyone } from "../access/anyone"
 import { authenticated } from "../access/authenticated"
+import { contentInvalidationHooks } from "@/utilities/invalidateContent"
+import { CONTENT_CACHE_TAGS } from "@/utilities/contentCacheTags"
 
 export const Media: CollectionConfig = {
   slug: "media",
@@ -19,4 +21,8 @@ export const Media: CollectionConfig = {
     },
   ],
   upload: true,
+  hooks: contentInvalidationHooks(
+    [CONTENT_CACHE_TAGS.events],
+    ["/", "/events", "/calendar"],
+  ),
 }

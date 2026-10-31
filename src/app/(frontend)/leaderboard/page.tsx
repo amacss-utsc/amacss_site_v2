@@ -32,7 +32,7 @@ const getLeaderboard = unstable_cache(
   },
   ["leaderboard"],
   {
-    revalidate: 60 * 60 * 12,
+    revalidate: 60 * 60 * 24,
     tags: ["leaderboard"],
   },
 )

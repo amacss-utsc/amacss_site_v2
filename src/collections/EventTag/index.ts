@@ -2,7 +2,8 @@ import type { CollectionConfig } from "payload"
 
 import { authenticated } from "../../access/authenticated"
 import { authenticatedOrPublished } from "../../access/authenticatedOrPublished"
-import { revalidateEventTags } from "./hooks/revalidateEventTags"
+import { contentInvalidationHooks } from "@/utilities/invalidateContent"
+import { CONTENT_CACHE_TAGS } from "@/utilities/contentCacheTags"
 
 export const EventTag: CollectionConfig = {
   slug: "event-tag",
@@ -22,7 +23,8 @@ export const EventTag: CollectionConfig = {
       required: true,
     },
   ],
-  hooks: {
-    afterChange: [revalidateEventTags],
-  },
+  hooks: contentInvalidationHooks(
+    [CONTENT_CACHE_TAGS.eventTags, CONTENT_CACHE_TAGS.events],
+    ["/", "/events", "/calendar", "/team", "/resources"],
+  ),
 }

@@ -1,12 +1,19 @@
 import { Event, Resource } from "@/payload-types"
 import config from "@payload-config"
 import { getPayload, PaginatedDocs } from "payload"
+import { hasEventEnded } from "@/utilities/eventDates"
+import {
+  getPublicEvent,
+  getPublicEvents,
+  getPublicEventTags,
+  getPublicResources,
+  getPublicResourceTags,
+} from "@/utilities/publicContent"
 
 const DEV_CONTENT_ORIGIN = "https://www.amacss.org"
 
 async function fetchDevContent<T>(path: string): Promise<T | null> {
   if (process.env.NODE_ENV !== "development") return null
-
   try {
     const response = await fetch(`${DEV_CONTENT_ORIGIN}${path}`, {
       cache: "no-store",
@@ -18,27 +25,18 @@ async function fetchDevContent<T>(path: string): Promise<T | null> {
   }
 }
 
-async function fetchDevEvents(
-  limit: number,
-  page: number,
-  onSidebar = false,
-): Promise<PaginatedDocs<Event> | null> {
+async function fetchDevEvents(limit: number, page: number, onSidebar = false) {
   const query = new URLSearchParams({
     limit: String(limit),
     page: String(Math.max(1, page)),
     depth: "1",
   })
   if (onSidebar) query.set("where[onSidebar][equals]", "true")
-
   const events = await fetchDevContent<PaginatedDocs<Event>>(
     `/api/events?${query}`,
   )
   if (!events?.docs?.length) return null
-
-  return {
-    ...events,
-    docs: events.docs.map(withDevImageUrl).map(removePin),
-  }
+  return { ...events, docs: events.docs.map(withDevImageUrl).map(removePin) }
 }
 
 function withDevImageUrl(event: Event): Event {
@@ -54,69 +52,50 @@ function withDevImageUrl(event: Event): Event {
   }
 }
 
-type DataError = {
-  code: number
-  message: string
-} | null
-
-type FetchEventTagsType = {
-  tags: string[] | null
+type DataError = { code: number; message: string } | null
+type FetchEventTagsType = { tags: string[] | null; error: DataError }
+type FetchEventsType = { events: PaginatedDocs<Event> | null; error: DataError }
+interface FetchEventsArgs {
+  limit?: number
+  page?: number
+}
+type FetchEventsInRangeType = { events: Event[] | null; error: DataError }
+interface FetchEventsInRangeArgs {
+  start: Date
+  end: Date
+  limit?: number
+}
+type FetchEventByIdType = { event: Event | null; error: DataError }
+type FetchResourceTagsType = { tags: string[] | null; error: DataError }
+type FetchResourcesType = {
+  resources: PaginatedDocs<Resource> | null
   error: DataError
+}
+interface FetchResourcesArgs {
+  limit?: number
+  page?: number
+  tags?: string[]
 }
 
 export const FetchEventTags = async (): Promise<FetchEventTagsType> => {
   if (process.env.NODE_ENV === "development") {
-    const previewTags = await fetchDevContent<
-      PaginatedDocs<{ eventTag: string }>
-    >("/api/event-tag?limit=100")
+    const preview = await fetchDevContent<PaginatedDocs<{ eventTag: string }>>(
+      "/api/event-tag?limit=100",
+    )
     return {
-      tags: previewTags?.docs?.map((tag) => tag.eventTag) ?? [],
+      tags: preview?.docs?.map((tag) => tag.eventTag) ?? [],
       error: null,
     }
   }
-
-  const payload = await getPayload({ config })
-
-  if (!payload) {
+  try {
+    return { tags: await getPublicEventTags(), error: null }
+  } catch (error) {
+    console.error("FetchEventTags error:", error)
     return {
       tags: null,
-      error: {
-        code: 500,
-        message: "Failed to load Payload Config",
-      },
+      error: { code: 500, message: "Failed to fetch event tags" },
     }
   }
-
-  const tags = await payload.find({
-    collection: "event-tag",
-  })
-
-  if (!tags || !tags.docs || tags.docs.length === 0) {
-    return {
-      tags: null,
-      error: {
-        code: 500,
-        message: "Tags Query Failed or No Tags Found",
-      },
-    }
-  }
-
-  const t = tags.docs.map((i) => i.eventTag)
-
-  return {
-    tags: t,
-    error: null,
-  }
-}
-
-type FetchEventsType = {
-  events: PaginatedDocs<Event> | null
-  error: DataError
-}
-
-interface FetchEventsArgs {
-  limit?: number
-  page?: number
 }
 
 export const FetchEvents = async ({
@@ -126,82 +105,30 @@ export const FetchEvents = async ({
   if (process.env.NODE_ENV === "development") {
     return { events: await fetchDevEvents(limit, page), error: null }
   }
-
-  const payload = await getPayload({ config })
-
-  if (!payload) {
+  try {
+    const events = await getPublicEvents({ limit, page })
+    // Derive time-sensitive badges after reading the cache so pins can expire
+    // immediately without waiting for the daily database cleanup.
+    return {
+      events: { ...events, docs: events.docs.map(removePin) },
+      error: null,
+    }
+  } catch (error) {
+    console.error("FetchEvents error:", error)
     return {
       events: null,
-      error: {
-        code: 500,
-        message: "Failed to load Payload Config",
-      },
+      error: { code: 500, message: "Failed to fetch events" },
     }
   }
-
-  await unpinPastEvents()
-
-  const events = await payload.find({
-    collection: "events",
-    page: page,
-    limit: limit,
-    draft: true,
-  })
-
-  if (!events || !events.docs || events.docs.length === 0) {
-    return {
-      events: null,
-      error: {
-        code: 500,
-        message: "Events Query Failed or No Events Found",
-      },
-    }
-  }
-
-  return {
-    events: {
-      ...events,
-      docs: events.docs.map(removePin),
-    },
-    error: null,
-  }
 }
 
-type FetchEventsInRangeType = {
-  events: Event[] | null
-  error: DataError
-}
-
-interface FetchEventsInRangeArgs {
-  start: Date
-  end: Date
-  limit?: number
-}
-
-// Powers the calendar: everything overlapping the visible window
-// An empty window is a normal result, not an error.
 export const FetchEventsInRange = async ({
   start,
   end,
   limit = 200,
 }: FetchEventsInRangeArgs): Promise<FetchEventsInRangeType> => {
-  const payload = await getPayload({ config })
-
-  if (!payload) {
-    return {
-      events: null,
-      error: {
-        code: 500,
-        message: "Failed to load Payload Config",
-      },
-    }
-  }
-
-  await unpinPastEvents()
-
   try {
-    const events = await payload.find({
-      collection: "events",
+    const events = await getPublicEvents({
       limit,
       sort: "date",
       where: {
@@ -215,16 +142,10 @@ export const FetchEventsInRange = async ({
           },
         ],
       },
-      draft: true,
     })
-
-    return {
-      events: (events?.docs ?? []).map(removePin),
-      error: null,
-    }
+    return { events: events.docs.map(removePin), error: null }
   } catch (error) {
     console.error("FetchEventsInRange error:", error)
-
     return {
       events: null,
       error: {
@@ -235,188 +156,75 @@ export const FetchEventsInRange = async ({
   }
 }
 
-type FetchSidebarEventsType = {
-  events: PaginatedDocs<Event> | null
-  error: DataError
-}
-
 export const FetchSidebarEvents = async ({
   limit = 100,
   page = 0,
-}: FetchEventsArgs = {}): Promise<FetchSidebarEventsType> => {
+}: FetchEventsArgs = {}): Promise<FetchEventsType> => {
   if (process.env.NODE_ENV === "development") {
     return { events: await fetchDevEvents(limit, page, true), error: null }
   }
-
-  const payload = await getPayload({ config })
-
-  if (!payload) {
-    return {
-      events: null,
-      error: {
-        code: 500,
-        message: "Failed to load Payload Config",
-      },
-    }
-  }
-
-  await unpinPastEvents()
-
   try {
-    const events = await payload.find({
-      collection: "events",
-      page,
+    const events = await getPublicEvents({
       limit,
-      where: {
-        onSidebar: {
-          equals: true,
-        },
-      },
-      draft: true,
+      page,
+      where: { onSidebar: { equals: true } },
     })
-
-    if (!events?.docs?.length) {
-      return {
-        events: null,
-        error: {
-          code: 404,
-          message: "No sidebar events found",
-        },
-      }
-    }
-
     return {
-      events: {
-        ...events,
-        docs: events.docs.map(removePin),
-      },
+      events: { ...events, docs: events.docs.map(removePin) },
       error: null,
     }
   } catch (error) {
     console.error("FetchSidebarEvents error:", error)
     return {
       events: null,
-      error: {
-        code: 500,
-        message: "Failed to fetch sidebar events",
-      },
+      error: { code: 500, message: "Failed to fetch sidebar events" },
     }
   }
 }
 
-type FetchEventByIdType = {
-  event: Event | null
-  error: DataError
-}
-
 const EVENT_NOT_FOUND: FetchEventByIdType = {
   event: null,
-  error: {
-    code: 404,
-    message: "Event Not Found",
-  },
+  error: { code: 404, message: "Event Not Found" },
 }
 
 export const FetchEventById = async (
   id: string,
 ): Promise<FetchEventByIdType> => {
   if (!/^\d+$/.test(id)) return EVENT_NOT_FOUND
-
   if (process.env.NODE_ENV === "development") {
     const response = await fetch(
       `${DEV_CONTENT_ORIGIN}/api/events/${id}?depth=1`,
       { cache: "no-store" },
     ).catch(() => null)
-
-    if (response?.ok) {
+    if (response?.ok)
       return {
-        event: withDevImageUrl((await response.json()) as Event),
+        event: removePin(withDevImageUrl((await response.json()) as Event)),
         error: null,
       }
-    }
     if (response?.status === 404) return EVENT_NOT_FOUND
   }
-
-  const payload = await getPayload({ config })
-
-  if (!payload) {
+  try {
+    const event = await getPublicEvent(id)
+    return event ? { event: removePin(event), error: null } : EVENT_NOT_FOUND
+  } catch (error) {
+    console.error("FetchEventById error:", error)
     return {
       event: null,
-      error: {
-        code: 500,
-        message: "Failed to load Payload Config",
-      },
+      error: { code: 500, message: "Failed to fetch event" },
     }
   }
-
-  await unpinPastEvents()
-
-  const event = await payload
-    .findByID({
-      collection: "events",
-      id,
-      depth: 1,
-      draft: true,
-    })
-    .catch(() => null)
-
-  if (!event) return EVENT_NOT_FOUND
-
-  return {
-    event,
-    error: null,
-  }
-}
-
-type FetchResourceTagsType = {
-  tags: string[] | null
-  error: DataError
 }
 
 export const FetchResourceTags = async (): Promise<FetchResourceTagsType> => {
-  const payload = await getPayload({ config })
-
-  if (!payload) {
+  try {
+    return { tags: await getPublicResourceTags(), error: null }
+  } catch (error) {
+    console.error("FetchResourceTags error:", error)
     return {
       tags: null,
-      error: {
-        code: 500,
-        message: "Failed to load Payload Config",
-      },
+      error: { code: 500, message: "Failed to fetch resource tags" },
     }
   }
-
-  const tags = await payload.find({
-    collection: "resource-tag",
-  })
-
-  if (!tags || !tags.docs || tags.docs.length === 0) {
-    return {
-      tags: null,
-      error: {
-        code: 500,
-        message: "Resource Tags Query Failed or No Tags Found",
-      },
-    }
-  }
-
-  const t = tags.docs.map((i) => i.resourceTag)
-
-  return {
-    tags: t,
-    error: null,
-  }
-}
-
-type FetchResourcesType = {
-  resources: PaginatedDocs<Resource> | null
-  error: DataError
-}
-
-interface FetchResourcesArgs {
-  limit?: number
-  page?: number
-  tags?: string[]
 }
 
 export const FetchResources = async ({
@@ -424,56 +232,16 @@ export const FetchResources = async ({
   page = 0,
   tags = [],
 }: FetchResourcesArgs = {}): Promise<FetchResourcesType> => {
-  const payload = await getPayload({ config })
-
-  if (!payload) {
-    return {
-      resources: null,
-      error: {
-        code: 500,
-        message: "Failed to load Payload Config",
-      },
-    }
-  }
-
   try {
-    const resources = await payload.find({
-      collection: "resources",
-      page,
-      limit,
-      depth: 2,
-      where:
-        tags.length > 0
-          ? {
-              resourceTags: {
-                in: tags.map((tag) => ({ resourceTag: { equals: tag } })),
-              },
-            }
-          : undefined,
-    })
-
-    if (!resources || !resources.docs || resources.docs.length === 0) {
-      return {
-        resources: null,
-        error: {
-          code: 404,
-          message: "No Resources Found",
-        },
-      }
-    }
-
     return {
-      resources,
+      resources: await getPublicResources(limit, page, tags),
       error: null,
     }
   } catch (error) {
     console.error("FetchResources error:", error)
     return {
       resources: null,
-      error: {
-        code: 500,
-        message: "Failed to fetch resources",
-      },
+      error: { code: 500, message: "Failed to fetch resources" },
     }
   }
 }
@@ -569,42 +337,11 @@ export const SubmitRegistration = async (
   }
 }
 
-async function unpinPastEvents() {
-  const payload = await getPayload({ config })
-
-  if (!payload) {
-    return {
-      success: false,
-      error: {
-        code: 500,
-        message: "Failed to load Payload Config",
-      },
-    }
-  }
-  try {
-    const currDate = new Date().toISOString()
-    await payload.update({
-      collection: "events",
-      where: {
-        and: [
-          { "ribbonTag.ribbonTag": { equals: "PINNED" } },
-          { date: { less_than: currDate } },
-        ],
-      },
-      data: { ribbonTag: null },
-      overrideAccess: true,
-    })
-  } catch (err) {
-    console.error("Auto-unpin failed:", err)
-  }
-  return null
-}
-
 function removePin(event: Event) {
   const isPinned =
     typeof event.ribbonTag !== "number" &&
     event.ribbonTag?.ribbonTag?.toLowerCase() === "pinned"
-  const isPast = event.date ? new Date(event.date) < new Date() : false
+  const isPast = hasEventEnded(event)
 
   if (isPinned && isPast) {
     return {
