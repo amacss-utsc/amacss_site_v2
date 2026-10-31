@@ -21,7 +21,6 @@ using remote media storage; without them Payload uses local upload storage.
 ## Checks
 
 ```sh
-pnpm test:backend-usage
 pnpm lint
 pnpm exec tsc --noEmit --incremental false
 pnpm local-build
@@ -95,25 +94,3 @@ node --env-file=.env scripts/cleanup-team-history.mjs --resume '/path/to/plan.js
 
 Resume verifies the project, bucket, and current references, and skips completed
 batches. These scripts require Node 20.12+ and installed project dependencies.
-
-## Local integration tests
-
-`tests/local-payload-smoke.ts` seeds fixtures and checks real PostgreSQL queries;
-`tests/local-http-smoke.mjs` checks the running app's cache, admin invalidation,
-cleanup endpoint, local team photos, and anonymous profile redirect. Both refuse
-remote databases and require a disposable local database named `amacss_test`.
-
-With that database running, set `DATABASE_URI`, a separate `PAYLOAD_SECRET`
-starting with `amacss-local-`, and a local `CRON_SECRET`. Then run:
-
-```sh
-pnpm payload run tests/local-payload-smoke.ts
-pnpm local-build
-pnpm start
-# In another terminal with the same environment:
-node tests/local-http-smoke.mjs
-```
-
-The disposable Payload admin is `localadmin@example.test` with password
-`amacss-local-testing-only`. Never reuse a production signing secret for this test
-account. Member sign-in still uses the configured Supabase project.
