@@ -171,7 +171,7 @@ test("public-content caches use Next.js cache, expire daily, and invalidate on e
   const entries = new Map()
   globalThis.__incrementalCache = {
     isOnDemandRevalidate: false,
-    generateCacheKey: async (key) => key,
+    generateSimpleCacheKey: async (key) => key,
     get: async (key, context) => {
       assert.equal(context.revalidate, 86400)
       const entry = entries.get(key)
@@ -188,7 +188,8 @@ test("public-content caches use Next.js cache, expire daily, and invalidate on e
   }
   const nextCache = {
     unstable_cache,
-    revalidateTag: (tag) => {
+    revalidateTag: (tag, profile) => {
+      assert.deepEqual(profile, { expire: 0 })
       for (const [key, entry] of entries)
         if (entry.tags.includes(tag)) entries.delete(key)
     },
@@ -369,7 +370,7 @@ test("middleware skips anonymous sessions and uses claims while forwarding refre
       set: (name, value) => cookies.set(name, value),
     },
   }
-  const middleware = loadTS("middleware.ts", {
+  const middleware = loadTS("proxy.ts", {
     "next/server": {
       NextResponse: {
         next: () => ({
@@ -403,13 +404,13 @@ test("middleware skips anonymous sessions and uses claims while forwarding refre
     },
   })
   try {
-    await middleware.middleware(request)
+    await middleware.proxy(request)
     assert.equal(clients, 0)
     cookies.set("unrelated-cookie", "value")
-    await middleware.middleware(request)
+    await middleware.proxy(request)
     assert.equal(clients, 0)
     cookies.set("sb-example-auth-token.0", "expired")
-    const response = await middleware.middleware(request)
+    const response = await middleware.proxy(request)
     assert.equal(claims, 1)
     assert.equal(cookies.get("sb-example-auth-token.0"), "refreshed")
     assert.deepEqual(response.cookies.values, [
