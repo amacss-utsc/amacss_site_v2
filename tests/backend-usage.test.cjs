@@ -1,6 +1,7 @@
 const { test } = require("node:test")
 const assert = require("node:assert/strict")
 const fs = require("node:fs")
+const path = require("node:path")
 const ts = require("typescript")
 // Next.js installs this global when its server starts; supply the same Node
 // implementation when exercising its cache outside the server.
@@ -490,4 +491,301 @@ test("browser auth initializes from INITIAL_SESSION without a getUser request", 
   assert.equal(userState, null)
   cleanup()
   assert.equal(unsubscribed, true)
+})
+
+test("historical cleanup preserves the live roster, shared photos, and unrelated metadata", async () => {
+  const { buildTeamCleanupPlan, referencedMedia } = await import(
+    path.resolve("scripts/lib/team-cleanup-plan.mjs")
+  )
+  const snapshot = {
+    teams: [
+      { id: 1, is_current: false },
+      { id: 4, is_current: true },
+    ],
+    teams_rels: [
+      { id: 1, parent_id: 1, sub_teams_id: 1 },
+      { id: 2, parent_id: 4, sub_teams_id: 25 },
+    ],
+    sub_teams: [
+      { id: 1, type_id: 1 },
+      { id: 25, type_id: 2 },
+    ],
+    sub_team_types: [{ id: 1 }, { id: 2 }],
+    sub_teams_prio_team_members: [
+      { id: "old", _parent_id: 1, member_id: 1 },
+      { id: "live", _parent_id: 25, member_id: 2 },
+    ],
+    sub_teams_team_members: [],
+    team_members: [
+      { id: 1, membership_year: "2025", photo_id: 10 },
+      { id: 2, membership_year: "2026", photo_id: 20 },
+      { id: 3, membership_year: "2025", photo_id: 30 },
+      { id: 4, membership_year: "2025", photo_id: 40 },
+      { id: 5, membership_year: "2025", photo_id: 50 },
+    ],
+    media: [
+      { id: 10, filename: "old.jpg" },
+      { id: 20, filename: "current.jpg" },
+      { id: 30, filename: "shared.jpg" },
+      { id: 40, filename: "linked photo.jpg" },
+      { id: 50, filename: "rich-text.jpg" },
+    ],
+    payload_locked_documents: [{ id: 1 }, { id: 2 }],
+    payload_locked_documents_rels: [
+      { id: 1, parent_id: 1, team_members_id: 1 },
+      { id: 2, parent_id: 2, team_members_id: 2 },
+    ],
+  }
+  const protectedIds = new Set([30])
+  referencedMedia(
+    "https://example.test/linked%20photo.jpg",
+    snapshot.media,
+    protectedIds,
+  )
+  referencedMedia(
+    { relationTo: "media", value: { id: 50 } },
+    snapshot.media,
+    protectedIds,
+  )
+  const plan = buildTeamCleanupPlan(
+    snapshot,
+    {
+      id: "4",
+      year: "2026",
+      departments: [{ id: "25", priorityMembers: [{ id: "2" }], members: [] }],
+    },
+    protectedIds,
+  )
+  assert.deepEqual(
+    plan.teams.map((t) => t.id),
+    [1],
+  )
+  assert.deepEqual(
+    plan.team_members.map((m) => m.id),
+    [1, 3, 4, 5],
+  )
+  assert.deepEqual(
+    plan.media.map((m) => m.id),
+    [10],
+  )
+  assert.deepEqual(
+    plan.sub_teams_prio_team_members.map((r) => r.id),
+    ["old"],
+  )
+  assert.deepEqual(
+    plan.payload_locked_documents.map((r) => r.id),
+    [1],
+  )
+  assert.deepEqual(
+    plan.sub_team_types.map((r) => r.id),
+    [1],
+  )
+})
+
+test("storage cleanup resumes a failed batch from its checkpoint without database rows", async () => {
+  const { finishStorageCleanup } = await import(
+    path.resolve("scripts/lib/team-cleanup-storage.mjs")
+  )
+  const files = Array.from({ length: 53 }, (_, index) => `photo-${index}.jpg`)
+  const existing = new Set(files)
+  let persisted = []
+  let calls = 0
+  let simulateFailure = true
+  const storage = {
+    remove: async (batch) => {
+      calls++
+      if (calls === 2 && simulateFailure)
+        return { error: { message: "Simulated storage outage" } }
+      batch.forEach((file) => existing.delete(file))
+      return { error: null }
+    },
+  }
+  const options = {
+    storage,
+    files,
+    saveProgress: async (done) => {
+      persisted = done
+    },
+  }
+  await assert.rejects(
+    finishStorageCleanup(options),
+    /Simulated storage outage/,
+  )
+  assert.equal(persisted.length, 50)
+  assert.equal(existing.size, 3)
+  simulateFailure = false
+  const completed = await finishStorageCleanup({
+    ...options,
+    completedFiles: persisted,
+  })
+  assert.equal(calls, 3, "the completed first batch is not repeated")
+  assert.equal(completed.length, 53)
+  assert.equal(existing.size, 0)
+  await finishStorageCleanup({ ...options, completedFiles: completed })
+  assert.equal(
+    calls,
+    3,
+    "a completed manifest does not make more storage calls",
+  )
+})
+
+test("storage cleanup refuses a file that has become referenced again", async () => {
+  const { finishStorageCleanup } = await import(
+    path.resolve("scripts/lib/team-cleanup-storage.mjs")
+  )
+  let removals = 0
+  await assert.rejects(
+    finishStorageCleanup({
+      storage: {
+        remove: async () => {
+          removals++
+          return { error: null }
+        },
+      },
+      files: ["restored.jpg"],
+      beforeDelete: async () => {
+        throw new Error("Media record restored")
+      },
+      saveProgress: async () => {},
+    }),
+    /Media record restored/,
+  )
+  assert.equal(removals, 0)
+})
+
+test("resume CLI finishes storage cleanup after team rows are gone and rejects a different project", () => {
+  const { spawnSync } = require("node:child_process")
+  const { tmpdir } = require("node:os")
+  const directory = fs.mkdtempSync(path.join(tmpdir(), "amacss-resume-test-"))
+  const manifestPath = path.join(directory, "plan.json")
+  const preloadPath = path.join(directory, "fake-storage.mjs")
+  const files = Array.from(
+    { length: 53 },
+    (_, index) => `resume-file-${index}.png`,
+  )
+  fs.writeFileSync(
+    manifestPath,
+    JSON.stringify({
+      summary: { host: "cleanup-test.supabase.co" },
+      bucket: "test-bucket",
+      files,
+      rows: {
+        media: files.map((filename, index) => ({ id: index + 1, filename })),
+      },
+    }),
+  )
+  fs.writeFileSync(
+    preloadPath,
+    `
+    globalThis.fetch = async (input, init = {}) => {
+      const url = new URL(typeof input === 'string' ? input : input.url || String(input));
+      const json = (value, status = 200) => new Response(JSON.stringify(value), { status, headers: { 'content-type': 'application/json' } });
+      if (url.hostname === 'www.amacss.org' && url.pathname === '/team') return new Response('<html>Current local roster</html>');
+      if (url.hostname !== 'cleanup-test.supabase.co') throw new Error('Unexpected network host');
+      if (['/rest/v1/media','/rest/v1/events','/rest/v1/resources','/rest/v1/registrations_answers','/rest/v1/events_registration_form'].includes(url.pathname)) return json([]);
+      if (url.pathname === '/storage/v1/object/test-bucket' && init.method === 'DELETE') {
+        const batch = JSON.parse(init.body).prefixes;
+        if (process.env.TEST_FAIL_STORAGE === '1' && batch.includes('resume-file-50.png')) return json({ message: 'Simulated storage outage', error: 'Storage outage', statusCode: '503' }, 503);
+        return json(batch.map(name => ({ name })));
+      }
+      throw new Error('Unexpected request: ' + url.pathname);
+    };
+  `,
+  )
+  const env = {
+    ...process.env,
+    SUPABASE_URL: "https://cleanup-test.supabase.co",
+    SUPABASE_KEY: "local-fixture-key",
+    SUPABASE_SECRET_KEY: "",
+    S3_BUCKET: "test-bucket",
+    TEST_FAIL_STORAGE: "1",
+  }
+  const args = [
+    "--import",
+    preloadPath,
+    "scripts/cleanup-team-history.mjs",
+    "--resume",
+    manifestPath,
+    "--apply",
+  ]
+  try {
+    const failed = spawnSync(process.execPath, args, {
+      env,
+      encoding: "utf8",
+      timeout: 15000,
+    })
+    assert.equal(failed.status, 1, failed.stderr)
+    const progress = () =>
+      JSON.parse(
+        fs.readFileSync(path.join(directory, "storage-progress.json"), "utf8"),
+      ).completedFiles
+    assert.equal(progress().length, 50)
+    const wrongProject = spawnSync(process.execPath, args, {
+      env: { ...env, SUPABASE_URL: "https://other-project.supabase.co" },
+      encoding: "utf8",
+      timeout: 15000,
+    })
+    assert.equal(wrongProject.status, 1)
+    assert.match(wrongProject.stderr, /Manifest project\/bucket does not match/)
+    assert.equal(progress().length, 50)
+    const resumed = spawnSync(process.execPath, args, {
+      env: { ...env, TEST_FAIL_STORAGE: "0" },
+      encoding: "utf8",
+      timeout: 15000,
+    })
+    assert.equal(resumed.status, 0, resumed.stderr)
+    assert.equal(progress().length, 53)
+  } finally {
+    fs.rmSync(directory, { recursive: true, force: true })
+  }
+})
+
+test("explicit retirement removes current backend records while preserving shared media", async () => {
+  const { buildTeamCleanupPlan } = await import(
+    path.resolve("scripts/lib/team-cleanup-plan.mjs")
+  )
+  const snapshot = {
+    teams: [{ id: 4, is_current: true }],
+    teams_rels: [{ id: 1, parent_id: 4, sub_teams_id: 25 }],
+    sub_teams: [{ id: 25, type_id: 2 }],
+    sub_team_types: [{ id: 2 }],
+    sub_teams_prio_team_members: [{ id: "live", _parent_id: 25, member_id: 2 }],
+    sub_teams_team_members: [],
+    team_members: [
+      { id: 2, membership_year: "2026", photo_id: 20 },
+      { id: 3, membership_year: "2026", photo_id: 30 },
+    ],
+    media: [
+      { id: 20, filename: "copied-local.jpg" },
+      { id: 30, filename: "shared-event.jpg" },
+    ],
+    payload_locked_documents: [],
+    payload_locked_documents_rels: [],
+  }
+  const current = {
+    id: "4",
+    year: "2026",
+    departments: [
+      { id: "25", priorityMembers: [{ id: "2" }], members: [{ id: "3" }] },
+    ],
+  }
+  const protectedIds = new Set([30])
+  const retained = buildTeamCleanupPlan(
+    snapshot,
+    current,
+    new Set(protectedIds),
+  )
+  assert.equal(retained.team_members.length, 0)
+  const retired = buildTeamCleanupPlan(snapshot, current, protectedIds, {
+    retireCurrent: true,
+  })
+  assert.equal(retired.teams.length, 1)
+  assert.equal(retired.sub_teams.length, 1)
+  assert.equal(retired.sub_team_types.length, 1)
+  assert.equal(retired.team_members.length, 2)
+  assert.equal(retired.sub_teams_prio_team_members.length, 1)
+  assert.deepEqual(
+    retired.media.map((row) => row.id),
+    [20],
+  )
 })
