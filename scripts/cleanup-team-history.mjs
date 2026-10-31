@@ -1,6 +1,7 @@
 // Requires Node 20.12+ and the project's installed dependencies.
 // Dry run: node --env-file=.env scripts/cleanup-team-history.mjs
 // Apply:   node --env-file=.env scripts/cleanup-team-history.mjs --apply
+// Retire the remaining current backend roster after deployment: --retire-current [--apply]
 // Resume files: node --env-file=.env scripts/cleanup-team-history.mjs --resume /path/to/plan.json --apply
 import { createClient } from "@supabase/supabase-js"
 import ts from "typescript"
@@ -14,9 +15,11 @@ import {
 
 let apply = false
 let resumePath = null
+let retireCurrent = false
 const args = process.argv.slice(2)
 for (let index = 0; index < args.length; index++) {
   if (args[index] === "--apply") apply = true
+  else if (args[index] === "--retire-current") retireCurrent = true
   else if (
     args[index] === "--resume" &&
     args[index + 1] &&
@@ -25,9 +28,11 @@ for (let index = 0; index < args.length; index++) {
     resumePath = resolve(args[++index])
   else
     throw new Error(
-      "Usage: cleanup-team-history.mjs [--apply] [--resume /path/to/plan.json]",
+      "Usage: cleanup-team-history.mjs [--apply] [--retire-current | --resume /path/to/plan.json]",
     )
 }
+if (retireCurrent && resumePath)
+  throw new Error("Use --resume separately from --retire-current")
 const url = process.env.SUPABASE_URL
 const key = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_KEY
 const bucket = process.env.S3_BUCKET
@@ -218,6 +223,7 @@ const snapshot = Object.fromEntries(
   ),
 )
 if (
+  snapshot.teams.length > 0 &&
   !snapshot.teams.some((t) => String(t.id) === currentTeam.id && t.is_current)
 )
   throw new Error(
@@ -268,9 +274,50 @@ if (!liveResponse.ok)
     `Cannot verify live dependencies: HTTP ${liveResponse.status}`,
   )
 const liveHtml = await liveResponse.text()
+if (retireCurrent) {
+  // Removing the current backend roster is allowed only after production has
+  // deployed the local roster and removed its old collection endpoints.
+  for (const member of localMembers) {
+    if (
+      !liveHtml.includes(member.photo.src) &&
+      !liveHtml.includes(encodeURIComponent(member.photo.src))
+    ) {
+      throw new Error(
+        `Production is missing the local photo for member ${member.id}; keep backend data`,
+      )
+    }
+  }
+  for (const slug of ["teams", "team-members", "sub-teams", "sub-team-types"]) {
+    const response = await fetch(`https://www.amacss.org/api/${slug}`, {
+      cache: "no-store",
+    })
+    if (response.status !== 404)
+      throw new Error(
+        `Production still exposes ${slug} (HTTP ${response.status}); keep backend data`,
+      )
+  }
+  const photos = [...new Set(localMembers.map((member) => member.photo.src))]
+  for (let offset = 0; offset < photos.length; offset += 4) {
+    await Promise.all(
+      photos.slice(offset, offset + 4).map(async (photo) => {
+        const response = await fetch(new URL(photo, "https://www.amacss.org"), {
+          method: "HEAD",
+          cache: "no-store",
+        })
+        if (
+          !response.ok ||
+          !response.headers.get("content-type")?.startsWith("image/")
+        )
+          throw new Error(`Production photo is unavailable: ${photo}`)
+      }),
+    )
+  }
+}
 referencedMedia(liveHtml, teamMedia, protectedIds)
 referencedMedia(source, teamMedia, protectedIds)
-const plan = buildTeamCleanupPlan(snapshot, currentTeam, protectedIds)
+const plan = buildTeamCleanupPlan(snapshot, currentTeam, protectedIds, {
+  retireCurrent,
+})
 
 const storageObjects = []
 for (let offset = 0; ; offset += 1000) {
@@ -294,6 +341,7 @@ const summary = {
   host: new URL(url).hostname,
   currentYear: currentTeam.year,
   localMembers: localMembers.length,
+  retiringCurrentBackend: retireCurrent,
   deleteRows: Object.fromEntries(
     Object.entries(plan).map(([table, rows]) => [table, rows.length]),
   ),
@@ -370,5 +418,7 @@ referencedMedia(afterHtml, plan.media, deletedPhotoReferences)
 if (!after.ok || deletedPhotoReferences.size)
   throw new Error("Live team page verification failed after cleanup")
 console.log(
-  "Live team page verified; current Payload team data and local photos preserved.",
+  retireCurrent
+    ? "Live team page verified; backend team records retired and local photos preserved."
+    : "Live team page verified; current Payload team data and local photos preserved.",
 )

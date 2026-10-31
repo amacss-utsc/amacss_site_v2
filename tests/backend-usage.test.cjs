@@ -738,3 +738,53 @@ test("resume CLI finishes storage cleanup after team rows are gone and rejects a
     fs.rmSync(directory, { recursive: true, force: true })
   }
 })
+
+test("explicit retirement removes current backend records while preserving shared media", async () => {
+  const { buildTeamCleanupPlan } = await import(
+    path.resolve("scripts/lib/team-cleanup-plan.mjs")
+  )
+  const snapshot = {
+    teams: [{ id: 4, is_current: true }],
+    teams_rels: [{ id: 1, parent_id: 4, sub_teams_id: 25 }],
+    sub_teams: [{ id: 25, type_id: 2 }],
+    sub_team_types: [{ id: 2 }],
+    sub_teams_prio_team_members: [{ id: "live", _parent_id: 25, member_id: 2 }],
+    sub_teams_team_members: [],
+    team_members: [
+      { id: 2, membership_year: "2026", photo_id: 20 },
+      { id: 3, membership_year: "2026", photo_id: 30 },
+    ],
+    media: [
+      { id: 20, filename: "copied-local.jpg" },
+      { id: 30, filename: "shared-event.jpg" },
+    ],
+    payload_locked_documents: [],
+    payload_locked_documents_rels: [],
+  }
+  const current = {
+    id: "4",
+    year: "2026",
+    departments: [
+      { id: "25", priorityMembers: [{ id: "2" }], members: [{ id: "3" }] },
+    ],
+  }
+  const protectedIds = new Set([30])
+  const retained = buildTeamCleanupPlan(
+    snapshot,
+    current,
+    new Set(protectedIds),
+  )
+  assert.equal(retained.team_members.length, 0)
+  const retired = buildTeamCleanupPlan(snapshot, current, protectedIds, {
+    retireCurrent: true,
+  })
+  assert.equal(retired.teams.length, 1)
+  assert.equal(retired.sub_teams.length, 1)
+  assert.equal(retired.sub_team_types.length, 1)
+  assert.equal(retired.team_members.length, 2)
+  assert.equal(retired.sub_teams_prio_team_members.length, 1)
+  assert.deepEqual(
+    retired.media.map((row) => row.id),
+    [20],
+  )
+})

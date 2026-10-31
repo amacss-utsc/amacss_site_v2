@@ -23,20 +23,28 @@ export function referencedMedia(value, photos, protectedIds) {
   }
 }
 
-export function buildTeamCleanupPlan(snapshot, currentTeam, protectedIds) {
+export function buildTeamCleanupPlan(
+  snapshot,
+  currentTeam,
+  protectedIds,
+  { retireCurrent = false } = {},
+) {
   const retainedTeams = new Set(
     snapshot.teams
-      .filter((t) => t.is_current || String(t.id) === currentTeam.id)
+      .filter(
+        (t) =>
+          !retireCurrent && (t.is_current || String(t.id) === currentTeam.id),
+      )
       .map((t) => t.id),
   )
   const retainedSubteams = new Set(
-    currentTeam.departments.map((d) => Number(d.id)),
+    retireCurrent ? [] : currentTeam.departments.map((d) => Number(d.id)),
   )
   snapshot.teams_rels
     .filter((r) => retainedTeams.has(r.parent_id))
     .forEach((r) => retainedSubteams.add(r.sub_teams_id))
   const retainedMembers = new Set(
-    currentTeam.departments
+    (retireCurrent ? [] : currentTeam.departments)
       .flatMap((d) => [...d.priorityMembers, ...d.members])
       .map((m) => Number(m.id)),
   )
@@ -48,7 +56,7 @@ export function buildTeamCleanupPlan(snapshot, currentTeam, protectedIds) {
     .filter((r) => retainedSubteams.has(r._parent_id))
     .forEach((r) => retainedMembers.add(r.member_id))
   snapshot.team_members
-    .filter((m) => m.membership_year === currentTeam.year)
+    .filter((m) => !retireCurrent && m.membership_year === currentTeam.year)
     .forEach((m) => retainedMembers.add(m.id))
   const retainedTypes = new Set(
     snapshot.sub_teams
