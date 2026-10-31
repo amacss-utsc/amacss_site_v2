@@ -1,7 +1,8 @@
 import type { CollectionConfig } from "payload"
 import { authenticated } from "../../access/authenticated"
 import { authenticatedOrPublished } from "../../access/authenticatedOrPublished"
-import { revalidateResources } from "./hooks/revalidateResources"
+import { contentInvalidationHooks } from "@/utilities/invalidateContent"
+import { CONTENT_CACHE_TAGS } from "@/utilities/contentCacheTags"
 
 export const Resources: CollectionConfig = {
   slug: "resources",
@@ -55,7 +56,8 @@ export const Resources: CollectionConfig = {
       },
     },
   ],
-  hooks: {
-    afterChange: [revalidateResources],
-  },
+  hooks: contentInvalidationHooks(
+    [CONTENT_CACHE_TAGS.resources],
+    ["/resources"],
+  ),
 }

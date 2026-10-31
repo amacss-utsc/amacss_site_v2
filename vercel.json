@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "crons": [
+    {
+      "path": "/apiv2/events/unpin-past",
+      "schedule": "0 10 * * *"
+    }
+  ]
+}

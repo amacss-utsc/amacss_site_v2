@@ -75,7 +75,7 @@ const members = {
       "Hi, I’m Ibrahim! This is my third year being part of AMACSS. I love being involved in this community and having the opportunity to make a difference. AMACSS has given me a real sense of belonging within the CMS community and has helped me make friends and connections that I know I’ll have for life.\n\nI love working on hard problems and building solutions through coding and technology. I’m also really interested in startups and building companies. Even though I’m in CS and software, I also love working with hardware, whether that’s building drones, electric skateboards, or modelling and 3D-printing different things.\n\nI’m also a huge car enthusiast, and my dream car is a Porsche 911 GT3 RS. Apart from that, I really love cats and coffee!",
     linkedin: "https://www.linkedin.com/in/ibrahimkasim/",
     github: "https://github.com/Ibrahimkasiim1",
-    webpage: "ibrahimkasim.com",
+    webpage: "https://ibrahimkasim.com",
   },
   "aseel-magzoub-145": {
     id: "145",
@@ -314,8 +314,6 @@ const members = {
     description:
       "Hi everyone! My name's Daniel and I'm a third year Computer Science student at UTSC. I'm extremely excited to join AMACSS this year as the Director of Community. \n\nI decided to join AMACSS because CMS programs can feel academically demanding, making it easy for students to feel disconnected from the community. I wanted to take on an active role in bridging the gap between academics and community by creating welcoming and engaging spaces where students can connect, relax, and support one another.\n\nOutside of my studies, you can usually find me gaming, watching TV shows, sketching, playing basketball, or trying out new sports. A fun fact about me is that I know three different card tricks! My favourite drink (also the best drink ever made) is the Tim Hortons Peach Sparkling Quencher. If you ever see me around campus, feel free to say hi!",
     linkedin: "https://www.linkedin.com/in/daniel-joseph-932b95333/",
-    github: "https://N/A",
-    webpage: "https://N/A",
   },
   "jeel-patel-154": {
     id: "154",
@@ -357,8 +355,6 @@ const members = {
     description:
       "Hello, my name is Shaghana! I am a second-year Computer Science Specialist in software engineering. I joined AMACSS to be involved in the campus life, connect with a diverse group of people, and create a lasting impact on future CMS students. This will be my first time in AMACSS so it's a completely new chapter in my life to explore. Some of my hobbies include baking, and watching anime in my free time, my favourite being The Apothecary Diaries! A fun fact about myself is that both my hands are double jointed. I'm excited to apart of AMACSS this year!",
     linkedin: "https://www.linkedin.com/in/shaghana-thangarajah-3ab627376",
-    github: "https://N/A",
-    webpage: "https://N/A",
   },
   "tonirika-das-150": {
     id: "150",
@@ -519,8 +515,6 @@ const members = {
     description:
       "Hello! My name is Jino and I am a 2nd year studying Math and Statistics. This is my first year at AMACSS and I will be serving as the VP Academics! I'm Korean and grew up in Hong Kong and I love rock climbing, watching movies, and am trying to touch more grass. Looking forward to a fun year with AMACSS!",
     linkedin: "https://www.linkedin.com/in/jino-lee-9744272b3/",
-    github: "https://N/A",
-    webpage: "https://N/A",
   },
   "kylie-lee-160": {
     id: "160",
@@ -565,7 +559,6 @@ const members = {
       "Hi everyone! My name is Samiha Hasan, and I’m a 2nd-year student in the Statistical Sciences Specialist program with a minor in English.\n\nThis is my first year with AMACSS, and I joined to get more involved, meet fellow students in the CMS community, and help support everyone while making awesome connections along the way!\n\nWhen I’m not studying, you can usually find me reading books or catching up on movies and anime, and I’ve also picked up boxing recently for fun.\n\nFavorite Food and Drink: Biryani and a cold Mango Lassi.\n\nFun Fact: I have a massive soft spot for narrative stories in almost any format, whether it’s novels, films, or story-rich video games.",
     linkedin: "https://www.linkedin.com/in/h-samiha622",
     github: "https://github.com/Samiha622",
-    webpage: "https://N/A",
   },
   "summer-stormes-168": {
     id: "168",

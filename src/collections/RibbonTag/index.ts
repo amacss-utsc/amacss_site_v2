@@ -2,7 +2,8 @@ import type { CollectionConfig } from "payload"
 
 import { authenticated } from "../../access/authenticated"
 import { authenticatedOrPublished } from "../../access/authenticatedOrPublished"
-import { revalidateRibbonTags } from "./hooks/revalidateHookTags"
+import { contentInvalidationHooks } from "@/utilities/invalidateContent"
+import { CONTENT_CACHE_TAGS } from "@/utilities/contentCacheTags"
 
 export const RibbonTag: CollectionConfig = {
   slug: "ribbon-tag",
@@ -22,7 +23,8 @@ export const RibbonTag: CollectionConfig = {
       required: true,
     },
   ],
-  hooks: {
-    afterChange: [revalidateRibbonTags],
-  },
+  hooks: contentInvalidationHooks(
+    [CONTENT_CACHE_TAGS.events],
+    ["/", "/events", "/calendar"],
+  ),
 }

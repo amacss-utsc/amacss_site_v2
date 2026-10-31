@@ -14,10 +14,6 @@ export interface Config {
   collections: {
     media: Media;
     users: User;
-    'sub-team-types': SubTeamType;
-    'team-members': TeamMember;
-    teams: Team;
-    'sub-teams': SubTeam;
     events: Event;
     'event-tag': EventTag;
     'ribbon-tag': RibbonTag;
@@ -33,10 +29,6 @@ export interface Config {
   collectionsSelect: {
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
-    'sub-team-types': SubTeamTypesSelect<false> | SubTeamTypesSelect<true>;
-    'team-members': TeamMembersSelect<false> | TeamMembersSelect<true>;
-    teams: TeamsSelect<false> | TeamsSelect<true>;
-    'sub-teams': SubTeamsSelect<false> | SubTeamsSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
     'event-tag': EventTagSelect<false> | EventTagSelect<true>;
     'ribbon-tag': RibbonTagSelect<false> | RibbonTagSelect<true>;
@@ -138,74 +130,6 @@ export interface User {
   loginAttempts?: number | null;
   lockUntil?: string | null;
   password?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "sub-team-types".
- */
-export interface SubTeamType {
-  id: number;
-  name: string;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "team-members".
- */
-export interface TeamMember {
-  id: number;
-  name: string;
-  role: string;
-  'membership-year': string;
-  nameWithYear?: string | null;
-  photo: number | Media;
-  email?: string | null;
-  linkedin?: string | null;
-  github?: string | null;
-  webpage?: string | null;
-  description?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "teams".
- */
-export interface Team {
-  id: number;
-  name: string;
-  year: string;
-  nameWithYear?: string | null;
-  'sub-teams'?: (number | SubTeam)[] | null;
-  isCurrent: boolean;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "sub-teams".
- */
-export interface SubTeam {
-  id: number;
-  name: string;
-  type: number | SubTeamType;
-  year: string;
-  nameWithYear?: string | null;
-  'prio-team-members'?:
-    | {
-        member?: (number | null) | TeamMember;
-        id?: string | null;
-      }[]
-    | null;
-  'team-members'?:
-    | {
-        member?: (number | null) | TeamMember;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -368,22 +292,6 @@ export interface PayloadLockedDocument {
         value: number | User;
       } | null)
     | ({
-        relationTo: 'sub-team-types';
-        value: number | SubTeamType;
-      } | null)
-    | ({
-        relationTo: 'team-members';
-        value: number | TeamMember;
-      } | null)
-    | ({
-        relationTo: 'teams';
-        value: number | Team;
-      } | null)
-    | ({
-        relationTo: 'sub-teams';
-        value: number | SubTeam;
-      } | null)
-    | ({
         relationTo: 'events';
         value: number | Event;
       } | null)
@@ -496,70 +404,6 @@ export interface UsersSelect<T extends boolean = true> {
   hash?: T;
   loginAttempts?: T;
   lockUntil?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "sub-team-types_select".
- */
-export interface SubTeamTypesSelect<T extends boolean = true> {
-  name?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "team-members_select".
- */
-export interface TeamMembersSelect<T extends boolean = true> {
-  name?: T;
-  role?: T;
-  'membership-year'?: T;
-  nameWithYear?: T;
-  photo?: T;
-  email?: T;
-  linkedin?: T;
-  github?: T;
-  webpage?: T;
-  description?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "teams_select".
- */
-export interface TeamsSelect<T extends boolean = true> {
-  name?: T;
-  year?: T;
-  nameWithYear?: T;
-  'sub-teams'?: T;
-  isCurrent?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "sub-teams_select".
- */
-export interface SubTeamsSelect<T extends boolean = true> {
-  name?: T;
-  type?: T;
-  year?: T;
-  nameWithYear?: T;
-  'prio-team-members'?:
-    | T
-    | {
-        member?: T;
-        id?: T;
-      };
-  'team-members'?:
-    | T
-    | {
-        member?: T;
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

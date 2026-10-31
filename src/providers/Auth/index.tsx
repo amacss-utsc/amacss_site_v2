@@ -56,10 +56,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     if (!supabase) return
 
-    void supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user ? mapUser(data.user) : null)
-    })
-
+    // INITIAL_SESSION supplies the existing browser session; subsequent events
+    // keep this display state current without an additional getUser() request.
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ? mapUser(session.user) : null)
     })
