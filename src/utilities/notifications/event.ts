@@ -4,7 +4,6 @@ import { getPayload } from "payload"
 import { createSupabaseAdminClient } from "@/utilities/supabase/admin"
 import { escapeHtml, sendTransactionalEmail } from "./email"
 import { isUofTEmail } from "@/utilities/auth"
-import { normalizeSmsPhone, sendTransactionalSms } from "./sms"
 import type { Event } from "@/payload-types"
 
 export function eventStartAt(
@@ -61,9 +60,7 @@ type NotificationJob = {
   event_id: number
   member_id: string
   kind: "confirmation" | "reminder"
-  channel: "email" | "sms"
-  consented_at: string | null
-  consented_phone: string | null
+  channel: string
 }
 
 export async function processEventNotificationJobs(registrationId?: number) {
@@ -78,10 +75,19 @@ export async function processEventNotificationJobs(registrationId?: number) {
   let sent = 0
   for (const job of jobs) {
     try {
+      // Retire legacy channels without sending them through the email provider.
+      if (job.channel !== "email") {
+        const { error: skipError } = await admin
+          .from("event_notification_jobs")
+          .update({ skipped_at: new Date().toISOString(), claimed_until: null })
+          .eq("id", job.id)
+        if (skipError) throw skipError
+        continue
+      }
       const [profileResult, registration] = await Promise.all([
         admin
           .from("member_profiles")
-          .select("email,phone,email_verified_at")
+          .select("email,email_verified_at")
           .eq("id", job.member_id)
           .single(),
         payload.findByID({
@@ -136,49 +142,30 @@ export async function processEventNotificationJobs(registrationId?: number) {
           ? `You're registered for ${event.title} on ${date} (Toronto time). View your registration at ${siteUrl}/profile.`
           : `Reminder: ${event.title} starts on ${date} (Toronto time). See you there!`
 
-      if (job.channel === "email") {
-        if (!process.env.RESEND_API_KEY || !process.env.RESEND_FROM_EMAIL) {
-          throw new Error("Resend is not configured.")
-        }
-        const quota = await admin.rpc("reserve_member_notification_email")
-        if (quota.error) throw quota.error
-        if (!quota.data) {
-          await admin
-            .from("event_notification_jobs")
-            .update({
-              claimed_until: new Date(
-                Date.now() + 24 * 60 * 60_000,
-              ).toISOString(),
-              attempts: 0,
-            })
-            .eq("id", job.id)
-          continue
-        }
-        await sendTransactionalEmail({
-          to: profile.email,
-          subject,
-          text: message,
-          html: `<p>${escapeHtml(message)}</p>`,
-          idempotencyKey: `event-${job.id}`,
-        })
-      } else {
-        if (
-          !job.consented_at ||
-          !job.consented_phone ||
-          !profile.phone ||
-          normalizeSmsPhone(profile.phone) !== job.consented_phone
-        ) {
-          await admin
-            .from("event_notification_jobs")
-            .update({ skipped_at: new Date().toISOString() })
-            .eq("id", job.id)
-          continue
-        }
-        await sendTransactionalSms(
-          job.consented_phone,
-          `AMACSS: ${message} Reply STOP to opt out.`,
-        )
+      if (!process.env.RESEND_API_KEY || !process.env.RESEND_FROM_EMAIL) {
+        throw new Error("Resend is not configured.")
       }
+      const quota = await admin.rpc("reserve_member_notification_email")
+      if (quota.error) throw quota.error
+      if (!quota.data) {
+        await admin
+          .from("event_notification_jobs")
+          .update({
+            claimed_until: new Date(
+              Date.now() + 24 * 60 * 60_000,
+            ).toISOString(),
+            attempts: 0,
+          })
+          .eq("id", job.id)
+        continue
+      }
+      await sendTransactionalEmail({
+        to: profile.email,
+        subject,
+        text: message,
+        html: `<p>${escapeHtml(message)}</p>`,
+        idempotencyKey: `event-${job.id}`,
+      })
       const { error: updateError } = await admin
         .from("event_notification_jobs")
         .update({ sent_at: new Date().toISOString(), claimed_until: null })

@@ -11,10 +11,6 @@ import {
   eventStartAt,
   processEventNotificationJobs,
 } from "@/utilities/notifications/event"
-import {
-  normalizeSmsPhone,
-  smsIsConfigured,
-} from "@/utilities/notifications/sms"
 
 function createSupabaseStorageClient() {
   const key = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_KEY
@@ -174,28 +170,6 @@ export async function POST(req: Request) {
     }
 
     const storageClient = createSupabaseStorageClient()
-    const smsOptIn = formData.get("smsOptIn") === "yes" && smsIsConfigured()
-    let smsPhone: string | null = null
-    if (smsOptIn) {
-      const admin = createSupabaseAdminClient()
-      const { data: profile, error: profileError } = await admin
-        .from("member_profiles")
-        .select("phone")
-        .eq("id", user.id)
-        .single()
-      if (profileError) throw profileError
-      smsPhone = normalizeSmsPhone(profile.phone)
-      if (!smsPhone) {
-        return NextResponse.json(
-          {
-            error:
-              "Your account phone number cannot receive SMS. Please update it or leave SMS unchecked.",
-          },
-          { status: 400 },
-        )
-      }
-    }
-
     const answers: Array<{
       fieldId: string
       fieldType: string
@@ -203,7 +177,7 @@ export async function POST(req: Request) {
     }> = []
 
     for (const [key, value] of formData.entries()) {
-      if (key === "eventId" || key === "userId" || key === "smsOptIn") continue
+      if (key === "eventId" || key === "userId") continue
 
       if (value instanceof File) {
         const fileBuffer = await value.arrayBuffer() // Convert File to Buffer
@@ -302,33 +276,6 @@ export async function POST(req: Request) {
           channel: "email",
           due_at: new Date(startAt.getTime() - 24 * 60 * 60_000).toISOString(),
         })
-      }
-      if (smsOptIn && smsPhone) {
-        const consentedAt = now.toISOString()
-        jobs.push({
-          registration_id: registration.id,
-          event_id: eventNumber,
-          member_id: user.id,
-          kind: "confirmation",
-          channel: "sms",
-          due_at: now.toISOString(),
-          consented_at: consentedAt,
-          consented_phone: smsPhone,
-        })
-        if (startAt && startAt.getTime() > now.getTime() + 24 * 60 * 60_000) {
-          jobs.push({
-            registration_id: registration.id,
-            event_id: eventNumber,
-            member_id: user.id,
-            kind: "reminder",
-            channel: "sms",
-            due_at: new Date(
-              startAt.getTime() - 24 * 60 * 60_000,
-            ).toISOString(),
-            consented_at: consentedAt,
-            consented_phone: smsPhone,
-          })
-        }
       }
       const { error: queueError } = await admin
         .from("event_notification_jobs")
