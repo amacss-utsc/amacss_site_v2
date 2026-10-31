@@ -39,14 +39,10 @@ const payload = await getPayload({
     ...config,
     // Bootstrap a fresh database once. Re-pushing an existing schema is neither
     // needed for fixture resets nor reliable with this older Drizzle version.
-    db: {
-      ...postgresAdapter({
-        pool: { connectionString: process.env.DATABASE_URI },
-        push: !schemaExists,
-      }),
-      allowIDOnCreate: false,
-      name: "postgres",
-    },
+    db: postgresAdapter({
+      pool: { connectionString: process.env.DATABASE_URI },
+      push: !schemaExists,
+    }),
     collections: config.collections.map((collection) => ({
       ...collection,
       hooks: { ...collection.hooks, afterChange: [], afterDelete: [] },

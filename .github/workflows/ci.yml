@@ -16,16 +16,16 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "24.22.1"
+          node-version: "18.20.2 || >=20.9.0"
 
       - name: Start Postgres
         run: docker compose -f docker-compose.workflows.yml up -d
 
       - name: Install pnpm
-        run: npm install -g pnpm@10.22.0
+        run: npm install -g pnpm
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Create .env file
         run: |

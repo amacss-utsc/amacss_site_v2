@@ -15,7 +15,7 @@
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "incremental": true,
-    "jsx": "react-jsx",
+    "jsx": "preserve",
     "module": "esnext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
@@ -35,7 +35,7 @@
       ],
       "@/*": [
         "./src/*"
-      ]
+      ],
     }
   },
   "include": [
@@ -43,8 +43,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "redirects.js",
-    "next.config.js",
-    ".next/dev/types/**/*.ts"
+    "next.config.js"
   ],
   "exclude": [
     "node_modules"

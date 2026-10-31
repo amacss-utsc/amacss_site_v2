@@ -101,7 +101,7 @@ export function MarkdownViewer({ markdown, basePath }: MarkdownViewerProps) {
             )
           },
           img({ src, alt, ...props }) {
-            const resolved = resolveRelativeUrl(typeof src === "string" ? src : "", basePath, "raw")
+            const resolved = resolveRelativeUrl(src ?? "", basePath, "raw")
             // eslint-disable-next-line @next/next/no-img-element
             return <img src={resolved} alt={alt ?? ""} {...props} />
           },
