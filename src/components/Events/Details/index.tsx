@@ -170,7 +170,10 @@ const EventHosts: FC = () => (
   </section>
 )
 
-export const EventDetails: FC<{ event: Event }> = ({ event }) => {
+export const EventDetails: FC<{ event: Event; backHref?: string }> = ({
+  event,
+  backHref = "/events",
+}) => {
   const image = getEventImage(event)
 
   return (
@@ -194,7 +197,7 @@ export const EventDetails: FC<{ event: Event }> = ({ event }) => {
 
       <div className="mx-auto w-full max-w-6xl px-5 pb-20 pt-24 sm:px-8 lg:px-12 lg:pt-8">
         <Link
-          href="/events"
+          href={backHref}
           className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-gray-90 shadow-[0_4px_20px_-6px_rgba(0,0,0,0.25)] ring-1 ring-gray-90/5 transition hover:-translate-y-px hover:shadow-[0_8px_24px_-6px_rgba(0,0,0,0.3)]"
         >
           <span aria-hidden>←</span>
