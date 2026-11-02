@@ -31,11 +31,15 @@ const MAX_CHIPS_PER_DAY = 3
 const monthHref = (month: Date) =>
   `/calendar?m=${format(month, MONTH_PARAM_FORMAT)}`
 
+// Carries the month along so the event page's "Back" lands on the same view.
+const eventHref = (event: Event, month: string) =>
+  `/events/${event.id}?from=calendar&m=${month}`
+
 const tagsOf = (event: Event): EventTag[] =>
   event.eventTag.filter((t): t is EventTag => typeof t !== "number")
 
 export const CalendarPage: FC<CalendarPageProps> = ({ events, month }) => {
-  const { setFocusedEvent, setFilterOpen, tags, tagsIndices, startDate, endDate } =
+  const { setFilterOpen, tags, tagsIndices, startDate, endDate } =
     useStateContext()
 
   const monthDate = useMemo(() => parseMonthParam(month), [month])
@@ -198,9 +202,10 @@ export const CalendarPage: FC<CalendarPageProps> = ({ events, month }) => {
                   {/* Desktop: real chips that open the event straight away. */}
                   <div className="relative z-[1] mt-1 hidden flex-col gap-1 lg:flex">
                     {dayEvents.slice(0, MAX_CHIPS_PER_DAY).map((ev, i) => (
-                      <button
+                      <Link
                         key={`${ev.id}-${i}`}
-                        onClick={() => setFocusedEvent(ev)}
+                        href={eventHref(ev, month)}
+                        prefetch={false}
                         title={ev.title}
                         className={cn(
                           "w-full truncate rounded-md border-l-2 border-blue-30 px-1.5 py-1 text-left text-[11px] font-semibold transition-colors",
@@ -210,7 +215,7 @@ export const CalendarPage: FC<CalendarPageProps> = ({ events, month }) => {
                         )}
                       >
                         {ev.title}
-                      </button>
+                      </Link>
                     ))}
 
                     {dayEvents.length > MAX_CHIPS_PER_DAY && (
@@ -243,9 +248,10 @@ export const CalendarPage: FC<CalendarPageProps> = ({ events, month }) => {
 
                 return (
                   <li key={`${ev.id}-${i}`}>
-                    <button
-                      onClick={() => setFocusedEvent(ev)}
-                      className="w-full rounded-xl border border-gray-50 bg-gray-80 p-3 text-left transition-colors hover:border-blue-30 hover:bg-gray-70 lg:bg-gray-90"
+                    <Link
+                      href={eventHref(ev, month)}
+                      prefetch={false}
+                      className="block w-full rounded-xl border border-gray-50 bg-gray-80 p-3 text-left transition-colors hover:border-blue-30 hover:bg-gray-70 lg:bg-gray-90"
                     >
                       <p className="font-bold text-white">{ev.title}</p>
 
@@ -271,7 +277,7 @@ export const CalendarPage: FC<CalendarPageProps> = ({ events, month }) => {
                           ))}
                         </div>
                       )}
-                    </button>
+                    </Link>
                   </li>
                 )
               })}
