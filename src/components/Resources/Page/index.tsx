@@ -89,11 +89,11 @@ export const ResourcesPage: React.FC<ResourcesPageProps> = ({ resources: initial
               </div>
               
               <h3 className="text-2xl font-semibold mb-4 normal-case 
-                            group-hover:text-blue-30 transition-colors">
+                            group-hover:text-blue-30 transition-colors break-all">
                 {resource.title}
               </h3>
               <p className="text-gray-20 text-lg mb-6 normal-case 
-                          group-hover:text-gray-10 transition-colors">
+                          group-hover:text-gray-10 transition-colors break-all">
                 {resource.description}
               </p>
             </div>
