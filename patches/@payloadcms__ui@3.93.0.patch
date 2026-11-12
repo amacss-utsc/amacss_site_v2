@@ -1,0 +1,41 @@
+diff --git a/dist/elements/CodeEditor/CodeEditor.js b/dist/elements/CodeEditor/CodeEditor.js
+index 0747519d1fc841c21543ae8e683a65559dd61fa9..8940a2f62727f06dad30f323825b246c312a4020 100644
+--- a/dist/elements/CodeEditor/CodeEditor.js
++++ b/dist/elements/CodeEditor/CodeEditor.js
+@@ -2,7 +2,7 @@
+ 
+ import { c as _c } from "react/compiler-runtime";
+ import { jsx as _jsx } from "react/jsx-runtime";
+-import EditorImport from '@monaco-editor/react';
++import EditorImport, { loader } from '@monaco-editor/react';
+ import React, { useState } from 'react';
+ import { useTheme } from '../../providers/Theme/index.js';
+ import { ShimmerEffect } from '../ShimmerEffect/index.js';
+@@ -22,6 +22,19 @@ const CodeEditor = props => {
+     value,
+     ...rest
+   } = props;
++  const [editorReady, setEditorReady] = useState(false);
++  React.useEffect(() => {
++    let active = true;
++    import('monaco-editor/esm/vs/editor/editor.api.js').then(monaco => {
++      globalThis.MonacoEnvironment = {
++        ...globalThis.MonacoEnvironment,
++        getWorker: () => new Worker(new URL('monaco-editor/esm/vs/editor/editor.worker.js', import.meta.url), { type: 'module' })
++      };
++      loader.config({ monaco });
++      if (active) setEditorReady(true);
++    });
++    return () => { active = false; };
++  }, []);
+   const MIN_HEIGHT = minHeight ?? 56;
+   const prevCalculatedHeightAt = React.useRef(recalculatedHeightAt);
+   const {
+@@ -69,6 +82,7 @@ const CodeEditor = props => {
+     t4 = $[9];
+   }
+   React.useEffect(t3, t4);
++  if (!editorReady) return _jsx(ShimmerEffect, { height: minHeight ?? 56 });
+   return _jsx(Editor, {
+     className: classes,
+     height: maxHeight ? Math.min(dynamicHeight, maxHeight) : dynamicHeight,

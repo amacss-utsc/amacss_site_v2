@@ -1,4 +1,5 @@
 "use client"
+import { safeRedirect } from "@/utilities/auth"
 
 import Logo from "@/components/svg/Logo"
 import Close from "@/components/svg/Close"
@@ -27,10 +28,6 @@ type FormData = {
   yearOfStudy: number
   password: string
   passwordConfirm: string
-}
-
-function safeRedirect(value: string | null) {
-  return value?.startsWith("/") && !value.startsWith("//") ? value : "/"
 }
 
 export default function RegisterForm() {

@@ -38,3 +38,12 @@ export function isValidPhoneNumber(phone: string) {
 export function isValidStudyYear(year: number) {
   return Number.isInteger(year) && year >= 1 && year <= 5
 }
+
+export function safeRedirect(value: string | null) {
+  return value?.startsWith("/") &&
+    !value.startsWith("//") &&
+    !value.includes("\\") &&
+    !/[\u0000-\u0020]/.test(value)
+    ? value
+    : "/"
+}
