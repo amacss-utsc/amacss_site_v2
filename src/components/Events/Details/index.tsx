@@ -5,6 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import type { FC } from "react"
 import { getEventImage, getEventTags } from "./utils"
+import { EventRegisterButton } from "./RegisterButton"
 
 export { EventRegisterButton } from "./RegisterButton"
 export * from "./utils"
@@ -235,6 +236,7 @@ export const EventDetails: FC<{ event: Event; backHref?: string }> = ({
                   {event.previewText}
                 </p>
               )}
+              <EventRegisterButton event={event} className="mt-2 text-xl sm:text-2xl" />
             </header>
 
             <EventHosts />
