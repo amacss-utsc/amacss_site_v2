@@ -13,6 +13,11 @@ jobs:
     env:
       DATABASE_URI: postgres://amacss:amacss@localhost:5432/amacss
       PAYLOAD_SECRET: ci-only-test-secret-never-use-in-production
+      S3_BUCKET: ci-only
+      S3_REGION: us-east-1
+      S3_ACCESS_KEY_ID: ci-only
+      S3_SECRET_ACCESS_KEY: ci-only
+      S3_ENDPOINT: http://127.0.0.1:9000
     services:
       postgres:
         image: postgres:18

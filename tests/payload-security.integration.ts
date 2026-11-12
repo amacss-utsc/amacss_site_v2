@@ -18,6 +18,9 @@ let adminId: number | undefined
 let memberId: number | undefined
 const password = "SecuritySmokeTest-LocalOnly-42!"
 try {
+  // Exercise storage-plugin fields even with an empty media table. Disabling S3
+  // in CI would hide missing columns used by populated public event reads.
+  await payload.find({ collection: "media", overrideAccess: false, limit: 1 })
   const admin = await payload.create({
     collection: "users",
     data: { email: `admin-${suffix}@example.invalid`, password },
