@@ -59,6 +59,7 @@ export type Team = {
 // },
 // Keep existing department names/roles when editing: filters use their text,
 // including the special "Senior Vice-President" department and SVP roles.
+// List SVPs only in that department, never in the subteams they lead.
 
 const members = {
   "ibrahim-kasim-172": {
@@ -615,10 +616,7 @@ export const team: Team = {
     {
       id: "25",
       name: "Engagement",
-      priorityMembers: [
-        members["victoria-djedjeian-159"],
-        members["abdullah-khalid-138"],
-      ],
+      priorityMembers: [members["abdullah-khalid-138"]],
       members: [members["aisha-shaikh-162"]],
     },
     {
@@ -651,7 +649,7 @@ export const team: Team = {
     {
       id: "29",
       name: "Operations",
-      priorityMembers: [members["ivan-semenov-146"]],
+      priorityMembers: [],
       members: [],
     },
     {
@@ -682,10 +680,7 @@ export const team: Team = {
     {
       id: "32",
       name: "Marketing",
-      priorityMembers: [
-        members["victoria-djedjeian-159"],
-        members["rachel-tam-171"],
-      ],
+      priorityMembers: [members["rachel-tam-171"]],
       members: [],
     },
     {
@@ -697,16 +692,13 @@ export const team: Team = {
     {
       id: "34",
       name: "Outreach",
-      priorityMembers: [
-        members["victoria-djedjeian-159"],
-        members["andrew-li-173"],
-      ],
+      priorityMembers: [members["andrew-li-173"]],
       members: [],
     },
     {
       id: "35",
       name: "Academics",
-      priorityMembers: [members["aseel-magzoub-145"], members["jino-lee-144"]],
+      priorityMembers: [members["jino-lee-144"]],
       members: [
         members["kylie-lee-160"],
         members["param-khurana-170"],
