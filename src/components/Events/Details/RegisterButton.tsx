@@ -2,6 +2,7 @@
 
 import type { Event } from "@/payload-types"
 import { EVENT_REGISTRATION_OPEN } from "@/utilities/auth"
+import { isRegistrationOpen } from "@/utilities/eventRegistration"
 import { cn } from "@/utilities/cn"
 import Link from "next/link"
 import type { FC, MouseEvent } from "react"
@@ -63,22 +64,19 @@ export const EventRegisterButton: FC<Props> = ({
     className,
   )
 
-  if (event.regStyle === "external") {
+  if (!isRegistrationOpen(event)) {
     return (
-      <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={buttonClassName}
-        onClick={handleClick}
+      <button
+        disabled
+        className={cn(buttonClassName, "cursor-not-allowed bg-gray-60 text-gray-20 hover:bg-gray-60")}
       >
-        Register Now
-      </a>
+        Registration Closed
+      </button>
     )
   }
 
   return (
-    <Link href={href} className={buttonClassName} onClick={handleClick}>
+    <Link href={`/register/event/${event.id}`} className={buttonClassName} onClick={handleClick}>
       Register Now
     </Link>
   )
