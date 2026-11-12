@@ -43,6 +43,13 @@ jobs:
       - run: pnpm test:security
       # deepmerge's one low advisory is locally patched and covered above.
       - run: pnpm audit --audit-level moderate
+      # Reproduce Supabase's initial API grants so migration tests verify revokes.
+      - name: Seed disposable Supabase API roles
+        run: >-
+          docker exec ${{ job.services.postgres.id }} psql -U amacss -d amacss
+          -v ON_ERROR_STOP=1 -c
+          "CREATE ROLE anon NOLOGIN; CREATE ROLE authenticated NOLOGIN;
+          ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO anon, authenticated;"
       - run: pnpm migrate
       - run: pnpm test:security:integration
       - run: pnpm prod-build

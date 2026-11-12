@@ -139,6 +139,23 @@ try {
       true,
       `${name} must use RLS`,
     )
+  const grants = await payload.db.drizzle.execute(sql`
+    SELECT c.relname, r.rolname,
+      has_table_privilege(r.oid, c.oid, 'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER') AS api_access
+    FROM pg_class c CROSS JOIN pg_roles r
+    WHERE c.relnamespace = 'public'::regnamespace AND c.relkind = 'r'
+      AND r.rolname IN ('anon', 'authenticated')
+  `)
+  for (const name of privateTables) {
+    for (const role of ["anon", "authenticated"]) {
+      assert.equal(
+        grants.rows.find((r) => r.relname === name && r.rolname === role)
+          ?.api_access,
+        false,
+        `${role} must have no direct access to ${name}; create local test roles before migrating`,
+      )
+    }
+  }
   // Real pre-upgrade password format: login must preserve access and strengthen it.
   const salt = randomUUID()
   const legacyHash = pbkdf2Sync(password, salt, 25000, 512, "sha256").toString(
@@ -152,6 +169,11 @@ try {
     data: { email: admin.email, password },
   })
   assert.ok(login.token)
+  const authenticated = await payload.auth({
+    headers: new Headers({ authorization: `JWT ${login.token}` }),
+  })
+  assert.equal(authenticated.user?.id, admin.id)
+  assert.equal(authenticated.user?.collection, "users")
   const upgraded = await payload.db.drizzle.execute(
     sql`SELECT hash FROM users WHERE id = ${admin.id}`,
   )
