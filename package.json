@@ -68,6 +68,7 @@
     "payload": "3.2.2",
     "payload-admin-bar": "^1.0.6",
     "prism-react-renderer": "^2.3.1",
+    "qrcode.react": "4.2.0",
     "react": "19.0.0-rc-65a56d0e-20241020",
     "react-day-picker": "8.10.1",
     "react-dom": "19.0.0-rc-65a56d0e-20241020",

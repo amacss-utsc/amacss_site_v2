@@ -138,6 +138,9 @@ export interface User {
 export interface Event {
   id: number;
   points: number;
+  checkInOpensAt?: string | null;
+  checkInClosesAt?: string | null;
+  attendanceCode?: string | null;
   title: string;
   date: string;
   endDate?: string | null;
@@ -411,6 +414,9 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface EventsSelect<T extends boolean = true> {
   points?: T;
+  checkInOpensAt?: T;
+  checkInClosesAt?: T;
+  attendanceCode?: T;
   title?: T;
   date?: T;
   endDate?: T;
