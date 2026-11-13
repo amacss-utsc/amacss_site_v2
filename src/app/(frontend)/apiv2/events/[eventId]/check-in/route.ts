@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { revalidateTag } from "next/cache"
 import { createSupabaseServerClient } from "@/utilities/supabase/server"
 import { createSupabaseAdminClient } from "@/utilities/supabase/admin"
+import { isAttendanceCode } from "@/utilities/eventCheckInLink"
 
 export const dynamic = "force-dynamic"
 
@@ -76,8 +77,7 @@ export async function POST(
       Array.isArray(body) ||
       Object.keys(body).length !== 1 ||
       !("attendanceCode" in body) ||
-      typeof body.attendanceCode !== "string" ||
-      !/^[A-Za-z0-9_-]{32}$/.test(body.attendanceCode)
+      !isAttendanceCode(body.attendanceCode)
     ) {
       return respond({ error: "Invalid check-in code." }, 400)
     }
@@ -129,7 +129,10 @@ export async function POST(
       throw new Error("Unknown attendance claim status.")
     }
     const failure = failures[result.status]
-    return respond({ error: failure.error }, failure.status)
+    return respond(
+      { status: result.status, error: failure.error },
+      failure.status,
+    )
   } catch (error) {
     console.error("Event check-in failed:", error)
     return respond({ error: "Could not check in. Please try again." }, 500)

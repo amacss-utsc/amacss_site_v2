@@ -3,9 +3,11 @@ import { createSupabaseAdminClient } from "@/utilities/supabase/admin"
 import { createSupabaseServerClient } from "@/utilities/supabase/server"
 import type { Metadata } from "next"
 import { unstable_cache } from "next/cache"
+import { parseCheckInQuery } from "@/utilities/eventCheckInLink"
 
 export const metadata: Metadata = {
   title: "Events Leaderboard",
+  referrer: "no-referrer",
 }
 
 type MemberProfile = {
@@ -37,24 +39,37 @@ const getLeaderboard = unstable_cache(
   },
 )
 
-export default async function Page() {
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ checkin?: string | string[]; t?: string | string[] }>
+}) {
+  const { requested: requestedCheckIn, link: checkIn } = parseCheckInQuery(
+    await searchParams,
+  )
   let attendees: MemberProfile[] = []
   let currentMember: (MemberProfile & { rank: number }) | null = null
+  let memberId: string | null = null
+
+  try {
+    const auth = await createSupabaseServerClient()
+    const {
+      data: { user },
+    } = await auth.auth.getUser()
+    memberId = user?.id ?? null
+  } catch (error) {
+    console.error("Leaderboard session unavailable:", error)
+  }
 
   try {
     const admin = createSupabaseAdminClient()
     attendees = await getLeaderboard()
 
-    const auth = await createSupabaseServerClient()
-    const {
-      data: { user },
-    } = await auth.auth.getUser()
-
-    if (user) {
+    if (memberId) {
       const { data: profile, error: profileError } = await admin
         .from("member_profiles")
         .select("id, full_name, points")
-        .eq("id", user.id)
+        .eq("id", memberId)
         .maybeSingle()
 
       if (profileError) throw profileError
@@ -79,6 +94,9 @@ export default async function Page() {
 
   return (
     <LeaderboardPage
+      checkIn={checkIn}
+      invalidCheckInLink={requestedCheckIn && !checkIn}
+      memberId={memberId}
       attendees={attendees.map((profile) => ({
         id: profile.id,
         name: memberName(profile),

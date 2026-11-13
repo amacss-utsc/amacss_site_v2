@@ -70,6 +70,9 @@ export const Events: CollectionConfig = {
         readOnly: true,
         description:
           "Generated after saving both check-in times. Keep this code private.",
+        components: {
+          afterInput: ["@/components/admin/EventCheckInQR"],
+        },
       },
     },
     {

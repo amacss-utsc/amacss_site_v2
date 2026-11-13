@@ -7,16 +7,13 @@ import { isUofTEmail, UOFT_EMAIL_ERROR } from "@/utilities/auth"
 import { cn } from "@/utilities/cn"
 import { colors } from "@/utilities/colors"
 import { InputStyle } from "@/utilities/tailwindShared"
+import { safeLocalPath } from "@/utilities/safeLocalPath"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import React, { useCallback, useState } from "react"
 import { useForm } from "react-hook-form"
 
 type FormData = { email: string; password: string }
-
-function safeRedirect(value: string | null) {
-  return value?.startsWith("/") && !value.startsWith("//") ? value : "/"
-}
 
 export default function LoginForm() {
   const searchParams = useSearchParams()
@@ -40,7 +37,7 @@ export default function LoginForm() {
       setError(null)
       try {
         await login(data)
-        router.replace(safeRedirect(redirectParam))
+        router.replace(safeLocalPath(redirectParam))
         router.refresh()
       } catch (cause) {
         const message = cause instanceof Error ? cause.message : ""
@@ -81,8 +78,8 @@ export default function LoginForm() {
             Log in with your University of Toronto email.
           </p>
           <p className="mt-5 rounded-2xl border border-blue-30/40 bg-blue-30/10 px-4 py-3 text-sm font-semibold leading-6 text-gray-02">
-            If you signed up on September 11 between 3:30 and 5:30 PM,
-            please create your account again.
+            If you signed up on September 11 between 3:30 and 5:30 PM, please
+            create your account again.
           </p>
         </div>
 

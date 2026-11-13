@@ -15,6 +15,7 @@ import {
 import { cn } from "@/utilities/cn"
 import { colors } from "@/utilities/colors"
 import { InputStyle } from "@/utilities/tailwindShared"
+import { safeLocalPath } from "@/utilities/safeLocalPath"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import React, { useCallback, useState } from "react"
@@ -27,10 +28,6 @@ type FormData = {
   yearOfStudy: number
   password: string
   passwordConfirm: string
-}
-
-function safeRedirect(value: string | null) {
-  return value?.startsWith("/") && !value.startsWith("//") ? value : "/"
 }
 
 export default function RegisterForm() {
@@ -54,8 +51,10 @@ export default function RegisterForm() {
       setError(null)
       try {
         await create(data)
-        const next = safeRedirect(redirectParam)
-        router.replace(`/profile${next === "/" ? "" : `?next=${encodeURIComponent(next)}`}`)
+        const next = safeLocalPath(redirectParam)
+        router.replace(
+          `/profile${next === "/" ? "" : `?next=${encodeURIComponent(next)}`}`,
+        )
         router.refresh()
       } catch (cause) {
         const message = cause instanceof Error ? cause.message : ""
@@ -147,7 +146,10 @@ export default function RegisterForm() {
 
           <fieldset className="mb-5">
             <label htmlFor="signup-name">
-              Full Name<span aria-hidden="true" className="ml-1 text-red-400">*</span>
+              Full Name
+              <span aria-hidden="true" className="ml-1 text-red-400">
+                *
+              </span>
             </label>
             <input
               id="signup-name"
@@ -169,7 +171,10 @@ export default function RegisterForm() {
 
           <fieldset className="mb-5">
             <label htmlFor="signup-email">
-              UofT Email<span aria-hidden="true" className="ml-1 text-red-400">*</span>
+              UofT Email
+              <span aria-hidden="true" className="ml-1 text-red-400">
+                *
+              </span>
             </label>
             <input
               id="signup-email"
@@ -195,7 +200,10 @@ export default function RegisterForm() {
 
           <fieldset className="mb-5">
             <label htmlFor="signup-phone">
-              Phone Number<span aria-hidden="true" className="ml-1 text-red-400">*</span>
+              Phone Number
+              <span aria-hidden="true" className="ml-1 text-red-400">
+                *
+              </span>
             </label>
             <input
               id="signup-phone"
@@ -223,7 +231,10 @@ export default function RegisterForm() {
 
           <fieldset className="mb-5">
             <label htmlFor="signup-year">
-              What year are you in?<span aria-hidden="true" className="ml-1 text-red-400">*</span>
+              What year are you in?
+              <span aria-hidden="true" className="ml-1 text-red-400">
+                *
+              </span>
             </label>
             <select
               id="signup-year"
@@ -256,7 +267,10 @@ export default function RegisterForm() {
           <div className="lg:grid lg:grid-cols-2 lg:gap-x-6">
             <fieldset className="mb-5">
               <label htmlFor="signup-password">
-                Password<span aria-hidden="true" className="ml-1 text-red-400">*</span>
+                Password
+                <span aria-hidden="true" className="ml-1 text-red-400">
+                  *
+                </span>
               </label>
               <input
                 id="signup-password"
@@ -278,7 +292,10 @@ export default function RegisterForm() {
 
             <fieldset className="mb-8">
               <label htmlFor="signup-password-confirm">
-                Confirm Password<span aria-hidden="true" className="ml-1 text-red-400">*</span>
+                Confirm Password
+                <span aria-hidden="true" className="ml-1 text-red-400">
+                  *
+                </span>
               </label>
               <input
                 id="signup-password-confirm"

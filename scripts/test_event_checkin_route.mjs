@@ -66,6 +66,10 @@ const mocks = {
       },
     }),
   },
+  "@/utilities/eventCheckInLink": {
+    isAttendanceCode: (value) =>
+      typeof value === "string" && /^[A-Za-z0-9_-]{32}$/.test(value),
+  },
 }
 vm.runInNewContext(compiled, {
   module: compiledModule,
