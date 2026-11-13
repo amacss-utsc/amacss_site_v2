@@ -50,13 +50,13 @@ export function HeadlessSearch({
 
   const debouncedQ = useDebouncedValue(q, debounceMs)
 
-  const filtered = useMemo(() => {
-    const next = filterItems(dataSource.list, debouncedQ, filters)
-    if (page > 1 && (page - 1) * pageSize >= next.length) {
-      setPage(1)
-    }
-    return next
-  }, [dataSource.list, debouncedQ, filters, page, pageSize])
+  const filtered = useMemo(
+    () => filterItems(dataSource.list, debouncedQ, filters),
+    [dataSource.list, debouncedQ, filters],
+  )
+  useEffect(() => {
+    if (page > 1 && (page - 1) * pageSize >= filtered.length) setPage(1)
+  }, [filtered.length, page, pageSize])
 
   // Clear active selection when page or (debounced) query changes
   useEffect(() => {

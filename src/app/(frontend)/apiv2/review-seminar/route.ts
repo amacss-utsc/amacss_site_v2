@@ -3,6 +3,12 @@ import { getPayload } from "payload"
 import config from "@payload-config"
 import { GitHubClient } from "@/utilities/github"
 
+import {
+  readUploadForm,
+  safeUploadName,
+  validSeminarPath,
+} from "@/utilities/uploadValidation"
+
 type ParsedForm = {
   department: string
   courseCode: string
@@ -57,14 +63,31 @@ async function parseAndValidate(
     }
   }
 
-  const formData = await req.formData()
+  let formData: FormData
+  try {
+    formData = await readUploadForm(req)
+  } catch {
+    return {
+      success: false,
+      error: NextResponse.json(
+        { error: "Invalid upload; maximum request size is 4 MB." },
+        { status: 400 },
+      ),
+    }
+  }
 
   const department = formData.get("department")?.toString().toLowerCase()
   const courseCode = formData.get("courseCode")?.toString().toLowerCase()
   const year = formData.get("year")?.toString()
   const semester = formData.get("semester")?.toString().toLowerCase()
 
-  if (!department || !courseCode || !year || !semester) {
+  if (
+    !department ||
+    !courseCode ||
+    !year ||
+    !semester ||
+    !validSeminarPath(department, courseCode, year, semester)
+  ) {
     return {
       success: false,
       error: NextResponse.json(
@@ -84,11 +107,24 @@ async function parseAndValidate(
     }
   }
 
-  if (files.length === 0) {
+  if (
+    files.length === 0 ||
+    files.length > 10 ||
+    new Set(files.map((f) => f.name)).size !== files.length ||
+    files.some(
+      (f) =>
+        !f.size ||
+        !safeUploadName(f.name) ||
+        !/\.(pdf|md|txt|png|jpe?g|webp)$/i.test(f.name),
+    )
+  ) {
     return {
       success: false,
       error: NextResponse.json(
-        { error: "At least one file is required" },
+        {
+          error:
+            "Upload 1–10 PDF, Markdown, text, or image files with unique safe filenames",
+        },
         { status: 400 },
       ),
     }
@@ -101,8 +137,8 @@ async function parseAndValidate(
 }
 
 export async function POST(req: Request) {
-  // const authResult = await requireAuthenticatedUsersCollection(req)
-  // if (!authResult.success) return authResult.error
+  const authResult = await requireAuthenticatedUsersCollection(req)
+  if (!authResult.success) return authResult.error
 
   // 2. Parse & validate
   const parsed = await parseAndValidate(req)
@@ -131,9 +167,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true, prUrl }, { status: 201 })
   } catch (error: any) {
     console.error("Review seminar upload error:", error)
-    return NextResponse.json(
-      { error: "Failed to create PR", detail: error?.message ?? String(error) },
-      { status: 500 },
-    )
+    return NextResponse.json({ error: "Failed to create PR" }, { status: 500 })
   }
 }

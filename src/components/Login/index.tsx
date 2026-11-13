@@ -1,4 +1,5 @@
 "use client"
+import { safeRedirect } from "@/utilities/auth"
 
 import Logo from "@/components/svg/Logo"
 import Close from "@/components/svg/Close"
@@ -13,10 +14,6 @@ import React, { useCallback, useState } from "react"
 import { useForm } from "react-hook-form"
 
 type FormData = { email: string; password: string }
-
-function safeRedirect(value: string | null) {
-  return value?.startsWith("/") && !value.startsWith("//") ? value : "/"
-}
 
 export default function LoginForm() {
   const searchParams = useSearchParams()

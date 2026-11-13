@@ -1,6 +1,6 @@
 import { authenticatedAdmin } from "@/access/authenticatedAdmin"
 import type { CollectionConfig } from "payload"
-import { generate, charset, Charset } from "referral-codes"
+import { generate } from "referral-codes"
 
 function generateReferralCode() {
   const codes = generate({
@@ -14,8 +14,8 @@ function generateReferralCode() {
 export const Registrations: CollectionConfig = {
   slug: "registrations",
   access: {
-    create: ({ req: { user } }) => Boolean(user),
-    read: ({ req: { user } }) => Boolean(user),
+    create: authenticatedAdmin,
+    read: authenticatedAdmin,
     update: authenticatedAdmin,
     delete: authenticatedAdmin,
   },
