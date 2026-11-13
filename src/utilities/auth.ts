@@ -39,11 +39,19 @@ export function isValidStudyYear(year: number) {
   return Number.isInteger(year) && year >= 1 && year <= 5
 }
 
-export function safeRedirect(value: string | null) {
-  return value?.startsWith("/") &&
-    !value.startsWith("//") &&
-    !value.includes("\\") &&
-    !/[\u0000-\u0020]/.test(value)
-    ? value
-    : "/"
+// Reserved, never-real origin used only to check where a path resolves.
+const REDIRECT_BASE = "https://redirect-check.invalid"
+
+export function safeRedirect(value: string | null): string {
+  // Real paths always start with a single "/".
+  if (!value || !value.startsWith("/") || value.startsWith("//")) return "/"
+  try {
+    const url = new URL(value, REDIRECT_BASE)
+    // Any parser quirk that changes the host (backslash, tab/newline, etc.)
+    // changes the origin, so it fails this check.
+    if (url.origin !== REDIRECT_BASE) return "/"
+    return url.pathname + url.search + url.hash
+  } catch {
+    return "/"
+  }
 }
