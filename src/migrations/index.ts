@@ -15,6 +15,7 @@ import * as migration_20260919_000000_registration_deadline from "./20260919_000
 import * as migration_20260919_000001_registration_email from "./20260919_000001_registration_email"
 import * as migration_20260919_151638_add_is_current_to_teams from "./20260919_151638_add_is_current_to_teams"
 import * as migration_20260920_000000_event_points from "./20260920_000000_event_points"
+import * as migration_20261112_000000_event_checkin_config from "./20261112_000000_event_checkin_config"
 
 export const migrations = [
   {
@@ -101,5 +102,10 @@ export const migrations = [
     up: migration_20260920_000000_event_points.up,
     down: migration_20260920_000000_event_points.down,
     name: "20260920_000000_event_points",
+  },
+  {
+    up: migration_20261112_000000_event_checkin_config.up,
+    down: migration_20261112_000000_event_checkin_config.down,
+    name: "20261112_000000_event_checkin_config",
   },
 ]

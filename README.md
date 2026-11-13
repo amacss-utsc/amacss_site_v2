@@ -32,8 +32,11 @@ For a production build locally, run `pnpm local-build` followed by `pnpm start`.
 
 - Configure production environment variables from `.env.example`. Keep server
   secrets out of `NEXT_PUBLIC_*` variables.
-- Apply pending Payload migrations with `pnpm migrate`. Builds do not run them.
-  Supabase SQL migrations in `supabase/migrations/` are applied separately.
+- Check pending Payload migrations with `pnpm payload migrate:status`, then apply
+  them with `pnpm migrate`. This runs every pending migration, and builds do not
+  run them. Supabase SQL migrations in `supabase/migrations/` are applied
+  separately. Do not run migrations against a database already changed by
+  Payload's development schema push without reconciling its migration history.
 - Set `CRON_SECRET` before deployment. `vercel.json` schedules authenticated
   requests to `/apiv2/events/unpin-past` daily at 10:00 UTC. Vercel cron runs on
   production deployments.
@@ -53,6 +56,11 @@ For a production build locally, run `pnpm local-build` followed by `pnpm start`.
   They manage member profiles, access policies, points, and verification features.
   Run Payload's migrations separately with `pnpm migrate`; neither migration
   workflow executes the other.
+- Event check-in configuration is part of the Payload migration
+  `20261112_000000_event_checkin_config` and runs against `DATABASE_URI`.
+  It enables row level security on `public.events` before adding the private
+  attendance code. The later attendance claim must run where both the event
+  configuration and member balances are available in one database.
 - Existing Payload accounts are not automatically migrated into Supabase Auth.
   Member emails must use `utoronto.ca` or one of its subdomains.
 
