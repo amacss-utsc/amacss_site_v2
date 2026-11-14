@@ -31,8 +31,8 @@ export const Media: CollectionConfig = {
     ],
     adminThumbnail: "eventCovers",
   },
-  hooks: contentInvalidationHooks(
-    [CONTENT_CACHE_TAGS.events],
-    ["/", "/events", "/calendar"],
-  ),
+  //   hooks: contentInvalidationHooks(
+  //     [CONTENT_CACHE_TAGS.events],
+  //     ["/", "/events", "/calendar"],
+  //   ),
 }
