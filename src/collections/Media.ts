@@ -20,17 +20,17 @@ export const Media: CollectionConfig = {
       //required: true,
     },
   ],
-  upload: true,
-  //   {
-  //     imageSizes: [
-  //       {
-  //         name: "eventCover",
-  //         width: 400,
-  //         height: 300,
-  //         position: "centre",
-  //       },
-  //     ],
-  //   },
+  upload: {
+    imageSizes: [
+      {
+        name: "eventCovers",
+        width: 400,
+        height: 300,
+        position: "centre",
+      },
+    ],
+    adminThumbnail: "eventCovers",
+  },
   hooks: contentInvalidationHooks(
     [CONTENT_CACHE_TAGS.events],
     ["/", "/events", "/calendar"],
