@@ -43,9 +43,9 @@ const mocks = {
     },
   },
   "next/cache": {
-    revalidateTag: (tag) => {
+    revalidateTag: (tag, options) => {
       if (state.cacheFailure) throw new Error("simulated cache failure")
-      state.invalidations.push(tag)
+      state.invalidations.push({ tag, options })
     },
   },
   "@/utilities/supabase/server": {
@@ -157,7 +157,9 @@ assert.deepEqual(plain(state.rpcCalls), [
     },
   },
 ])
-assert.deepEqual(state.invalidations, ["leaderboard"])
+assert.equal(state.invalidations[0]?.tag, "leaderboard")
+assert.equal(state.invalidations[0]?.options?.expire, 0)
+assert.equal(state.invalidations.length, 1)
 
 reset()
 state.rpcResult = { data: { status: "already_claimed" }, error: null }

@@ -1,11 +1,12 @@
 import { CollectionConfig } from "payload"
+import { authenticatedAdmin } from "@/access/authenticatedAdmin"
 
 export const ClubMember: CollectionConfig = {
   slug: "club-member",
   auth: {
     tokenExpiration: 28800, // 8 hours
     cookies: {
-      sameSite: "None",
+      sameSite: "Lax",
       secure: true,
       domain: process.env.COOKIE_DOMAIN,
     },
@@ -27,10 +28,10 @@ export const ClubMember: CollectionConfig = {
     useAsTitle: "email",
   },
   access: {
-    read: () => true,
-    create: () => true,
-    update: () => true,
-    delete: () => true,
+    read: authenticatedAdmin,
+    create: authenticatedAdmin,
+    update: authenticatedAdmin,
+    delete: authenticatedAdmin,
     admin: () => false,
   },
   fields: [

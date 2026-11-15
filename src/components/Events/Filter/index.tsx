@@ -23,11 +23,11 @@ export const FilterModal = () => {
     setEndDate,
   } = useStateContext()
 
-  const ref = useRef<HTMLDivElement>(null)
   const menu = useRef<HTMLDivElement>(null)
 
   useGSAP(
     () => {
+      if (!menu.current) return
       gsap.fromTo(
         menu.current,
         {
@@ -40,10 +40,10 @@ export const FilterModal = () => {
         },
       )
     },
-    { dependencies: [filterOpen], scope: ref },
+    { dependencies: [filterOpen], revertOnUpdate: true },
   )
 
-  const { contextSafe } = useGSAP({ scope: ref })
+  const { contextSafe } = useGSAP()
 
   const onHide = contextSafe(() => {
     gsap.to(menu.current, { y: '100%', ease: 'power3.out', duration: 0.3 })

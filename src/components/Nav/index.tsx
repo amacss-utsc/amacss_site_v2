@@ -102,11 +102,11 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ closeMenu }) => {
 
 const Nav: React.FC = () => {
   const { menuOpen, setMenuOpen } = useStateContext()
-  const navRef = useRef<HTMLDivElement>(null)
   const menu = useRef<HTMLDivElement>(null)
 
   useGSAP(
     () => {
+      if (!menu.current) return
       if (menuOpen) {
         gsap.fromTo(
           menu.current,
@@ -117,10 +117,10 @@ const Nav: React.FC = () => {
         gsap.to(menu.current, { x: "100%", ease: "power3.out", duration: 0.3 })
       }
     },
-    { dependencies: [menuOpen], scope: navRef },
+    { dependencies: [menuOpen], revertOnUpdate: true },
   )
 
-  const { contextSafe } = useGSAP({ scope: navRef })
+  const { contextSafe } = useGSAP()
 
   const onHide = contextSafe(() => {
     gsap.to(menu.current, { x: "100%", ease: "power3.out", duration: 0.3 })
@@ -139,7 +139,6 @@ const Nav: React.FC = () => {
 
   return (
     <div
-      ref={navRef}
       className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-6 pt-6 lg:hidden bg-gray-90"
     >
       {menuOpen && (

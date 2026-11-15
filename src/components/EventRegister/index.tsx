@@ -113,7 +113,7 @@ const EventRegister: FC<PageProps> = ({ event }) => {
             )
             const data = await res.json()
   
-            if (!data.docs || data.docs.length === 0) {
+            if (!res.ok || !data.valid) {
               setFormErrors((prev) => ({
                 ...prev,
                 [field.fieldid]: "Invalid referral code",

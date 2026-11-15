@@ -1,7 +1,9 @@
+import sharp from "sharp"
+import { randomUUID } from "node:crypto"
+import { readUploadForm } from "@/utilities/uploadValidation"
 import { NextResponse } from "next/server"
-import { createClient } from "@supabase/supabase-js"
 import config from "@payload-config"
-import { getPayload } from "payload"
+import { getPayload, type Payload } from "payload"
 import { createSupabaseServerClient } from "@/utilities/supabase/server"
 import { EVENT_REGISTRATION_OPEN } from "@/utilities/auth"
 import { isRegistrationOpen } from "@/utilities/eventRegistration"
@@ -12,56 +14,51 @@ import {
   processEventNotificationJobs,
 } from "@/utilities/notifications/event"
 
-function createSupabaseStorageClient() {
-  const key = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_KEY
-  if (!process.env.SUPABASE_URL || !key) {
-    throw new Error("Supabase Storage is not configured.")
-  }
-
-  return createClient(process.env.SUPABASE_URL, key, {
-    fetch: (url, init) =>
-      fetch(url, { ...init, duplex: "half" } as RequestInit),
-  } as any)
+async function validReferral(payload: Payload, code: string, eventId: number) {
+  if (code === process.env.INTERNAL_EVENT_REFERRAL_CODE || code === "FIRST")
+    return true
+  if (!code || code.length > 64) return false
+  const result = await payload.find({
+    collection: "registrations",
+    where: {
+      and: [
+        { referralCode: { equals: code } },
+        { eventId: { equals: eventId } },
+      ],
+    },
+    depth: 0,
+    limit: 1,
+    select: { referralCode: true },
+  })
+  return result.docs.length > 0
 }
 
 export async function GET(req: Request) {
   if (!EVENT_REGISTRATION_OPEN)
-    return NextResponse.json({ docs: [] }, { status: 403 })
+    return NextResponse.json({ valid: false }, { status: 403 })
   const auth = await createSupabaseServerClient()
   const {
     data: { user },
   } = await auth.auth.getUser()
-  if (!user) return NextResponse.json({ docs: [] }, { status: 401 })
+  if (!user) return NextResponse.json({ valid: false }, { status: 401 })
   if (!(await getEmailVerification(user)))
-    return NextResponse.json({ docs: [] }, { status: 403 })
+    return NextResponse.json({ valid: false }, { status: 403 })
   const { searchParams } = new URL(req.url)
   const referralCode = searchParams.get("referralCode")
   const eventId = searchParams.get("eventId")
 
-  if (!referralCode || !eventId) {
-    return NextResponse.json({ docs: [] }, { status: 200 })
-  }
-
   if (
-    referralCode === process.env.INTERNAL_EVENT_REFERRAL_CODE ||
-    referralCode === "FIRST"
+    !referralCode ||
+    !Number.isSafeInteger(Number(eventId)) ||
+    Number(eventId) < 1
   ) {
-    return NextResponse.json({ docs: ["yay"] }, { status: 200 })
+    return NextResponse.json({ valid: false }, { status: 400 })
   }
-
   try {
     const payload = await getPayload({ config })
-
-    const data = await payload.find({
-      collection: "registrations",
-      where: {
-        referralCode: { equals: referralCode },
-        eventId: { equals: eventId },
-      },
-      depth: 1,
+    return NextResponse.json({
+      valid: await validReferral(payload, referralCode, Number(eventId)),
     })
-
-    return NextResponse.json(data, { status: 200 })
   } catch (error) {
     console.error("GET /apiv2/registrations error:", error)
     return NextResponse.json(
@@ -72,6 +69,9 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  let storageClient: ReturnType<typeof createSupabaseAdminClient> | undefined
+  const uploadedPaths: string[] = []
+  let registrationSaved = false
   if (!EVENT_REGISTRATION_OPEN) {
     return NextResponse.json(
       { error: "Event registration is not open yet." },
@@ -88,14 +88,11 @@ export async function POST(req: Request) {
       )
     }
 
-    const formData = await req.formData()
     const authClient = await createSupabaseServerClient()
     const {
       data: { user },
       error: authError,
     } = await authClient.auth.getUser()
-
-    const eventId = formData.get("eventId")
 
     if (authError || !user) {
       return NextResponse.json(
@@ -110,6 +107,17 @@ export async function POST(req: Request) {
         { status: 403 },
       )
     }
+
+    let formData: FormData
+    try {
+      formData = await readUploadForm(req)
+    } catch {
+      return NextResponse.json(
+        { error: "Invalid upload; maximum request size is 4 MB." },
+        { status: 400 },
+      )
+    }
+    const eventId = formData.get("eventId")
 
     if (!eventId) {
       return NextResponse.json(
@@ -169,7 +177,88 @@ export async function POST(req: Request) {
       )
     }
 
-    const storageClient = createSupabaseStorageClient()
+    // Validate every field before any storage writes.
+    const fields = event.registrationForm || []
+    const images = new Map<string, Buffer>()
+    if ([...formData.values()].filter((v) => v instanceof File).length > 3) {
+      return NextResponse.json(
+        { error: "Upload at most 3 images." },
+        { status: 400 },
+      )
+    }
+    const seen = new Set<string>()
+    for (const [key, value] of formData.entries()) {
+      if (key === "eventId") continue
+      const field = fields.find((f) => f.fieldid === key)
+      if (!field || seen.has(key))
+        return NextResponse.json(
+          { error: "Unknown or duplicate form field." },
+          { status: 400 },
+        )
+      seen.add(key)
+      if (value === "") continue
+      if (
+        field.type === "referral" &&
+        typeof value === "string" &&
+        value &&
+        !(await validReferral(payload, value, eventNumber))
+      ) {
+        return NextResponse.json(
+          { error: "Invalid referral code." },
+          { status: 400 },
+        )
+      }
+      if (value instanceof File) {
+        if (
+          field.type !== "image" ||
+          !value.size ||
+          value.size > 3 * 1024 * 1024 ||
+          !["image/jpeg", "image/png", "image/webp"].includes(value.type)
+        ) {
+          return NextResponse.json(
+            { error: "Images must be JPEG, PNG, or WebP, up to 3 MB." },
+            { status: 400 },
+          )
+        }
+        try {
+          images.set(
+            key,
+            await sharp(Buffer.from(await value.arrayBuffer()), {
+              limitInputPixels: 20_000_000,
+            })
+              .rotate()
+              .webp()
+              .toBuffer(),
+          )
+        } catch {
+          return NextResponse.json({ error: "Invalid image." }, { status: 400 })
+        }
+      } else if (
+        field.type === "image" ||
+        value.length > 10000 ||
+        (field.type === "dropdown" &&
+          !field.dropdownOptions?.some((o) => o.option === value))
+      ) {
+        return NextResponse.json(
+          { error: "Invalid form answer." },
+          { status: 400 },
+        )
+      }
+    }
+    for (const field of fields) {
+      const value = formData.get(field.fieldid)
+      if (
+        field.requiredField &&
+        (!value || (typeof value === "string" && !value.trim()))
+      ) {
+        return NextResponse.json(
+          { error: `Missing required field: ${field.name}` },
+          { status: 400 },
+        )
+      }
+    }
+
+    storageClient = createSupabaseAdminClient()
     const answers: Array<{
       fieldId: string
       fieldType: string
@@ -177,62 +266,33 @@ export async function POST(req: Request) {
     }> = []
 
     for (const [key, value] of formData.entries()) {
-      if (key === "eventId" || key === "userId") continue
+      if (
+        key === "eventId" ||
+        (value === "" &&
+          fields.some((f) => f.fieldid === key && f.type === "image"))
+      )
+        continue
 
       if (value instanceof File) {
-        const fileBuffer = await value.arrayBuffer() // Convert File to Buffer
-        const fileExtension = value.name.split(".").pop()
-        const fileName = `${eventId}_${user.id}_${Date.now()}.${fileExtension}`
-
-        try {
-          const { data, error } = await storageClient.storage
-            .from(process.env.S3_BUCKET!)
-            .upload(fileName, Buffer.from(fileBuffer), {
-              contentType: value.type,
-              cacheControl: "3600",
-              upsert: false,
-            })
-
-          if (error) {
-            console.error(`Failed to upload file for field: ${key}`, error)
-            answers.push({
-              fieldId: key,
-              fieldType: "image",
-              answer: "no-img", // Placeholder for failed upload
-            })
-          } else {
-            // Generate a signed URL for the file
-            const { data: signedUrlData, error: signedUrlError } =
-              await storageClient.storage
-                .from(process.env.S3_BUCKET!)
-                .createSignedUrl(data.path, 60 * 60 * 24) // Signed URL valid for 24 hours
-
-            if (signedUrlError) {
-              console.error(
-                `Failed to generate signed URL for field: ${key}`,
-                signedUrlError,
-              )
-              answers.push({
-                fieldId: key,
-                fieldType: "image",
-                answer: "no-img", // Placeholder for failed upload
-              })
-            } else {
-              answers.push({
-                fieldId: key,
-                fieldType: "image",
-                answer: signedUrlData.signedUrl, // Use the signed URL
-              })
-            }
-          }
-        } catch (uploadError) {
-          console.error(`Failed to upload file for field: ${key}`, uploadError)
-          answers.push({
-            fieldId: key,
-            fieldType: "image",
-            answer: "no-img",
+        const fileName = `${eventNumber}_${user.id}_${randomUUID()}.webp`
+        const { data, error } = await storageClient.storage
+          .from(process.env.S3_BUCKET!)
+          .upload(fileName, images.get(key)!, {
+            contentType: "image/webp",
+            cacheControl: "3600",
+            upsert: false,
           })
-        }
+        if (error) throw error
+        uploadedPaths.push(data.path)
+        const { data: signed, error: signError } = await storageClient.storage
+          .from(process.env.S3_BUCKET!)
+          .createSignedUrl(data.path, 60 * 60 * 24)
+        if (signError) throw signError
+        answers.push({
+          fieldId: key,
+          fieldType: "image",
+          answer: signed.signedUrl,
+        })
       } else {
         answers.push({
           fieldId: key,
@@ -253,6 +313,7 @@ export async function POST(req: Request) {
         submittedAt: new Date().toISOString(),
       },
     })
+    registrationSaved = true
     let notificationsQueued = false
     try {
       const admin = createSupabaseAdminClient()
@@ -295,6 +356,12 @@ export async function POST(req: Request) {
       { status: 201 },
     )
   } catch (error) {
+    if (!registrationSaved && storageClient && uploadedPaths.length) {
+      const { error: cleanupError } = await storageClient.storage
+        .from(process.env.S3_BUCKET!)
+        .remove(uploadedPaths)
+      if (cleanupError) console.error("Upload cleanup failed", cleanupError)
+    }
     console.error("API Route Error:", error)
     return NextResponse.json(
       { error: "Failed to process the registration." },

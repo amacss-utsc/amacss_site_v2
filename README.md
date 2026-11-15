@@ -94,3 +94,23 @@ node --env-file=.env scripts/cleanup-team-history.mjs --resume '/path/to/plan.js
 
 Resume verifies the project, bucket, and current references, and skips completed
 batches. These scripts require Node 20.12+ and installed project dependencies.
+
+### Security maintenance
+
+Use Node 24.x and the pinned pnpm 10.22.0. Before starting this upgrade in production, run `pnpm migrate` to add Payload's session tables, password-reset throttle columns, and internal key-value table. Existing Payload sessions will need a new login. Supabase accounts are unchanged; legacy Payload member records are now admin-only.
+
+The follow-up Payload migration adds the optional `media._objectkey` column required by the upgraded S3 storage plugin. Existing files keep their filenames and need no backfill. CI enables S3 with dummy credentials to check this schema without uploading files. The Supabase SQL migration `20261112000000_restore_profile_reads.sql` restores schema access for the server and signed-in profile reads in environments missing those grants; it requires profile RLS and grants no member updates.
+
+Run `pnpm test:security`, `pnpm lint`, and `pnpm audit --audit-level moderate`. Against a migrated, disposable local Postgres database, also run `pnpm test:security:integration`.
+
+The lockfile upgrades Payload/Next/React together. Targeted pnpm overrides patch sanitizer, headless DOM, math, selector/glob parser, and migration-tool dependencies. The editor patches load Monaco locally (including its worker), and use the patched DOMPurify dependency instead of its bundled older copy or the CDN loader. The deepmerge patch uses own-property definitions to prevent prototype poisoning; its regression test exercises Payload's installed copy. Raw `pnpm audit` still reports that one low advisory because the registry cannot account for local patches. No advisories are globally suppressed; CI rejects moderate or higher findings. Remove these patches/overrides when upstream dependencies include the fixes.
+
+Registration requests are capped at 4 MB, with at most three JPEG/PNG/WebP images up to 3 MB each; images are decoded and re-encoded as WebP before storage. Seminar uploads require an admin account and accept up to ten PDF, Markdown, text, or image files within the same request limit.
+
+For Vercel, select **Project → Settings → Build and Deployment → Node.js Version → 24.x**, save, and redeploy. `engines.node` also pins `24.x`; an open-ended range can select a newer major on Vercel.
+
+Payload and Supabase migrations target different parts of the same database. This upgrade adds session tables for CMS/legacy accounts, password-reset throttle columns, and Payload's internal key-value table. It also enables RLS and removes `anon`/`authenticated` Data API grants on private Payload tables. The server's `DATABASE_URI` must use the database owner or an appropriate privileged server role. It does not change Supabase `auth.users`, member profiles, points, or notification policies. Rollback retains the private-table protections.
+
+Check each environment with `pnpm migrate:status`, then run `NODE_ENV=production pnpm migrate` with that environment's `DATABASE_URI` and `PAYLOAD_SECRET` configured securely. Apply once to production and once to the shared preview database; Vercel builds and Supabase do not automatically execute these TypeScript migrations. Check the dashboard Build Command for any existing override. For migrations, use Supabase's direct connection, or its session pooler if direct IPv6 is unavailable—not the transaction pooler. Do not run integration tests against either deployed database.
+
+If `migrate:status` unexpectedly lists old migrations as pending, reconcile the database history before applying them. Do not assume that a populated database has already recorded every historical migration.

@@ -2,40 +2,54 @@ name: CI Workflow
 
 on:
   pull_request:
-    branches:
-      - main
-      - dev
+    branches: [main, dev]
+
+permissions:
+  contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "18.20.2 || >=20.9.0"
-
-      - name: Start Postgres
-        run: docker compose -f docker-compose.workflows.yml up -d
-
-      - name: Install pnpm
-        run: npm install -g pnpm
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Create .env file
-        run: |
-          echo "${{ secrets.ENV_CONTENT2 }}" > .env
-
-      # Build against the throwaway Postgres started above
-      - name: Run Build
+    env:
+      DATABASE_URI: postgres://amacss:amacss@localhost:5432/amacss
+      PAYLOAD_SECRET: ci-only-test-secret-never-use-in-production
+      S3_BUCKET: ci-only
+      S3_REGION: us-east-1
+      S3_ACCESS_KEY_ID: ci-only
+      S3_SECRET_ACCESS_KEY: ci-only
+      S3_ENDPOINT: http://127.0.0.1:9000
+    services:
+      postgres:
+        image: postgres:18
         env:
-          DATABASE_URI: postgres://amacss:amacss@localhost:5432/amacss
-        run: pnpm prod-build
-
-      - name: Stop and clean up
-        run: docker compose down
+          POSTGRES_USER: amacss
+          POSTGRES_PASSWORD: amacss
+          POSTGRES_DB: amacss
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U amacss"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.22.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm test:security
+      # deepmerge's one low advisory is locally patched and covered above.
+      - run: pnpm audit --audit-level moderate
+      # Reproduce Supabase's initial API grants so migration tests verify revokes.
+      - name: Seed disposable Supabase API roles
+        run: >-
+          docker exec ${{ job.services.postgres.id }} psql -U amacss -d amacss
+          -v ON_ERROR_STOP=1 -c
+          "CREATE ROLE anon NOLOGIN; CREATE ROLE authenticated NOLOGIN;
+          ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO anon, authenticated;"
+      - run: pnpm migrate
+      - run: pnpm test:security:integration
+      - run: pnpm prod-build

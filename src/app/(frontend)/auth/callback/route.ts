@@ -1,6 +1,6 @@
+import { safeLocalPath } from "@/utilities/safeLocalPath"
 import { createSupabaseServerClient } from "@/utilities/supabase/server"
 import { NextResponse } from "next/server"
-import { safeLocalPath } from "@/utilities/safeLocalPath"
 
 export async function GET(request: Request) {
   const url = new URL(request.url)

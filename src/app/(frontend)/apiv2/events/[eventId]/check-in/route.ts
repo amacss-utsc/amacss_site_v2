@@ -109,7 +109,7 @@ export async function POST(
         throw new Error("Invalid attendance point values.")
       }
       try {
-        revalidateTag("leaderboard")
+        revalidateTag("leaderboard", { expire: 0 })
       } catch (cacheError) {
         // The points are committed even if cache invalidation fails.
         console.error("Could not refresh leaderboard cache:", cacheError)
