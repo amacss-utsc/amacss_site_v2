@@ -1,11 +1,11 @@
-import { safeRedirect } from "@/utilities/auth"
+import { safeLocalPath } from "@/utilities/safeLocalPath"
 import { createSupabaseServerClient } from "@/utilities/supabase/server"
 import { NextResponse } from "next/server"
 
 export async function GET(request: Request) {
   const url = new URL(request.url)
   const code = url.searchParams.get("code")
-  const next = safeRedirect(url.searchParams.get("next"))
+  const next = safeLocalPath(url.searchParams.get("next"))
   const supabase = await createSupabaseServerClient()
 
   if (code) {
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
   const formData = await request.formData()
   const tokenHash = String(formData.get("token_hash") || "")
   const type = String(formData.get("type") || "")
-  const next = safeRedirect(String(formData.get("next") || ""))
+  const next = safeLocalPath(String(formData.get("next") || ""))
 
   if (tokenHash && type === "recovery") {
     const supabase = await createSupabaseServerClient()

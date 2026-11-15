@@ -1,11 +1,13 @@
-## Summary
+## Description
 
-<!-- Describe the problem and the resulting behavior. -->
+<!-- Briefly describe what changed and why. -->
 
-## Validation
+## Screenshots (UI changes)
 
-<!-- List checks run and their results, or explain why none were needed. -->
+<!-- Add before/after screenshots for UI changes. Remove this section otherwise. -->
 
-## Setup
+## Checklist
 
-<!-- Note environment variables, migrations, or deployment steps. Write None if not needed. -->
+- [ ] Self-reviewed the changes
+- [ ] Tested the changes, or explained why testing wasn't needed
+- [ ] Added screenshots for UI changes (if applicable)

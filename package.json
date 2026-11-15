@@ -62,6 +62,7 @@
     "octokit": "^5.0.5",
     "payload": "3.93.0",
     "prism-react-renderer": "^2.4.1",
+    "qrcode.react": "4.2.0",
     "react": "19.3.1",
     "react-day-picker": "8.10.2",
     "react-dom": "19.3.1",

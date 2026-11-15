@@ -14,6 +14,7 @@ import {
 } from "@payloadcms/richtext-lexical"
 import { contentInvalidationHooks } from "@/utilities/invalidateContent"
 import { CONTENT_CACHE_TAGS } from "@/utilities/contentCacheTags"
+import { prepareEventCheckInFields } from "@/utilities/eventCheckIn"
 
 export const Events: CollectionConfig = {
   slug: "events",
@@ -38,6 +39,41 @@ export const Events: CollectionConfig = {
         typeof value === "number" && Number.isInteger(value) && value >= 0
           ? true
           : "Points must be a nonnegative whole number.",
+    },
+    {
+      name: "checkInOpensAt",
+      label: "Check-in Opens At",
+      type: "date",
+      admin: {
+        date: { pickerAppearance: "dayAndTime" },
+        description:
+          "Optional. Set both check-in times to enable event check-in.",
+      },
+    },
+    {
+      name: "checkInClosesAt",
+      label: "Check-in Closes At",
+      type: "date",
+      admin: {
+        date: { pickerAppearance: "dayAndTime" },
+        description: "Check-in closes at this time.",
+      },
+    },
+    {
+      name: "attendanceCode",
+      label: "Attendance Code",
+      type: "text",
+      access: {
+        read: ({ req }) => req.user?.collection === "users",
+      },
+      admin: {
+        readOnly: true,
+        description:
+          "Generated after saving both check-in times. Keep this code private.",
+        components: {
+          afterInput: ["@/components/admin/EventCheckInQR"],
+        },
+      },
     },
     {
       name: "title",
@@ -257,8 +293,17 @@ export const Events: CollectionConfig = {
       ],
     },
   ],
-  hooks: contentInvalidationHooks(
-    [CONTENT_CACHE_TAGS.events],
-    ["/", "/events", "/calendar", "/team", "/resources"],
-  ),
+  hooks: {
+    ...contentInvalidationHooks(
+      [CONTENT_CACHE_TAGS.events],
+      ["/", "/events", "/calendar", "/team", "/resources"],
+    ),
+    beforeValidate: [
+      ({ data, originalDoc }) => {
+        if (!data) return data
+        Object.assign(data, prepareEventCheckInFields(data, originalDoc))
+        return data
+      },
+    ],
+  },
 }

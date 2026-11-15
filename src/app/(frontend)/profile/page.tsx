@@ -5,14 +5,27 @@ import { redirect } from "next/navigation"
 import { getPayload } from "payload"
 import { getEmailVerification } from "@/utilities/verification"
 import EmailVerification from "@/components/EmailVerification"
+import { safeLocalPath } from "@/utilities/safeLocalPath"
 
-export default async function ProfilePage() {
+export default async function ProfilePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string | string[] }>
+}) {
+  const requestedNext = (await searchParams).next
+  const next =
+    typeof requestedNext === "string" ? safeLocalPath(requestedNext, "") : ""
   const supabase = await createSupabaseServerClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) redirect("/login?redirect=/profile")
+  if (!user) {
+    const profilePath = next
+      ? `/profile?next=${encodeURIComponent(next)}`
+      : "/profile"
+    redirect(`/login?redirect=${encodeURIComponent(profilePath)}`)
+  }
 
   const emailVerified = await getEmailVerification(user)
 
@@ -36,7 +49,17 @@ export default async function ProfilePage() {
           <p className="mt-3 normal-case text-gray-10">{user.email}</p>
           {phone && <p className="mt-1 normal-case text-gray-10">{phone}</p>}
         </div>
-        <EmailVerification verified={emailVerified} />
+        <div className="flex flex-col items-start gap-3 lg:items-end">
+          <EmailVerification verified={emailVerified} next={next} />
+          {emailVerified && next ? (
+            <Link
+              href={next}
+              className="text-sm font-bold text-blue-10 underline"
+            >
+              Continue
+            </Link>
+          ) : null}
+        </div>
       </div>
 
       <h2 className="mb-6 text-3xl font-bold">Your Registrations</h2>

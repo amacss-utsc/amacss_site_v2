@@ -2,6 +2,7 @@
 
 import { Trophy } from "lucide-react"
 import { useState } from "react"
+import { EventCheckIn } from "../CheckIn"
 
 type LeaderboardEntry = {
   id: string
@@ -16,11 +17,17 @@ type CurrentMember = LeaderboardEntry & {
 type LeaderboardPageProps = {
   attendees: LeaderboardEntry[]
   currentMember: CurrentMember | null
+  checkIn: { eventId: number; code: string } | null
+  invalidCheckInLink: boolean
+  memberId: string | null
 }
 
 export const LeaderboardPage = ({
   attendees,
   currentMember,
+  checkIn,
+  invalidCheckInLink,
+  memberId,
 }: LeaderboardPageProps) => {
   const [isExpanded, setIsExpanded] = useState(false)
   const visibleAttendees = isExpanded ? attendees : attendees.slice(0, 10)
@@ -32,6 +39,17 @@ export const LeaderboardPage = ({
         <h1 className="mb-8 text-3xl font-bold text-white lg:text-4xl">
           Events Leaderboard
         </h1>
+
+        {checkIn ? (
+          <EventCheckIn {...checkIn} memberId={memberId} />
+        ) : invalidCheckInLink ? (
+          <p
+            role="alert"
+            className="mb-8 rounded-2xl border border-red-400/50 bg-gray-80 p-5 text-red-300"
+          >
+            This check-in link is invalid. Ask event staff for a new QR code.
+          </p>
+        ) : null}
 
         {currentMember ? (
           <section className="mb-8" aria-labelledby="your-ranking-heading">
