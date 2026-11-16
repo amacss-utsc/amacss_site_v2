@@ -106,6 +106,21 @@ const members = {
     linkedin: "https://linkedin.com/in/ivan-semenov-860722290",
     webpage: "https://g.dev/IvanSemenov",
   },
+  "ferissa-dinata": {
+    id: "ferissa-dinata",
+    name: "Ferissa Dinata",
+    role: "Vice-President CMS Lounge Operations",
+    photo: {
+      src: "/static/images/team/ferissa-dinata.jpg",
+      alt: "Photo of Ferissa Dinata",
+      width: 422,
+      height: 528,
+    },
+    description:
+      "Hi! I’m Ferissa Dinata, a software engineering student and your VP of CMS Lounge Operations. I joined AMACSS because I love running events, fostering a collaborative tech community, and having fun with fellow CMS students. Outside of my coursework and random jobs, you can usually find me playing the guitar or swimming laps. A fun fact about me is that I’m also a certified swim instructor! Feel free to say hi or connect if you see me around the lounge.",
+    linkedin: "https://www.linkedin.com/in/ferissa-dinata-952663228",
+    github: "https://github.com/ferissadi06",
+  },
   "victoria-djedjeian-159": {
     id: "159",
     name: "Victoria Djedjeian",
@@ -1088,7 +1103,7 @@ export const team: Team = {
     {
       id: "30",
       name: "Campus Life",
-      priorityMembers: [members["raya-pourtehrani-151"]],
+      priorityMembers: [members["raya-pourtehrani-151"], members["ferissa-dinata"]],
       members: [
         members["jeel-patel-154"],
         members["shaghana-thangarajah-152"],
