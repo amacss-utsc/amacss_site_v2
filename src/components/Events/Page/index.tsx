@@ -2,7 +2,7 @@
 import Filter from "@/components/svg/Filter"
 import { Event, Media } from "@/payload-types"
 import { PaginatedDocs } from "payload"
-import { FC, useEffect, useState } from "react"
+import { FC, useEffect, useMemo } from "react"
 import InfoI from "@/components/svg/InfoI"
 import Link from "next/link"
 import { useStateContext } from "@/providers/State"
@@ -16,9 +16,6 @@ type EventsPageProps = {
 }
 
 export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
-  const [e, sE] = useState<Event[]>([])
-  const [filteredEvents, setFilteredEvents] = useState<Event[]>([])
-
   const {
     setFilterOpen,
     tags: cTags,
@@ -29,30 +26,27 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
   } = useStateContext()
 
   useEffect(() => {
-    if (tags !== cTags) setTags(tags)
-  }, [tags])
+    if (tags.length !== cTags.length || tags.some((tag, i) => tag !== cTags[i])) {
+      setTags(tags)
+    }
+  }, [tags, cTags, setTags])
 
-  useEffect(() => {
-    if (events?.docs !== e) sE(events?.docs ?? [])
-  }, [events])
-
-  useEffect(() => {
-    const filtered = e.filter((event) =>
+  const eventDocs = events?.docs
+  const filteredEvents = useMemo(() => {
+    const filtered = (eventDocs ?? []).filter((event) =>
       matchesEventFilters(event, { tags, tagsIndices, startDate, endDate }),
     )
 
-    const sortedEvents = filtered.sort((a, b) => {
-      const aRibbon = typeof a.ribbonTag !== 'number' ? a.ribbonTag?.ribbonTag : ''
-      const bRibbon = typeof b.ribbonTag !== 'number' ? b.ribbonTag?.ribbonTag : ''
+    return filtered.sort((a, b) => {
+      const aRibbon = typeof a.ribbonTag !== "number" ? a.ribbonTag?.ribbonTag : ""
+      const bRibbon = typeof b.ribbonTag !== "number" ? b.ribbonTag?.ribbonTag : ""
 
       // PINNED events come first
-      if (aRibbon?.toLowerCase() === 'pinned' && bRibbon?.toLowerCase() !== 'pinned') return -1
-      if (aRibbon?.toLowerCase() !== 'pinned' && bRibbon?.toLowerCase() === 'pinned') return 1
+      if (aRibbon?.toLowerCase() === "pinned" && bRibbon?.toLowerCase() !== "pinned") return -1
+      if (aRibbon?.toLowerCase() !== "pinned" && bRibbon?.toLowerCase() === "pinned") return 1
       return 0
     })
-
-    setFilteredEvents(sortedEvents)
-  }, [e, tagsIndices, startDate, endDate, tags])
+  }, [eventDocs, tags, tagsIndices, startDate, endDate])
 
   return (
     <main className="pt-16 px-8 lg:p-11 bg-gray-90 h-full lg:rounded-tl-[32px] overflow-x-hidden">

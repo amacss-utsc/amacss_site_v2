@@ -30,7 +30,7 @@ type Props = {
 }
 
 export const DesktopSidebar: FC<Props> = ({ events, tags }) => {
-  const [e, sE] = useState<Event[]>([])
+  const e = events?.docs ?? []
   const pathname = usePathname()
 
   const {
@@ -45,12 +45,10 @@ export const DesktopSidebar: FC<Props> = ({ events, tags }) => {
   } = useStateContext()
 
   useEffect(() => {
-    if (tags !== cTags) setTags(tags)
-  }, [tags])
-
-  useEffect(() => {
-    if (events?.docs !== e) sE(events?.docs ?? [])
-  }, [events])
+    if (tags.length !== cTags.length || tags.some((tag, i) => tag !== cTags[i])) {
+      setTags(tags)
+    }
+  }, [tags, cTags, setTags])
 
   if (
     pathname === "/login" ||

@@ -25,7 +25,7 @@ export function DatePicker({ fDate, fsetDateAction, className }: Props) {
   React.useEffect(() => {
     if (date)
       fsetDateAction(date)
-  }, [date])
+  }, [date, fsetDateAction])
 
   return (
     <Popover>
