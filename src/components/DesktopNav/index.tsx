@@ -11,7 +11,7 @@ import { PaginatedDocs } from "payload"
 import { useStateContext } from "@/providers/State"
 import { Event, Media } from "@/payload-types"
 import { cn } from "@/utilities/cn"
-import { NavLink, RibbonStyle } from "@/utilities/tailwindShared"
+import { NavLink } from "@/utilities/tailwindShared"
 import Linkificator from "../svg/Linkificator"
 import { Splide, SplideSlide } from "@splidejs/react-splide"
 import "@splidejs/splide/dist/css/splide.min.css"
@@ -22,7 +22,7 @@ import Login from "../svg/Login"
 import { useAuth } from "@/providers/Auth"
 import User from "../svg/User"
 import { CompactEventImageWithLoader } from "../Events/ImageLoader"
-import { PastEventBadge } from "../Events/PastBadge"
+import { EventRibbon } from "../Events/EventRibbon"
 
 type Props = {
   events: PaginatedDocs<Event>
@@ -113,25 +113,10 @@ export const DesktopSidebar: FC<Props> = ({ events, tags }) => {
 
                 if (!url || width == null || height == null) return null
 
-                const rT =
-                  typeof ev.ribbonTag !== "number" && ev.ribbonTag?.ribbonTag
-                    ? ev.ribbonTag?.ribbonTag
-                    : ""
-
                 return (
                   <SplideSlide key={j}>
                     <article className="w-full max-w-[218px] max-h-[264px] min-h-[264px] bg-white rounded-b-[12px] flex flex-col relative overflow-hidden mb-11 ticker-tile">
-                      <PastEventBadge event={ev} compact />
-                      {rT && (
-                        <div
-                          className={cn(
-                            RibbonStyle,
-                            "bg-blue-20 top-[18px] h-[33px] left-[36px]",
-                          )}
-                        >
-                          {rT}
-                        </div>
-                      )}
+                      <EventRibbon event={ev} compact />
                       <CompactEventImageWithLoader
                         src={url}
                         alt={alt ?? ""}
