@@ -36,7 +36,12 @@ export const EventRibbon = ({
   }, [title, date, endDate])
 
   const savedLabel = typeof ribbonTag === "object" ? ribbonTag?.ribbonTag : null
-  const label = isPast ? "PAST" : savedLabel
+  // A rescheduled event must not show a stale PAST tag from cached data.
+  const label = isPast
+    ? "PAST"
+    : savedLabel?.toUpperCase() === "PAST"
+      ? null
+      : savedLabel
   if (!label) return null
 
   return (

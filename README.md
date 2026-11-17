@@ -36,7 +36,9 @@ For a production build locally, run `pnpm local-build` followed by `pnpm start`.
   Supabase SQL migrations in `supabase/migrations/` are applied separately.
 - Set `CRON_SECRET` before deployment. `vercel.json` schedules authenticated
   requests to `/apiv2/events/unpin-past` daily at 10:00 UTC. Vercel cron runs on
-  production deployments.
+  production deployments. Despite the legacy path name, this job assigns the
+  `PAST` ribbon tag to events after their last Toronto calendar day; the page
+  calculates the ribbon immediately while waiting for the job.
 - Verify team photos, member login/logout, protected pages, and admin content edits
   after deploying to the configured production branch.
 
