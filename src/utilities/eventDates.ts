@@ -39,11 +39,20 @@ export function startOfTorontoDay(now = new Date()): Date {
   return new Date(midnight)
 }
 
-export function pastPinnedEventsWhere(now = new Date()): Where {
+export function pastEventsWithoutPastRibbonWhere(
+  pastRibbonId: number,
+  now = new Date(),
+): Where {
   const cutoff = startOfTorontoDay(now).toISOString()
   return {
     and: [
-      { "ribbonTag.ribbonTag": { equals: "PINNED" } },
+      {
+        or: [
+          { ribbonTag: { not_equals: pastRibbonId } },
+          { ribbonTag: { exists: false } },
+        ],
+      },
+      { title: { not_equals: "FY Orientation" } },
       { date: { less_than: cutoff } },
       {
         or: [

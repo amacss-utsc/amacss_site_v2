@@ -15,6 +15,7 @@ import {
 import { contentInvalidationHooks } from "@/utilities/invalidateContent"
 import { CONTENT_CACHE_TAGS } from "@/utilities/contentCacheTags"
 import { prepareEventCheckInFields } from "@/utilities/eventCheckIn"
+import { shouldShowPastBadge } from "@/utilities/pastEvent"
 
 export const Events: CollectionConfig = {
   slug: "events",
@@ -298,6 +299,43 @@ export const Events: CollectionConfig = {
       [CONTENT_CACHE_TAGS.events],
       ["/", "/events", "/calendar", "/team", "/resources"],
     ),
+    beforeChange: [
+      async ({ data, originalDoc, req }) => {
+        const changed =
+          !originalDoc ||
+          ("date" in data && data.date !== originalDoc.date) ||
+          ("endDate" in data && data.endDate !== originalDoc.endDate) ||
+          ("title" in data && data.title !== originalDoc.title) ||
+          ("ribbonTag" in data && data.ribbonTag !== originalDoc.ribbonTag)
+        if (!changed) return data
+
+        const date = data.date ?? originalDoc?.date
+        const title = data.title ?? originalDoc?.title
+        if (!date || !title) return data
+        const endDate = "endDate" in data ? data.endDate : originalDoc?.endDate
+        const isPast = shouldShowPastBadge({ title, date, endDate })
+
+        const pastTag = await req.payload.find({
+          collection: "ribbon-tag",
+          where: { ribbonTag: { equals: "PAST" } },
+          limit: 1,
+          depth: 0,
+          overrideAccess: true,
+        })
+        const pastTagId = pastTag.docs[0]?.id
+        if (!pastTagId) return data
+
+        if (isPast) {
+          data.ribbonTag = pastTagId
+        } else {
+          const currentTag = data.ribbonTag ?? originalDoc?.ribbonTag
+          const currentTagId =
+            typeof currentTag === "number" ? currentTag : currentTag?.id
+          if (currentTagId === pastTagId) data.ribbonTag = null
+        }
+        return data
+      },
+    ],
     beforeValidate: [
       ({ data, originalDoc }) => {
         if (!data) return data

@@ -1,21 +1,21 @@
 "use client"
 
 import type { Event } from "@/payload-types"
-import { cn } from "@/utilities/cn"
 import { shouldShowPastBadge } from "@/utilities/pastEvent"
 import { RibbonStyle } from "@/utilities/tailwindShared"
+import { cn } from "@/utilities/cn"
 import { useEffect, useState } from "react"
 
-export const PastEventBadge = ({
+export const EventRibbon = ({
   event,
   compact = false,
 }: {
-  event: Pick<Event, "title" | "date" | "endDate">
+  event: Pick<Event, "title" | "date" | "endDate" | "ribbonTag">
   compact?: boolean
 }) => {
-  // Start without a badge so server and client render the same initial markup.
+  // Match the server render, then evaluate the date in the browser.
   const [isPast, setIsPast] = useState(false)
-  const { title, date, endDate } = event
+  const { title, date, endDate, ribbonTag } = event
 
   useEffect(() => {
     const update = () => setIsPast(shouldShowPastBadge({ title, date, endDate }))
@@ -35,19 +35,24 @@ export const PastEventBadge = ({
     }
   }, [title, date, endDate])
 
-  if (!isPast) return null
+  const savedLabel = typeof ribbonTag === "object" ? ribbonTag?.ribbonTag : null
+  // A rescheduled event must not show a stale PAST tag from cached data.
+  const label = isPast
+    ? "PAST"
+    : savedLabel?.toUpperCase() === "PAST"
+      ? null
+      : savedLabel
+  if (!label) return null
 
   return (
-    <span
+    <div
       className={cn(
         RibbonStyle,
-        "pointer-events-none rotate-45 translate-x-1/2 bg-gray-30",
-        compact
-          ? "right-[36px] top-[18px] h-[33px]"
-          : "right-[38px] top-[19px] h-[35px]",
+        isPast ? "bg-gray-30" : "bg-blue-20",
+        compact ? "top-[18px] h-[33px] left-[36px]" : "top-[19px] h-[35px] left-[38px]",
       )}
     >
-      Past
-    </span>
+      {label}
+    </div>
   )
 }

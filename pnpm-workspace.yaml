@@ -6,3 +6,8 @@ onlyBuiltDependencies:
   - esbuild
   - sharp
   - unrs-resolver
+
+auditConfig:
+  ignoreGhsas:
+    # Recheck when picomatch publishes a fix. No patched version exists yet.
+    - GHSA-fc5q-39xc-vjpf

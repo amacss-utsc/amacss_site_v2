@@ -2,14 +2,12 @@
 import Filter from "@/components/svg/Filter"
 import { Event, Media } from "@/payload-types"
 import { PaginatedDocs } from "payload"
-import { FC, useEffect, useState } from "react"
+import { FC, useEffect, useMemo } from "react"
 import InfoI from "@/components/svg/InfoI"
 import Link from "next/link"
-import { cn } from "@/utilities/cn"
-import { RibbonStyle } from "@/utilities/tailwindShared"
 import { useStateContext } from "@/providers/State"
 import { EventImageWithLoader } from "../ImageLoader"
-import { PastEventBadge } from "../PastBadge"
+import { EventRibbon } from "../EventRibbon"
 import { matchesEventFilters } from "../matchesEventFilters"
 
 type EventsPageProps = {
@@ -18,9 +16,6 @@ type EventsPageProps = {
 }
 
 export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
-  const [e, sE] = useState<Event[]>([])
-  const [filteredEvents, setFilteredEvents] = useState<Event[]>([])
-
   const {
     setFilterOpen,
     tags: cTags,
@@ -31,30 +26,27 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
   } = useStateContext()
 
   useEffect(() => {
-    if (tags !== cTags) setTags(tags)
-  }, [tags])
+    if (tags.length !== cTags.length || tags.some((tag, i) => tag !== cTags[i])) {
+      setTags(tags)
+    }
+  }, [tags, cTags, setTags])
 
-  useEffect(() => {
-    if (events?.docs !== e) sE(events?.docs ?? [])
-  }, [events])
-
-  useEffect(() => {
-    const filtered = e.filter((event) =>
+  const eventDocs = events?.docs
+  const filteredEvents = useMemo(() => {
+    const filtered = (eventDocs ?? []).filter((event) =>
       matchesEventFilters(event, { tags, tagsIndices, startDate, endDate }),
     )
 
-    const sortedEvents = filtered.sort((a, b) => {
-      const aRibbon = typeof a.ribbonTag !== 'number' ? a.ribbonTag?.ribbonTag : ''
-      const bRibbon = typeof b.ribbonTag !== 'number' ? b.ribbonTag?.ribbonTag : ''
+    return filtered.sort((a, b) => {
+      const aRibbon = typeof a.ribbonTag !== "number" ? a.ribbonTag?.ribbonTag : ""
+      const bRibbon = typeof b.ribbonTag !== "number" ? b.ribbonTag?.ribbonTag : ""
 
       // PINNED events come first
-      if (aRibbon?.toLowerCase() === 'pinned' && bRibbon?.toLowerCase() !== 'pinned') return -1
-      if (aRibbon?.toLowerCase() !== 'pinned' && bRibbon?.toLowerCase() === 'pinned') return 1
+      if (aRibbon?.toLowerCase() === "pinned" && bRibbon?.toLowerCase() !== "pinned") return -1
+      if (aRibbon?.toLowerCase() !== "pinned" && bRibbon?.toLowerCase() === "pinned") return 1
       return 0
     })
-
-    setFilteredEvents(sortedEvents)
-  }, [e, tagsIndices, startDate, endDate, tags])
+  }, [eventDocs, tags, tagsIndices, startDate, endDate])
 
   return (
     <main className="pt-16 px-8 lg:p-11 bg-gray-90 h-full lg:rounded-tl-[32px] overflow-x-hidden">
@@ -87,10 +79,6 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
 
             if (!url || width == null || height == null) return null
 
-            const rT =
-              typeof ev.ribbonTag !== "number" && ev.ribbonTag?.ribbonTag
-                ? ev.ribbonTag?.ribbonTag
-                : ""
             return (
               <Link
                 key={ev.id}
@@ -99,17 +87,7 @@ export const EventsPage: FC<EventsPageProps> = ({ events, tags }) => {
                 aria-label={`View details for ${ev.title}`}
                 className="w-full h-[412px] bg-white rounded-b-[12px] flex flex-col relative overflow-hidden mb-11 max-w-[400px] lg:mb-6 lg:hover:-translate-y-1.5 transition-all duration-300 lg:hover:shadow-[0_8px_30px_rgba(255,255,255,0.2)] group"
               >
-                <PastEventBadge event={ev} />
-                {rT && (
-                  <div
-                    className={cn(
-                      RibbonStyle,
-                      "bg-blue-20 top-[19px] h-[35px] left-[38px]"
-                    )}
-                  >
-                    {rT}
-                  </div>
-                )}
+                <EventRibbon event={ev} />
                 <div>
 
                 <EventImageWithLoader
