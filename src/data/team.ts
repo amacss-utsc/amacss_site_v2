@@ -989,21 +989,6 @@ const members = {
       height: 368,
     },
   },
-  "muntaha-chowdhury": {
-    id: "muntaha-chowdhury",
-    name: "Muntaha Chowdhury",
-    role: "Course Representative",
-    description:
-      'Hello, I am Muntaha! I am a 2nd year student in Computer Science, and this is my first time in AMACSS. I joined AMACSS because I wanted to flip the roles this time and be the one giving to the community. I like figuring out "how things work", so you might find me designing solutions to the most random pet peeves. Do I ever end up building them fully is a question we can get back to later. Excited to see how this term goes!',
-    linkedin: "https://www.linkedin.com/in/muntaha-chowdhury/",
-    github: "https://github.com/MuntahaChowdhury",
-    photo: {
-      src: "/static/images/team/muntaha-chowdhury.jpg",
-      alt: "Photo of Muntaha Chowdhury",
-      width: 200,
-      height: 200,
-    },
-  },
   "faiza-ushna": {
     id: "faiza-ushna",
     name: "Faiza Ushna",
@@ -1103,7 +1088,10 @@ export const team: Team = {
     {
       id: "30",
       name: "Campus Life",
-      priorityMembers: [members["raya-pourtehrani-151"], members["ferissa-dinata"]],
+      priorityMembers: [
+        members["raya-pourtehrani-151"],
+        members["ferissa-dinata"],
+      ],
       members: [
         members["jeel-patel-154"],
         members["shaghana-thangarajah-152"],
@@ -1181,7 +1169,6 @@ export const team: Team = {
         members["omar-ayyad"],
         members["taehyun-im"],
         members["mary-zhang"],
-        members["muntaha-chowdhury"],
         members["kian"],
       ],
     },
