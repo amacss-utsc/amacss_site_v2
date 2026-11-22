@@ -50,7 +50,7 @@ export const ReviewSeminars: React.FC = () => {
           <div className="flex-1 lg:max-w-md">
             <div className="w-full h-96 lg:h-full bg-gray-70 rounded-[32px] overflow-hidden relative">
               <Image
-                src="/api/media/file/review_sem.jpeg"
+                src="/static/images/homepage/review_sem.jpeg"
                 alt="Review Seminars"
                 fill
                 className="object-cover rounded-[32px]"

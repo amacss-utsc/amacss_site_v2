@@ -4,11 +4,11 @@ import Image from "next/image"
 
 export const Gala: React.FC = () => {
   const images = [
-    "/api/media/file/gala1.JPG",
-    "/api/media/file/gala2.jpeg",
-    "/api/media/file/gala3.jpg",
-    "/api/media/file/gala4.JPG",
-    "/api/media/file/gala5.jpg",
+    "/static/images/homepage/gala1.JPG",
+    "/static/images/homepage/gala2.jpeg",
+    "/static/images/homepage/gala3.jpg",
+    "/static/images/homepage/gala4.JPG",
+    "/static/images/homepage/gala5.jpg",
   ]
   const [currentImage, setCurrentImage] = useState(0)
 
