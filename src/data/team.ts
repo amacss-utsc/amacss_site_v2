@@ -343,20 +343,6 @@ const members = {
       "Hello, my name is Shaghana! I am a second-year Computer Science Specialist in software engineering. I joined AMACSS to be involved in the campus life, connect with a diverse group of people, and create a lasting impact on future CMS students. This will be my first time in AMACSS so it's a completely new chapter in my life to explore. Some of my hobbies include baking, and watching anime in my free time, my favourite being The Apothecary Diaries! A fun fact about myself is that both my hands are double jointed. I'm excited to apart of AMACSS this year!",
     linkedin: "https://www.linkedin.com/in/shaghana-thangarajah-3ab627376",
   },
-  "tonirika-das-150": {
-    id: "150",
-    name: "Tonirika Das",
-    role: "CMS Lounge Director",
-    photo: {
-      src: "/static/images/team/tonirika-das-150.jpg",
-      alt: "Photo of Tonirika Das",
-      width: 1619,
-      height: 2000,
-    },
-    description:
-      "Hi! My name is Tonirika Das, and I’m a second-year Computer Science student at U of T Scarborough. I joined AMACSS because I wanted to get more involved in the CMS community, meet new people, and help create a welcoming environment for students. I’ve attended AMACSS events before, including Game Night and the Gala, and really enjoyed the supportive atmosphere.\n\nOutside of school, I enjoy binging shows, reading books, and hanging out with my friends. A fun fact about me is that I can't walk in a straight line! My favourite food is probably biryani, and my favourite drinks are coffee and Coke.\n\nI’m excited to be part of AMACSS and help make campus life more fun, welcoming, and connected for everyone!",
-    linkedin: "https://www.linkedin.com/in/tonirika-das-13449642b",
-  },
   "kavya-patel-165": {
     id: "165",
     name: "Kavya Patel",
@@ -590,6 +576,19 @@ const members = {
       width: 1500,
       height: 2000,
     },
+  },
+  "dylan-ling": {
+    id: "dylan-ling",
+    name: "Dylan Ling",
+    role: "Associate of Engagement",
+    photo: {
+      src: "/static/images/team/dylan-ling.jpg",
+      alt: "Photo of Dylan Ling",
+      width: 1511,
+      height: 1600,
+    },
+    description:
+      "Hey, I'm Dylan Ling, third year stats specialist at UTSC! I usually chat about video games (roguelikes, gachas, MMORPG) and music (dance/synth-pop) as my interests, but I'm also really into board/card games and racket sports when I have the chance to play. In terms of food, my favourite is Red Lobster Cheddar Bay Biscuits (the free bread they sit you at your table with). I can have pretty bad RBF at times but I'm always happy to talk if you see me around!",
   },
   akash: {
     id: "akash",
@@ -1018,6 +1017,20 @@ const members = {
       height: 2000,
     },
   },
+  "yueer-shen": {
+    id: "yueer-shen",
+    name: "Yueer Shen",
+    role: "Course Representative",
+    photo: {
+      src: "/static/images/team/yueer-shen.jpg",
+      alt: "Photo of Yueer Shen",
+      width: 1200,
+      height: 1600,
+    },
+    description:
+      "Hello everyone, I’m Yueer, a second year student double majoring in Computer Science and Statistics. I got a lot of help from review seminars during my first year at university, so I wish to join AMACSS review seminar team to give back to my community. I like to go swimming and reading detective novels when I’m free. My favourite drink is iced capp :)",
+    linkedin: "https://www.linkedin.com/in/yueer-shen-588865374",
+  },
   "shivani-viswanathan": {
     id: "shivani-viswanathan",
     name: "Shivani Viswanathan",
@@ -1059,7 +1072,11 @@ export const team: Team = {
       id: "25",
       name: "Engagement",
       priorityMembers: [members["daniel-joseph-161"]],
-      members: [members["aisha-shaikh-162"], members["chris-huang"]],
+      members: [
+        members["aisha-shaikh-162"],
+        members["chris-huang"],
+        members["dylan-ling"],
+      ],
     },
 
     {
@@ -1095,7 +1112,6 @@ export const team: Team = {
       members: [
         members["jeel-patel-154"],
         members["shaghana-thangarajah-152"],
-        members["tonirika-das-150"],
         members["kavya-patel-165"],
         members["muslima-ganieva"],
       ],
@@ -1170,6 +1186,7 @@ export const team: Team = {
         members["taehyun-im"],
         members["mary-zhang"],
         members["kian"],
+        members["yueer-shen"],
       ],
     },
     {
